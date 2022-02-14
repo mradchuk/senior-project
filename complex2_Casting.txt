@@ -1,0 +1,25 @@
+public void castSection() {
+
+        short testShort = 2045;
+        int testInt = 40341;
+        float testFloat = 45.87f;
+        double testDouble = 458.2247852682;
+       
+        int castInt = (int)testFloat; 
+        float castFloat = (float)testDouble; 
+
+        String castString1 = Integer.toString(testInt);
+        String castString2 = String.valueOf(testShort);
+       
+        String castString3 = String.format("%f", testDouble);
+
+        System.out.println(castInt);
+        System.out.println(castFloat);
+        System.out.println(castString1);
+        System.out.println(castString2);
+        System.out.println(castString3);
+
+        System.out.println("Reached the end of Casting Section");
+
+
+}
