@@ -50,6 +50,26 @@ public class Controllers implements Initializable {
 		}
 	}
 
+	
+	 public void clearButton (ActionEvent event) {
+		 
+		 if (javaCode.getText().isEmpty() && pythonCode.getText().isEmpty()) {
+			 Alert alertEmpty = new Alert(AlertType.CONFIRMATION);
+			 alertEmpty.setTitle("NULL");
+			 alertEmpty.setHeaderText("Text Area is already empty.");   
+			 alertEmpty.show();
+			 return;
+			 
+		 }
+		 
+		 fileContent = "";
+		 realContent = "";
+		 
+		 javaCode.setText("");
+		 pythonCode.setText("");
+		 
+		 
+	 }
 
 	public void fileOpen (ActionEvent event) throws FileNotFoundException {
 
