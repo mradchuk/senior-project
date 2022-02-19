@@ -135,8 +135,8 @@ public class LexicalAnalyzer {
         opRelational.put("<=", "relational operator");
         opRelational.put(">=", "relational operator");
 
-        opLogical.put("&&", "logical operator");
-        opLogical.put("||", "logical operator");
+        opLogical.put("&", "logical operator");
+        opLogical.put("|", "logical operator");
 
         stringLiteral.put('"', "string literal");
 
@@ -199,6 +199,10 @@ public class LexicalAnalyzer {
 
     static void printTranslator() {
         PythonConverter.translateDriver(arrayOfTokens);
+    }
+
+    static void getDeletedPyStr() {
+        PythonConverter.deletePyStr(arrayOfTokens);
     }
 
     static String getPythonStr() { return PythonConverter.resultPythonStr; }
@@ -304,6 +308,21 @@ public class LexicalAnalyzer {
 
             arrayOfTokens.add(new TokenData(argsIdent.get(strObject.toUpperCase()), strObject));
             System.out.println(argsIdent.get(strObject.toUpperCase()) + " - " + strObject);
+
+        } else if(opLogical.containsKey(strObject.toUpperCase())) {
+
+            arrayOfTokens.add(new TokenData(opLogical.get(strObject.toUpperCase()), strObject));
+            System.out.println(opLogical.get(strObject.toUpperCase()) + " - " + strObject);
+
+        } else if(opUnary.containsKey(strObject.toUpperCase())) {
+
+            arrayOfTokens.add(new TokenData(opUnary.get(strObject.toUpperCase()), strObject));
+            System.out.println(opUnary.get(strObject.toUpperCase()) + " - " + strObject);
+
+        } else if(opRelational.containsKey(strObject.toUpperCase())) {
+
+            arrayOfTokens.add(new TokenData(opRelational.get(strObject.toUpperCase()), strObject));
+            System.out.println(opRelational.get(strObject.toUpperCase()) + " - " + strObject);
 
         } else if(!strObject.contains(".")) {
             /*

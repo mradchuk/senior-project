@@ -6,6 +6,7 @@ public class PythonConverter {
     public static String resultPythonStr = "";
 
     static String statementArr[] = new String[3];
+    static String equalOpStatement[] = new String[2];
 
     static String methodToCall = "";
     static String getClassName = "";
@@ -16,6 +17,15 @@ public class PythonConverter {
     static String strCastStr = "";
     static String strCastFormat = "";
 
+    static boolean checkEqualOperator = false;
+    static boolean checkNotEqual = false;
+
+    public static void deletePyStr(ArrayList<TokenData> list) {
+        list.clear();
+        outputPyStr = "";
+        resultPythonStr = "";
+
+    }
 
     /* Complex1 should use complex1 = Complex1() then complex1.main() to output python.
         Complex2 - Casting should use castSection() to output python.
@@ -329,6 +339,7 @@ public class PythonConverter {
                         break;
                     } else {
                         statementArr[1] = "VAR_IDENTIFIER";
+                        equalOpStatement[0] = "VAR_IDENTIFIER";
                         pythonStr += list.get(i).lexeme;
                         break;
                     }
@@ -342,9 +353,25 @@ public class PythonConverter {
 
                 case "T_ASSIGN":
 
-                    statementArr[2] = "T_ASSIGN";
-                    pythonStr += " " + list.get(i).lexeme + " ";
-                    break;
+                    /* Check for the equal operator */
+                    if(list.get(i+1).lexeme.equals("=")) {
+                        checkEqualOperator = true;
+                        break;
+                    } else if(checkEqualOperator) {
+                        pythonStr += " == ";
+                        equalOpStatement[1] = "Equal Operator";
+                        checkEqualOperator = false;
+                        break;
+                    } else if(checkNotEqual) {
+                        pythonStr += " != ";
+                        checkNotEqual = false;
+                        break;
+                    } else {
+                        statementArr[2] = "T_ASSIGN";
+                        pythonStr += " " + list.get(i).lexeme + " ";
+                        break;
+                    }
+
 
                 case "NUMBER":
 
@@ -367,6 +394,11 @@ public class PythonConverter {
                            num = num.substring(0, num.length() -1);
 
                            pythonStr += num + " ";
+
+                           for(int z = 0; z < statementArr.length; z++) {
+                               statementArr[z] = "";
+                           }
+
                            break;
 
                        } else {
@@ -377,11 +409,57 @@ public class PythonConverter {
                        }
 
 
+                    } else if(equalOpStatement[0] == "VAR_IDENTIFIER" && equalOpStatement[1] == "Equal Operator") {
+
+                        String num = list.get(i).lexeme;
+
+                        // Remove the last two characters in the number if its assigned variable is type short or int
+                        if(num.charAt(num.length()-2) == '.' && num.charAt(num.length()-1) == '0') {
+
+                            num = num.substring(0, num.length() -1);
+                            num = num.substring(0, num.length() -1);
+
+                            pythonStr += num;
+
+                            for(int a = 0; a < equalOpStatement.length; a++) {
+                                equalOpStatement[a] = "";
+                            }
+
+                            break;
+
+                        }
+
                     } else {
 
                         pythonStr += list.get(i).lexeme + " ";
                         break;
 
+                    }
+
+                case "logical operator":
+
+                    if(list.get(i).lexeme.equals("&") && list.get(i+1).lexeme.equals("&")) {
+                        pythonStr += " and ";
+                        break;
+                    }
+
+                    if(list.get(i).lexeme.equals("|") && list.get(i+1).lexeme.equals("|")) {
+                        pythonStr += " or ";
+                        break;
+                    }
+
+                case "unary operator":
+
+                    if(list.get(i).lexeme.equals("!") && list.get(i+1).lexeme.equals("=")) {
+                        checkNotEqual = true;
+                        break;
+                    }
+
+                case "relational operator":
+
+                    if(list.get(i).lexeme.equals("<") || list.get(i).lexeme.equals(">")) {
+                        pythonStr += " " + list.get(i).lexeme + " ";
+                        break;
                     }
 
             }
