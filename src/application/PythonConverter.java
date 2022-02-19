@@ -20,6 +20,14 @@ public class PythonConverter {
     static boolean checkEqualOperator = false;
     static boolean checkNotEqual = false;
 
+    // ------------------------------------------------------
+    //                    VARIABLES
+    // ------------------------------------------------------
+
+    private static ArrayList<String> tokenList = new ArrayList<String>();
+    private static ArrayList<String> lexemeList = new ArrayList<String>();
+    private static ArrayList<Integer> indices = new ArrayList<Integer>();
+
     public static void deletePyStr(ArrayList<TokenData> list) {
         list.clear();
         outputPyStr = "";
@@ -61,6 +69,8 @@ public class PythonConverter {
         boolean casting = false;
 
         System.out.println();
+
+        ArrayList<TokenData> tempData = new ArrayList<TokenData>();
 
         for(int i = 0; i < list.size(); i++) {
 
@@ -355,21 +365,37 @@ public class PythonConverter {
 
                     /* Check for the equal operator */
                     if(list.get(i+1).lexeme.equals("=")) {
+
                         checkEqualOperator = true;
                         break;
+
                     } else if(checkEqualOperator) {
+
                         pythonStr += " == ";
                         equalOpStatement[1] = "Equal Operator";
                         checkEqualOperator = false;
+
+                        /* James B's logical operators code */
+                        tempData.add(new TokenData("comparison operator", "=="));
+
                         break;
+
                     } else if(checkNotEqual) {
+
                         pythonStr += " != ";
                         checkNotEqual = false;
                         break;
+
                     } else {
+
                         statementArr[2] = "T_ASSIGN";
                         pythonStr += " " + list.get(i).lexeme + " ";
+
+                        /* James B's logical operators code */
+                        tempData.add(new TokenData("assignment operator", "="));
+
                         break;
+
                     }
 
 
@@ -439,14 +465,28 @@ public class PythonConverter {
                 case "logical operator":
 
                     if(list.get(i).lexeme.equals("&") && list.get(i+1).lexeme.equals("&")) {
+
                         pythonStr += " and ";
+
+                        /* James B's logic operators code */
+                        tempData.add(new TokenData("logical operator", "&"));
+                        tempData.add(new TokenData("logical operator", "&"));
+
                         break;
                     }
 
                     if(list.get(i).lexeme.equals("|") && list.get(i+1).lexeme.equals("|")) {
+
                         pythonStr += " or ";
+
+                        /* James B's logical operators code */
+                        tempData.add(new TokenData("logical operator", "|"));
+                        tempData.add(new TokenData("logical operator", "|"));
+
                         break;
                     }
+
+
 
                 case "unary operator":
 
@@ -473,6 +513,117 @@ public class PythonConverter {
         resultPythonStr = pythonStr + callClassMethod(getClassName);
         System.out.println(pythonStr + outputPyStr);
 
+        System.out.println();
+
+        /* James B's logical operators code */
+        splitTokenList(tempData);
+        handleLogicalOperators();
+
+    }
+
+
+    // ------------------------------------------------------
+    //               PRIMARY HANDLER FUNCTION
+    // ------------------------------------------------------
+
+    // Beginning of logical operator logic
+    private static void handleLogicalOperators() {
+        String logicalOperatorString = "logical operator";
+        String tempLexeme;
+        int tempLexemeInt, tempTokenInt;
+
+        // Where are their specific locations
+        listLogicalOperators(logicalOperatorString);
+        System.out.println("Indices List: " + indices);
+
+        // Loop until all logical operators are handled
+        while (indices.size() > 0) {
+            System.out.println("Logical operator detected");
+
+            tempLexemeInt = tempTokenInt = indices.get(0);
+            tempLexeme = lexemeList.get(tempTokenInt);
+
+            // Case: &
+            if (tempLexeme == "&") {
+                tempLexeme = handleAmpersand(tempLexemeInt);
+            }
+            // Case: |
+            else {
+                tempLexeme = handleVertBar(tempLexemeInt);
+            }
+
+            System.out.println("Temp lexeme set to " + tempLexeme);
+            indices.remove(indices.get(0));
+
+            // Replace symbol with word
+            lexemeList.set(tempLexemeInt, tempLexeme);
+            System.out.println("Final List: " + lexemeList);
+        }
+    }
+
+    // ------------------------------------------------------
+    //              SECONDARY HANDLER FUNCTIONS
+    // ------------------------------------------------------
+
+    // Makes the TokenData a little more managable by splitting into two
+    private static void splitTokenList(List<TokenData> allTokenData) {
+        for (TokenData tokenData : allTokenData) {
+            tokenList.add(tokenData.token);
+            lexemeList.add(tokenData.lexeme);
+        }
+        System.out.println("Token List at start: " + tokenList);
+        System.out.println("Lexeme List at start: " + lexemeList);
+    }
+
+    // Using the list of tokens to find where all logical operators are located in
+    // lexeme list
+    private static void listLogicalOperators(String logiOperatorString) {
+        for (int index = 0; index < tokenList.size(); index++) {
+            if (tokenList.get(index).equals(logiOperatorString)) {
+                indices.add(index);
+            }
+        }
+    }
+
+    // Ampersand logic
+    private static String handleAmpersand(int tempLexemeInt) {
+        System.out.println("Single & located");
+        String ampersandSymbol = "&";
+
+        // Check for double &&
+        handleDoubles(tempLexemeInt, lexemeList.size(), ampersandSymbol);
+
+        // If Single & in java, needs to be replaced with "and"
+        // Single & in Python is a bitwise AND function, which is very different
+        return "and";
+    }
+
+    // Vertical Bar logic
+    private static String handleVertBar(int tempLexemeInt) {
+        System.out.println("Single | located");
+        String vertBarSymbol = "|";
+
+        // Check for double ||
+        handleDoubles(tempLexemeInt, lexemeList.size(), vertBarSymbol);
+
+        return "or";
+    }
+
+    // Logic for double symbols && and ||
+    private static void handleDoubles(int tempLexemeInt, int lexListSize, String symbolToCheck) {
+        if (tempLexemeInt + 1 != lexListSize && lexemeList.get(tempLexemeInt + 1).equals(symbolToCheck)) {
+            // && becomes 'and', both lists need doubled sign removed
+            System.out.println("Double & located");
+            lexemeList.remove(tempLexemeInt + 1);
+            tokenList.remove(tempLexemeInt + 1);
+            indices.remove(indices.get(0));
+
+            for (int nums : indices) {
+                indices.set(indices.indexOf(nums), nums - 1);
+            }
+
+            System.out.println("Amended lexeme list: " + lexemeList);
+        }
     }
 
 }
