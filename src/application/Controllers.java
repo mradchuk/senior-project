@@ -76,10 +76,10 @@ public class Controllers implements Initializable {
 
 		Stage stage = (Stage) anchor.getScene().getWindow();
 		FileChooser fileChooser = new FileChooser();
-		fileChooser.getExtensionFilters().addAll(
-				new FileChooser.ExtensionFilter("Text Files", "*.txt")
+		fileChooser.getExtensionFilters().addAll();
+				//new FileChooser.ExtensionFilter("Text Files", "*.txt")
 
-		);
+		
 		File selectedFile = fileChooser.showOpenDialog(stage);
 		parseFile = selectedFile;
 
