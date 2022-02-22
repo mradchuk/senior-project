@@ -205,7 +205,7 @@ public class Controllers implements Initializable {
 
 	public void fileWriterJava (String str) {
 
-		String fileName = "translatedJava.txt";
+		String fileName = "translatedJava.java";
 
 
 
