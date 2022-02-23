@@ -46,7 +46,7 @@
             <Font name="Arial Italic" size="33.0" />
          </font>
       </Text>
-      <Button layoutX="216.0" layoutY="37.0" mnemonicParsing="false" onAction="#clearButton" prefHeight="38.0" prefWidth="104.0" text="Clear">
+      <Button layoutX="215.0" layoutY="36.0" mnemonicParsing="false" onAction="#clearButton" prefHeight="38.0" prefWidth="104.0" text="Clear">
          <font>
             <Font size="18.0" />
          </font>

@@ -119,7 +119,6 @@ public class LexicalAnalyzer {
 
         opUnary.put("++", "unary operator");
         opUnary.put("--", "unary operator");
-        opUnary.put("!", "unary operator");
 
         opAssignment.put("=", "assignment operator");
         opAssignment.put("+=", "assignment operator");
@@ -137,6 +136,7 @@ public class LexicalAnalyzer {
 
         opLogical.put("&", "logical operator");
         opLogical.put("|", "logical operator");
+        opLogical.put("!", "logical operator");
 
         stringLiteral.put('"', "string literal");
 
