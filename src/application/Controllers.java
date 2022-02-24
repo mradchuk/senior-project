@@ -68,7 +68,7 @@ public class Controllers implements Initializable {
 		 javaCode.setText("");
 		 pythonCode.setText("");
 		 
-		 //LexicalAnalyzer.getDeletedPyStr();
+		 LexicalAnalyzer.getDeletedPyStr();
 	 }
 
 	public void fileOpen (ActionEvent event) throws FileNotFoundException {
@@ -131,11 +131,10 @@ public class Controllers implements Initializable {
 			}
 		}
 
+		LexicalAnalyzer.printLookAheadFunction();
 		LexicalAnalyzer.printTranslator();
 
 		pythonCode.setText(LexicalAnalyzer.getPythonStr());
-
-		LexicalAnalyzer.getDeletedPyStr();
 
 	}
 

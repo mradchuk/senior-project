@@ -1,16 +1,18 @@
-public void castSection() {
+public class Complex2 {
+
+    public static void castSection() {
 
         short testShort = 2045;
         int testInt = 40341;
         float testFloat = 45.87f;
         double testDouble = 458.2247852682;
-       
-        int castInt = (int)testFloat; 
-        float castFloat = (float)testDouble; 
+
+        int castInt = (int)testFloat;
+        float castFloat = (float)testDouble;
 
         String castString1 = Integer.toString(testInt);
         String castString2 = String.valueOf(testShort);
-       
+
         String castString3 = String.format("%f", testDouble);
 
         System.out.println(castInt);
@@ -21,5 +23,21 @@ public void castSection() {
 
         System.out.println("Reached the end of Casting Section");
 
+    }
 
+    public static void boolSection() {
+        int x = 5;
+        int y = 22;
+        int z = 1;
+        System.out.println(x > y && x != z);
+        System.out.println(x > z || z == 4);
+
+        System.out.println("Reached the end of Boolean Logic Section");
+    }
+
+    public static void main(String[] args) {
+        castSection();
+        boolSection();
+    }
+    
 }

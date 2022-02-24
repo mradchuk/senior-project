@@ -17,9 +17,7 @@ public class LexicalAnalyzer {
         and separators.
     */
     static protected Map<String,String> keyWord = new HashMap<>();
-    static protected Map<String,String> identifier = new HashMap<>();
 
-    static protected Map<String, String> literal = new HashMap<>();
     static protected Map<Character, String> stringLiteral = new HashMap<>();
     static protected Map<String, String> characterLiteral = new HashMap<>();
     static protected Map<String, String> integerLiteral = new HashMap<>();
@@ -28,10 +26,8 @@ public class LexicalAnalyzer {
     static protected Map<String, String> nullLiteral = new HashMap<>();
 
     static protected Map<String,String> constant = new HashMap<>();
-
     static protected Map<String,String> comment = new HashMap<>();
 
-    static protected Map<String,String> operator = new HashMap<>();
     static protected Map<String,String> opArithmetic = new HashMap<>();
     static protected Map<String,String> opUnary = new HashMap<>();
     static protected Map<String,String> opAssignment = new HashMap<>();
@@ -40,19 +36,13 @@ public class LexicalAnalyzer {
 
     static protected Map<String,String> separator = new HashMap<>();
 
-
     static protected Map<String,String> mainIdent = new HashMap<>();
     static protected Map<String,String> stringIdent = new HashMap<>();
     static protected Map<String,String> argsIdent = new HashMap<>();
 
-    static protected ArrayList<String> tokens = new ArrayList<String>();
-
     static ArrayList<TokenData> arrayOfTokens = new ArrayList<>();
 
     static boolean isDataType = false;
-
-    static String[] varDeclarationArr = new String[3];
-
     static boolean publicBool = false;
     static boolean classBool = false;
 
@@ -201,6 +191,10 @@ public class LexicalAnalyzer {
         PythonConverter.translateDriver(arrayOfTokens);
     }
 
+    static void printLookAheadFunction() {
+        PythonConverter.lookAheadFunction(arrayOfTokens);
+    }
+
     static void getDeletedPyStr() {
         PythonConverter.deletePyStr(arrayOfTokens);
     }
@@ -262,6 +256,8 @@ public class LexicalAnalyzer {
 
         String strObject = testObject.toString();
 
+        //System.out.println("                                             " + strObject);
+
         String prevToken = "";
 
         if(keyWord.containsKey(strObject.toUpperCase())) {
@@ -285,6 +281,10 @@ public class LexicalAnalyzer {
             System.out.println(keyWord.get(strObject.toUpperCase()) + " - " + strObject);
 
         } else if(separator.containsKey(strObject.toUpperCase())) {
+
+            if(strObject.equals("}")) {
+                isDataType = false;
+            }
 
             arrayOfTokens.add(new TokenData(separator.get(strObject.toUpperCase()), strObject));
             System.out.println(separator.get(strObject.toUpperCase()) + " - " + strObject);

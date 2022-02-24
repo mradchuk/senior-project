@@ -7,22 +7,30 @@ public class PythonConverter {
     //                    VARIABLES
     // ------------------------------------------------------
 
+    static ArrayList<String> methodCollection = new ArrayList<String>();
+
+    static String[] statementArr = new String[3];
+    static String[] equalOpStatement = new String[2];
+
     public static String resultPythonStr = "";
 
-    static String statementArr[] = new String[3];
-    static String equalOpStatement[] = new String[2];
-
-    static String methodToCall = "";
-    static String getClassName = "";
-
-    static String outputPyStr = "";
-
+    static String pythonStr = "";
+    static String currentMethodTkn = "";
+    static String checkPrintStatement = "";
     static String intCastStr = "";
     static String strCastStr = "";
     static String strCastFormat = "";
 
+    static int count = 0;
+
     static boolean checkEqualOperator = false;
     static boolean checkNotEqual = false;
+    static boolean methodWithNoArgs = false;
+    static boolean classContainsMain = false;
+    static boolean classContainsOtherMethods = false;
+    static boolean skipMain = false;
+    static boolean classOnlyHasMain = false;
+    static boolean casting = false;
 
     private static ArrayList<String> tokenList = new ArrayList<String>();
     private static ArrayList<String> lexemeList = new ArrayList<String>();
@@ -33,44 +41,86 @@ public class PythonConverter {
     // --------------------------------------------------------------------------------
 
     public static void deletePyStr(ArrayList<TokenData> list) {
+
         list.clear();
-        outputPyStr = "";
+
+        methodCollection.clear();
+
+        for(int i1 = 0; i1 < statementArr.length; i1++) {
+            statementArr[i1] = "";
+        }
+
+        for(int i2 = 0; i2 < equalOpStatement.length; i2++) {
+            equalOpStatement[i2] = "";
+        }
+
         resultPythonStr = "";
+        pythonStr = "";
+        currentMethodTkn = "";
+        checkPrintStatement = "";
+        intCastStr = "";
+        strCastStr = "";
+        strCastFormat = "";
+
+        count = 0;
+
+        checkEqualOperator = false;
+        checkNotEqual = false;
+        methodWithNoArgs = false;
+        classContainsMain = false;
+        classContainsOtherMethods = false;
+        skipMain = false;
+        classOnlyHasMain = false;
+        casting = false;
+
+        tokenList.clear();
+        lexemeList.clear();
+        indices.clear();
 
     }
 
-    /* Complex1 should use complex1 = Complex1() then complex1.main() to output python.
-        Complex2 - Casting should use castSection() to output python.
-     */
-    public static String callClassMethod(String str) {
+    //Function called at the end to add to result string that outputs Python
+    public static String onlyMainMethodOrOtherMethods(boolean x, boolean y) {
 
-        if(!str.isEmpty()) {
+        String resultStr = "";
 
-            outputPyStr += "\n" + getClassName.toLowerCase();
-            outputPyStr += " = " + getClassName + "()" + "\n";
-            outputPyStr += getClassName.toLowerCase() + ".";
-            outputPyStr += methodToCall + "()";
+        resultStr += "if __name__ == " + '"' + "__main__" + '"' + ":";
+        resultStr += "\n\t\t";
 
-            return outputPyStr;
+        if(x && y) {
 
-        } else {
+            for(int indx = 0; indx < methodCollection.size(); indx++) {
+                if(methodCollection.get(indx) != "main") {
+                    resultStr += "print(" + methodCollection.get(indx) + "(self))" + "\n\t\t";
+                }
 
-            outputPyStr += "\n" + methodToCall + "()";
+            }
 
-            return outputPyStr;
+        } else if(x && !y) {
+
+            resultStr += methodCollection.get(0) + "(self)";
+
         }
 
+        return resultStr;
+    }
+
+    //Look ahead to know if the class contains only a main methods or others in addition
+    public static void lookAheadFunction(ArrayList<TokenData> list) {
+
+        for(int idx = 0; idx < list.size(); idx++) {
+
+            if(list.get(idx).token == "METHOD_NAME") {
+                classContainsOtherMethods = true;
+            }
+
+            if(list.get(idx).token == "MAIN_IDENTIFIER") {
+                classContainsMain = true;
+            }
+        }
     }
 
     public static void translateDriver(ArrayList<TokenData> list) {
-
-        String pythonStr = "";
-
-        String checkPrintStatement = "";
-
-        int count = 0;
-
-        boolean casting = false;
 
         System.out.println();
 
@@ -91,25 +141,56 @@ public class PythonConverter {
 
                 case "CLASS_NAME":
 
-                    pythonStr += list.get(i).lexeme;
-                    getClassName = list.get(i).lexeme;
+                    pythonStr += list.get(i).lexeme + ":";
                     break;
 
                 case "METHOD_NAME":
 
-                    methodToCall = list.get(i).lexeme;
-                    pythonStr += "def " + list.get(i).lexeme;
+                    if(skipMain) {
+
+                        currentMethodTkn = list.get(i).token;
+
+                    } else {
+
+                        pythonStr += "def " + list.get(i).lexeme;
+
+                        currentMethodTkn = list.get(i).token;
+                        methodCollection.add(list.get(i).lexeme);
+
+                    }
+
                     break;
 
                 case "T_LBRACE":
 
+                    pythonStr += "\n\n";
+
+                    //determines how many times a statement will be indented based on its syntactic position in the code
                     count++;
 
-                    pythonStr += ":\n";
-
+                    //tabbing or indenting the statement how many # of times to get the correct python syntax
                     for(int j = 0; j < count; j++) {
                         pythonStr += "\t";
                     }
+
+                    //After class declaration statement
+                    if(count == 1) {
+                        pythonStr += "def self(args):" + "\n";
+                        pythonStr += "\t\t" + "pass\n\n\t";
+                    }
+
+                    break;
+
+                case "T_RBRACE":
+
+                    pythonStr += "\n\t";
+
+                    //We have reached the end of the current function. We now need less indentation for a new function declaration.
+                    //Once we reach the left brace of the new function, make indentation based on reduced value of this 'count'.
+                    count--;
+
+                    methodWithNoArgs = false;
+                    skipMain = false;
 
                     break;
 
@@ -123,45 +204,73 @@ public class PythonConverter {
 
                 case "MAIN_IDENTIFIER":
 
-                    pythonStr += "def " + list.get(i).lexeme;
-                    methodToCall = "main";
+                    currentMethodTkn = list.get(i).token;
+
+                    //Execute if statement only if the class only contains a main method
+                    if(!(classContainsMain && classContainsOtherMethods)){
+
+                        pythonStr += "def " + list.get(i).lexeme;
+                        methodCollection.add(list.get(i).lexeme);
+
+                    }
+
                     break;
 
                 case "T_LPARENTH":
 
                     // double var =
                     if(statementArr[0] == "T_DOUBLE" && statementArr[1] == "VAR_IDENTIFIER" && statementArr[2] == "T_ASSIGN") {
-                        casting = true;
-                        for(int l = 0; l < statementArr.length; l++) {
-                            statementArr[l] = "";
-                        }
+
+                        //doubles casted to float in python
                         pythonStr += "float(";
-                        continue;
+
+                        casting = true;
+
+                        for(int a = 0; a < statementArr.length; a++) {
+                            statementArr[a] = "";
+                        }
+
+                        break;
                     }
 
                     // int var =
                     if(statementArr[0] == "T_INT" && statementArr[1] == "VAR_IDENTIFIER" && statementArr[2] == "T_ASSIGN") {
-                        casting = true;
-                        for(int l = 0; l < statementArr.length; l++) {
-                            statementArr[l] = "";
-                        }
+
                         pythonStr += "int(";
-                        continue;
+
+                        for(int b = 0; b < statementArr.length; b++) {
+                            statementArr[b] = "";
+                        }
+
+                        casting = true;
+
+                        break;
                     }
 
                     // float var =
                     if(statementArr[0] == "T_FLOAT" && statementArr[1] == "VAR_IDENTIFIER" && statementArr[2] == "T_ASSIGN") {
-                        casting = true;
-                        for(int l = 0; l < statementArr.length; l++) {
-                            statementArr[l] = "";
-                        }
+
+                        //treat a float in Python the same way in Java
                         pythonStr += "";
-                        continue;
+
+                        for(int c = 0; c < statementArr.length; c++) {
+                            statementArr[c] = "";
+                        }
+
+                        casting = true;
+
+                        break;
                     }
 
                     // String var = Integer.toString, or String var = String.valueOf, String var = String.format
                     if(statementArr[0] == "String Identifier" && statementArr[1] == "VAR_IDENTIFIER" && statementArr[2] == "T_ASSIGN"
                        && (intCastStr.equals("Integer.toString") || strCastStr.equals("String.valueOf") || strCastFormat.equals("String.format"))) {
+
+                            pythonStr += "str(";
+
+                            for(int d = 0; d < statementArr.length; d++) {
+                                statementArr[d] = "";
+                            }
 
                             casting = true;
 
@@ -169,13 +278,58 @@ public class PythonConverter {
                             strCastStr = "";
                             strCastFormat = "";
 
-                            for(int l = 0; l < statementArr.length; l++) {
-                                statementArr[l] = "";
+                            break;
+
+                    }
+
+                    //If the class only contains a main method, we are directly converting the Java main method
+                    //to a Python main method
+                    if(currentMethodTkn == "MAIN_IDENTIFIER" && classContainsMain && !classContainsOtherMethods) {
+
+                        classOnlyHasMain = true;
+
+                    }
+
+                    //Ignore Java main method conversion to a Python main method in a class with other methods
+                    //because in Python, we are not calling other methods inside of the main method
+                    if(currentMethodTkn == "MAIN_IDENTIFIER" && classContainsMain && classContainsOtherMethods) {
+
+                        //so skip over or ignore the main method conversion in this class
+                        skipMain = true;
+
+                        break;
+
+                    }
+
+                    //In a class the has both main method and other methods, the other methods may contain
+                    //empty parameters or filled parameters
+                    if(currentMethodTkn == "METHOD_NAME" && classContainsMain && classContainsOtherMethods) {
+
+                        // ex: funcName()
+                        if(list.get(i+1).token == "T_RPARENTH") {
+
+                            //if the class has both a main method and other methods, skip conversion of funcName
+                            //method calls found in the main method of Java to Python, because we are also skipping
+                            //the main method conversion in this class
+                            if(skipMain) {
+
+                                break;
+
+                            } else {
+
+                                //otherwise in a class with only a main method, this is just a function call
+                                //not inside a main method invoking it. So we convert this funcName from
+                                //Java to Python
+                                methodWithNoArgs = true;
+
                             }
 
-                            pythonStr += "str(";
-                            continue;
+                        } else {
 
+                            //If the parameter of the current method contains arguments
+                            methodWithNoArgs = false;
+
+                        }
                     }
 
                     pythonStr += list.get(i).lexeme;
@@ -185,21 +339,61 @@ public class PythonConverter {
                 case "STRING_IDENTIFIER":
 
                     statementArr[0] = "String Identifier";
+
                     break;
 
                 case "ARGS_IDENTIFIER":
 
-                    pythonStr += list.get(i).lexeme;
-                    break;
+                    if(skipMain) {
+                        break;
+                    } else if(classOnlyHasMain) {
+                        pythonStr += "self";
+                        break;
+                    } else {
+                        pythonStr += list.get(i).lexeme;
+                        break;
+                    }
 
                 case "T_RPARENTH":
 
                     if(casting) {
+
+                        //finished casting the current statement
                         casting = false;
-                        continue;
-                    } else {
+                        break;
+
+                    } else if(methodWithNoArgs) {
+
+                        //need 'self' parameter in Python
+                        pythonStr += "self";
+                        pythonStr += list.get(i).lexeme + ":";
+
+                        currentMethodTkn = "";
+                        methodWithNoArgs = false;
+
+                        break;
+
+                    } else if(skipMain) {
+
+                        break;
+
+                    } else if(classOnlyHasMain && !checkPrintStatement.equals("System.out.println")) {
+
+                        pythonStr += list.get(i).lexeme + ":";
+                        break;
+
+                    } else if(classOnlyHasMain && checkPrintStatement.equals("System.out.println")) {
+
                         pythonStr += list.get(i).lexeme;
                         break;
+
+                    } else {
+
+                        pythonStr += list.get(i).lexeme;
+                        currentMethodTkn = "";
+
+                        break;
+
                     }
 
                 case "System":
@@ -209,16 +403,23 @@ public class PythonConverter {
 
                 case "T_DOT":
 
-                    intCastStr += ".";
-                    strCastStr += ".";
-                    strCastFormat += ".";
+                    if(intCastStr.equals("Integer")) {
+                        intCastStr += ".";
+                    }
+
+                    if(strCastStr.equals("String")) {
+                        strCastStr += ".";
+                        strCastFormat += ".";
+                    }
 
                     checkPrintStatement += list.get(i).lexeme;
+
                     break;
 
                 case "out":
 
                     checkPrintStatement += list.get(i).lexeme;
+
                     break;
 
                 case "println":
@@ -245,13 +446,14 @@ public class PythonConverter {
 
                 case "T_SEMICOLON":
 
-                    checkPrintStatement = "";
                     pythonStr += "\n";
 
                     //Determine syntax of python output by tabbing new lines
-                    for(int k = 0; k < count; k++) {
+                    for(int p = 0; p < count; p++) {
                         pythonStr += "\t";
                     }
+
+                    checkPrintStatement = "";
 
                     break;
 
@@ -364,7 +566,6 @@ public class PythonConverter {
                         continue;
                     }
 
-
                 case "T_ASSIGN":
 
                     /* Check for the equal operator */
@@ -376,6 +577,7 @@ public class PythonConverter {
                     } else if(checkEqualOperator) {
 
                         pythonStr += " == ";
+
                         equalOpStatement[1] = "Equal Operator";
                         checkEqualOperator = false;
 
@@ -388,12 +590,13 @@ public class PythonConverter {
 
                         pythonStr += " != ";
                         checkNotEqual = false;
+
                         break;
 
                     } else {
 
-                        statementArr[2] = "T_ASSIGN";
                         pythonStr += " " + list.get(i).lexeme + " ";
+                        statementArr[2] = "T_ASSIGN";
 
                         /* James B's logical operators code */
                         tempData.add(new TokenData("assignment operator", "="));
@@ -425,8 +628,8 @@ public class PythonConverter {
 
                            pythonStr += num + " ";
 
-                           for(int z = 0; z < statementArr.length; z++) {
-                               statementArr[z] = "";
+                           for(int q = 0; q < statementArr.length; q++) {
+                               statementArr[q] = "";
                            }
 
                            break;
@@ -451,8 +654,8 @@ public class PythonConverter {
 
                             pythonStr += num;
 
-                            for(int a = 0; a < equalOpStatement.length; a++) {
-                                equalOpStatement[a] = "";
+                            for(int r = 0; r < equalOpStatement.length; r++) {
+                                equalOpStatement[r] = "";
                             }
 
                             break;
@@ -468,6 +671,7 @@ public class PythonConverter {
 
                 case "logical operator":
 
+                    // '&&'
                     if(list.get(i).lexeme.equals("&") && list.get(i+1).lexeme.equals("&")) {
 
                         pythonStr += " and ";
@@ -479,6 +683,7 @@ public class PythonConverter {
                         break;
                     }
 
+                    // '||'
                     if(list.get(i).lexeme.equals("|") && list.get(i+1).lexeme.equals("|")) {
 
                         pythonStr += " or ";
@@ -489,8 +694,6 @@ public class PythonConverter {
 
                         break;
                     }
-
-
 
                 case "unary operator":
 
@@ -510,12 +713,15 @@ public class PythonConverter {
 
         }
 
+
         /*
-            Add the python string to the python string that calls the class method or simply
-            the method depending on if Complex1 or Complex2 - Casting is being run.
+            Add the python result string to the function that will get the output string that will be different
+            depending on if the Java class contains only a main method or contains other methods additionally.
          */
-        resultPythonStr = pythonStr + callClassMethod(getClassName);
-        System.out.println(pythonStr + outputPyStr);
+
+        resultPythonStr = pythonStr + onlyMainMethodOrOtherMethods(classContainsMain, classContainsOtherMethods) + "\n";
+
+        System.out.println(pythonStr + onlyMainMethodOrOtherMethods(classContainsMain, classContainsOtherMethods));
 
         System.out.println();
 
