@@ -24,7 +24,7 @@
          <font>
             <Font name="Arial" size="13.0" />
          </font></TextArea>
-      <Button layoutX="433.0" layoutY="618.0" mnemonicParsing="false" onAction="#translateButton" prefHeight="44.0" prefWidth="104.0" text="Translate">
+      <Button layoutX="433.0" layoutY="618.0" mnemonicParsing="false" onAction="#clearButton" prefHeight="44.0" prefWidth="104.0" text="Translate">
          <font>
             <Font size="18.0" />
          </font>
@@ -34,8 +34,8 @@
             <Font name="Arial" size="24.0" />
          </font>
       </Text>
-      <Button layoutX="8.0" layoutY="618.0" mnemonicParsing="false" onAction="#createFile" prefHeight="44.0" prefWidth="104.0" text="Save Java File" />
-      <Button layoutX="876.0" layoutY="618.0" mnemonicParsing="false" onAction="#createPythonFile" prefHeight="54.0" prefWidth="104.0" text="Save Python File" textAlignment="CENTER" />
+      <Button layoutX="8.0" layoutY="618.0" mnemonicParsing="false" onAction="#saveJavaFile" prefHeight="44.0" prefWidth="104.0" text="Save Java File" />
+      <Button layoutX="876.0" layoutY="618.0" mnemonicParsing="false" onAction="#savePythonFile" prefHeight="54.0" prefWidth="104.0" text="Save Python File" textAlignment="CENTER" />
       <ImageView fitHeight="74.0" fitWidth="118.0" layoutX="711.0" layoutY="1.0" pickOnBounds="true" preserveRatio="true">
          <image>
             <Image url="@ksulogo.png" />
