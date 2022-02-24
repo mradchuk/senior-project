@@ -166,9 +166,77 @@ public class Controllers implements Initializable {
 	}
 
 
+	//new save file buttons
+	public void saveJavaFile(ActionEvent event) {
 
+		Alert alertEmpty = new Alert(AlertType.CONFIRMATION);
+		alertEmpty.setTitle("NULL");
+		alertEmpty.setHeaderText("Text area is Empty");
 
+		Alert alert = new Alert(AlertType.CONFIRMATION);
+		alert.setTitle("Succsses");
+		alert.setHeaderText("Java file saved.");
 
+		if (javaCode.getText().isEmpty()) {
+			alertEmpty.show();
+			return;
+		}
+
+		Stage stage = (Stage) anchor.getScene().getWindow();
+		FileChooser fileChoose = new FileChooser();
+		fileChoose.getExtensionFilters().addAll();
+
+		File file = fileChoose.showSaveDialog(stage);
+
+		if (file != null) {
+			saveTextFile(javaCode.getText(), file);
+			alert.show();
+		}
+
+	}
+
+	public void savePythonFile(ActionEvent event) throws FileNotFoundException {
+		Alert alertNull = new Alert(AlertType.CONFIRMATION);
+		alertNull.setTitle("NULL");
+		alertNull.setHeaderText("Text area is Empty");
+
+		Alert alert = new Alert(AlertType.CONFIRMATION);
+		alert.setTitle("Success");
+		alert.setHeaderText("Python file saved succesfully");
+
+		if (pythonCode.getText().isEmpty()) {
+
+			alertNull.show();
+			return;
+
+		}
+
+		Stage stage = (Stage) anchor.getScene().getWindow();
+		FileChooser fileChoose = new FileChooser();
+		fileChoose.getExtensionFilters().addAll();
+
+		File file = fileChoose.showSaveDialog(stage);
+
+		if (file != null) {
+			saveTextFile(pythonCode.getText(), file);
+			alert.show();
+		}
+
+	}
+
+	private void saveTextFile(String content, File file) {
+
+		try {
+			PrintWriter writer;
+			writer = new PrintWriter(file);
+			writer.println(content);
+			writer.close();
+		} catch (IOException ex) {
+
+		}
+	}
+
+	/*
 	public void createFile (ActionEvent event) {
 
 
@@ -184,7 +252,7 @@ public class Controllers implements Initializable {
 
 
 	}
-
+	*/
 
 	public static String fileReader (File file) throws FileNotFoundException {
 
@@ -201,7 +269,7 @@ public class Controllers implements Initializable {
 
 	}
 
-
+	
 	public void fileWriterJava (String str) {
 
 		String fileName = "translatedJava.java";
@@ -256,7 +324,7 @@ public class Controllers implements Initializable {
 
 	}
 
-
+	
 	public void fileWriterPython (String str) {
 
 		String fileName = "translatedPython.py";
@@ -297,7 +365,7 @@ public class Controllers implements Initializable {
 
 	}
 
-
+	*/
 
 
 
