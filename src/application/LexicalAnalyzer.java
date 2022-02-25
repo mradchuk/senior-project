@@ -42,6 +42,8 @@ public class LexicalAnalyzer {
 
     static ArrayList<TokenData> arrayOfTokens = new ArrayList<>();
 
+    static ArrayList<String> listOfVariables = new ArrayList<>();
+
     static boolean isDataType = false;
     static boolean publicBool = false;
     static boolean classBool = false;
@@ -70,14 +72,14 @@ public class LexicalAnalyzer {
         keyWord.put("DEFAULT", "keyword");
         keyWord.put("DO", "keyword");
         keyWord.put("DOUBLE", "T_DOUBLE");
-        keyWord.put("ELSE", "keyword");
+        keyWord.put("ELSE", "T_ELSE");
         keyWord.put("ENUM", "keyword");
         keyWord.put("EXTENDS", "keyword");
         keyWord.put("FINAL", "keyword");
         keyWord.put("FINALLY", "keyword");
         keyWord.put("FLOAT", "T_FLOAT");
         keyWord.put("FOR", "keyword");
-        keyWord.put("IF", "keyword");
+        keyWord.put("IF", "T_IF");
         keyWord.put("IMPORT", "keyword");
         keyWord.put("INT", "T_INT");
         keyWord.put("LONG", "keyword");
@@ -345,6 +347,8 @@ public class LexicalAnalyzer {
                     arrayOfTokens.add(new TokenData("VAR_IDENTIFIER", strObject));
                     System.out.println("VAR_IDENTIFIER" + " - " + strObject);
 
+                    if (!listOfVariables.contains(strObject))
+                        listOfVariables.add(strObject);
                 }
 
             } else if(classBool && publicBool) {
@@ -392,6 +396,10 @@ public class LexicalAnalyzer {
                         arrayOfTokens.add(new TokenData("Integer Cast", prevToken));
                         System.out.println("Integer Cast" + " - " + prevToken);
                         prevToken = "";
+                    } else if(listOfVariables.contains(prevToken)){
+                        arrayOfTokens.add(new TokenData("VAR_IDENTIFIER", prevToken));
+                        System.out.println("VAR_IDENTIFIER - " + prevToken);
+                        prevToken = "";
                     }
 
                     arrayOfTokens.add(new TokenData(separator.get(String.valueOf(c)), String.valueOf(c)));
@@ -421,6 +429,10 @@ public class LexicalAnalyzer {
                     } else if(prevToken.equals("format")) {
                         arrayOfTokens.add(new TokenData("String Format", prevToken));
                         System.out.println("String Format" + " - " + prevToken);
+                        prevToken = "";
+                    } else if(prevToken.equals("equals")){
+                        arrayOfTokens.add(new TokenData("Equals Method", prevToken));
+                        System.out.println("Equals method - " + prevToken);
                         prevToken = "";
                     }
 

@@ -36,6 +36,8 @@ public class PythonConverter {
     private static ArrayList<String> lexemeList = new ArrayList<String>();
     private static ArrayList<Integer> indices = new ArrayList<Integer>();
 
+
+
     // --------------------------------------------------------------------------------
     //          PRIMARY FUNCTIONS - GENERAL
     // --------------------------------------------------------------------------------
@@ -709,6 +711,22 @@ public class PythonConverter {
                         break;
                     }
 
+                case "T_IF":
+                    pythonStr += "if ";
+                    break;
+
+                case "T_ELSE":
+                    if(list.get(i+1).lexeme.equals("if")){
+                        pythonStr += "elif ";
+                        i+=1;
+                        break;
+                    }
+                    pythonStr += "else";
+                    break;
+
+                case "Equals Method":
+                    pythonStr += " == ";
+                    break;
             }
 
         }
