@@ -673,36 +673,44 @@ public class PythonConverter {
 
                 case "logical operator":
 
-                    // '&&'
-                    if(list.get(i).lexeme.equals("&") && list.get(i+1).lexeme.equals("&")) {
+                    // Modified Logical Operator Functionality
+                    list.set(i, handleLogicalOperator(list, list.get(i), i));
+                    
 
-                        pythonStr += " and ";
+                    // // '&&'
+                    // if(list.get(i).lexeme.equals("&") && list.get(i+1).lexeme.equals("&")) {
 
-                        /* James B's logic operators code */
-                        tempData.add(new TokenData("logical operator", "&"));
-                        tempData.add(new TokenData("logical operator", "&"));
+                    //     pythonStr += " and ";
 
-                        break;
-                    }
+                    //     /* James B's logic operators code */
+                    //     tempData.add(new TokenData("logical operator", "&"));
+                    //     tempData.add(new TokenData("logical operator", "&"));
 
-                    // '||'
-                    if(list.get(i).lexeme.equals("|") && list.get(i+1).lexeme.equals("|")) {
+                    //     break;
+                    // }
 
-                        pythonStr += " or ";
+                    // // '||'
+                    // if(list.get(i).lexeme.equals("|") && list.get(i+1).lexeme.equals("|")) {
 
-                        /* James B's logical operators code */
-                        tempData.add(new TokenData("logical operator", "|"));
-                        tempData.add(new TokenData("logical operator", "|"));
+                    //     pythonStr += " or ";
 
-                        break;
-                    }
+                    //     /* James B's logical operators code */
+                    //     tempData.add(new TokenData("logical operator", "|"));
+                    //     tempData.add(new TokenData("logical operator", "|"));
+
+                    //     break;
+                    // }
 
                 case "unary operator":
 
-                    if(list.get(i).lexeme.equals("!") && list.get(i+1).lexeme.equals("=")) {
-                        checkNotEqual = true;
-                        break;
-                    }
+                    // Modified Unary Operator Functionality
+                    handleUnaryOperator(list, list.get(i).lexeme, i);
+
+
+                    // if(list.get(i).lexeme.equals("!") && list.get(i+1).lexeme.equals("=")) {
+                    //     checkNotEqual = true;
+                    //     break;
+                    // }
 
                 case "relational operator":
 
@@ -744,9 +752,9 @@ public class PythonConverter {
         System.out.println();
 
         /* James B's logical operators code */
-        splitTokenList(tempData);
-        handleLogicalOperators();
-        handleUnaryOperators();
+        //splitTokenList(tempData);
+        //handleLogicalOperators();
+        //handleUnaryOperators();
 
     }
 
@@ -756,86 +764,100 @@ public class PythonConverter {
 
     // Using the list of tokens to find where all logical operators are located in
     // lexeme list
-    private static void listAllOfType(String thisType) {
+    // private static void listAllOfType(String thisType) {
         
-        // Clean slate
-        indices.clear();
+    //     // Clean slate
+    //     indices.clear();
 
-        for (int index = 0; index < tokenList.size(); index++) {
-            if (tokenList.get(index).equals(thisType)) {
-                indices.add(index);
-            }
-        }
-    }
+    //     for (int index = 0; index < tokenList.size(); index++) {
+    //         if (tokenList.get(index).equals(thisType)) {
+    //             indices.add(index);
+    //         }
+    //     }
+    // }
 
-    // Decreases each value in the indice list by one. Used when the primary list removes an item
-    // to keep the indice list accurate to the list it's representing
-    private static void decrementIndices() {
-        for (int nums : indices) {
-            indices.set(indices.indexOf(nums), nums - 1);
-        }
-    }
+    // // Makes the TokenData a little more managable by splitting into two
+    // private static void splitTokenList(List<TokenData> allTokenData) {
+    //     for (TokenData tokenData : allTokenData) {
+    //         tokenList.add(tokenData.token);
+    //         lexemeList.add(tokenData.lexeme);
+    //     }
+    // }
+
+    // // Decreases each value in the indice list by one. Used when the primary list removes an item
+    // // to keep the indice list accurate to the list it's representing
+    // private static void decrementIndices() {
+    //     for (int nums : indices) {
+    //         indices.set(indices.indexOf(nums), nums - 1);
+    //     }
+    // }
 
     // --------------------------------------------------------------------------------
     //          PRIMARY FUNCTIONS - LOGICAL OPERATORS
     // --------------------------------------------------------------------------------
 
+    private static TokenData handleLogicalOperator(ArrayList<TokenData> fullList, TokenData currentItem, int currentIndex) {
+        String tempLexeme = currentItem.lexeme;
+
+        tempLexeme = chooseLogicalOperatorCase(fullList, tempLexeme, currentIndex);
+
+        currentItem.lexeme = tempLexeme;
+        return currentItem;
+    }
+
     // Beginning of logical operator logic
-    private static void handleLogicalOperators() {
-        String logicalOperatorString = "logical operator";
-        String tempLexeme;
-        int tempLexemeInt;
+    // private static void handleLogicalOperators() {
+    //     String logicalOperatorString = "logical operator";
+    //     String tempLexeme;
+    //     int tempLexemeInt;
 
-        // Where are their specific locations
-        listAllOfType(logicalOperatorString);
+    //     // Where are their specific locations
+    //     listAllOfType(logicalOperatorString);
 
-        // Loop until all logical operators are handled
-        while (indices.size() > 0) {
-            tempLexemeInt = indices.get(0);
-            tempLexeme = lexemeList.get(tempLexemeInt);
+    //     // Loop until all logical operators are handled
+    //     while (indices.size() > 0) {
+    //         tempLexemeInt = indices.get(0);
+    //         tempLexeme = lexemeList.get(tempLexemeInt);
 
-            // Case: &
-            if (tempLexeme == "&") {
-                tempLexeme = handleAmpersand(tempLexemeInt);
-            }
-            // Case: |
-            else if(tempLexeme == "|") {
-                tempLexeme = handleVertBar(tempLexemeInt);
-            }
-            // Case: !
-            else {
-                // Must be a ! operator
-                tempLexeme = handleExclamation();
-            }
+    //         tempLexeme = chooseLogicalOperatorCase(tempLexeme, tempLexemeInt);
             
 
-            // Replace symbol with word
-            lexemeList.set(tempLexemeInt, tempLexeme);
-            // Moves onto next logical operator
-            indices.remove(indices.get(0));
-        }
-    }
+    //         // Replace symbol with word
+    //         lexemeList.set(tempLexemeInt, tempLexeme);
+    //         // Moves onto next logical operator
+    //         indices.remove(indices.get(0));
+    //     }
+    // }
 
     // --------------------------------------------------------------------------------
     //          SECONDARY FUNCTIONS - LOGICAL OPERATORS
     // --------------------------------------------------------------------------------
 
-    // Makes the TokenData a little more managable by splitting into two
-    private static void splitTokenList(List<TokenData> allTokenData) {
-        for (TokenData tokenData : allTokenData) {
-            tokenList.add(tokenData.token);
-            lexemeList.add(tokenData.lexeme);
+    private static String chooseLogicalOperatorCase(ArrayList<TokenData> fullList, String caseToCheck, int caseIndex) {
+
+        // Case: &
+        if (caseToCheck == "&") {
+            caseToCheck = handleAmpersand(fullList, caseIndex);
         }
+        // Case: |
+        else if(caseToCheck == "|") {
+            caseToCheck = handleVertBar(fullList, caseIndex);
+        }
+        // Case: !
+        else {
+            // Must be a ! operator
+            caseToCheck = handleExclamation();
+        }
+
+        return caseToCheck;
     }
 
-    
-
     // Ampersand logic
-    private static String handleAmpersand(int tempLexemeInt) {
+    private static String handleAmpersand(ArrayList<TokenData> fullList, int tempLexemeInt) {
         String ampersandSymbol = "&";
 
         // Check for double &&
-        handleDoubles(tempLexemeInt, lexemeList.size(), ampersandSymbol);
+        handleDoubles(fullList, tempLexemeInt, fullList.size(), ampersandSymbol);
 
         // If Single & in java, needs to be replaced with "and"
         // Single & in Python is a bitwise AND function, which is very different
@@ -843,11 +865,11 @@ public class PythonConverter {
     }
 
     // Vertical Bar logic
-    private static String handleVertBar(int tempLexemeInt) {
+    private static String handleVertBar(ArrayList<TokenData> fullList,  int tempLexemeInt) {
         String vertBarSymbol = "|";
 
         // Check for double ||
-        handleDoubles(tempLexemeInt, lexemeList.size(), vertBarSymbol);
+        handleDoubles(fullList, tempLexemeInt, fullList.size(), vertBarSymbol);
 
         return "or";
     }
@@ -860,14 +882,18 @@ public class PythonConverter {
     }
 
     // Logic for double symbols && and ||
-    private static void handleDoubles(int tempLexemeInt, int lexListSize, String symbolToCheck) {
-        if (tempLexemeInt + 1 != lexListSize && lexemeList.get(tempLexemeInt + 1).equals(symbolToCheck)) {
+    private static void handleDoubles(ArrayList<TokenData> fullList, int tempLexemeInt, int listSize, String symbolToCheck) {
+        if (tempLexemeInt + 1 != listSize && fullList.get(tempLexemeInt + 1).lexeme.equals(symbolToCheck)) {
             // && becomes 'and', both lists need doubled sign removed
-            lexemeList.remove(tempLexemeInt + 1);
-            tokenList.remove(tempLexemeInt + 1);
-            indices.remove(indices.get(0));
+            //lexemeList.remove(tempLexemeInt + 1);
+            //tokenList.remove(tempLexemeInt + 1);
+            //indices.remove(indices.get(0));
+            
 
-            decrementIndices();        
+            //decrementIndices();        
+
+            // Modified for switch case implementation
+            fullList.remove(tempLexemeInt + 1);
         }
     }
 
@@ -875,86 +901,111 @@ public class PythonConverter {
     //          PRIMARY FUNCTIONS - UNARY OPERATORS
     // --------------------------------------------------------------------------------
 
-    // Beginning of unary operator logic
-    private static void handleUnaryOperators() {
-        String unaryOperatorString = "unary operator";
+    private static void handleUnaryOperator(ArrayList<TokenData> fullList, String caseToCheck, int caseIndex) {
         String variableString = "VAR_IDENTIFIER";
-        String tempLexeme;
+        
+        // True = ++, False = --
+        boolean unaryType = false;
+        // True = ++x/--x, False = x++/x--;
+        boolean beforeAfter = false;
 
-        int tempLexemeInt;
-
-        // true = ++, false = --;
-        boolean unaryType;
-        // true = ++x/--x, false = x++/x--
-        boolean beforeAfter;
-
-        listAllOfType(unaryOperatorString);
-
-        // Loop until all unary operators are handled
-        while(indices.size() > 0) {
-            tempLexemeInt = indices.get(0);
-            tempLexeme = lexemeList.get(tempLexemeInt);
-
-            unaryType = false;
-            beforeAfter = false;
-
-            // Case: ++
-            if(tempLexeme == "++") {
-                unaryType = true;
-            }
-            // If not changed -> Case: --
-            
-            if(tempLexemeInt != 0 && tokenList.get(tempLexemeInt - 1).equals(variableString)) {
-                beforeAfter = true;
-            }
-
-            // Gets correct replacement for unary operator case
-            tempLexeme = handleUnary(tempLexemeInt, unaryType, beforeAfter);
-            
-            // If false, element behind tempLexemeInt is removed, so tempLexemeInt needs to shift as well
-            if(!beforeAfter) {tempLexemeInt -= 1;}
-
-            // Replace symbols with new expression
-            lexemeList.set(tempLexemeInt, tempLexeme);
-            // Moves onto the next unary operator
-            indices.remove(indices.get(0));
+        if(caseToCheck.equals("++")) {
+            unaryType = true;
         }
+
+        // If index isn't 0 and previous index isn't a variable
+        if(caseIndex != 0 && fullList.get(caseIndex-1).token.equals(variableString)) {
+            beforeAfter = true;
+        }
+
+        caseToCheck = handleUnary(fullList, caseIndex, unaryType, beforeAfter);
+
+
+        if(!beforeAfter) {caseIndex -= 1;}
+
+        fullList.get(caseIndex).lexeme = caseToCheck;
     }
+
+    // Beginning of unary operator logic
+    // private static void handleUnaryOperators() {
+    //     String unaryOperatorString = "unary operator";
+    //     String variableString = "VAR_IDENTIFIER";
+    //     String tempLexeme;
+
+    //     int tempLexemeInt;
+
+    //     // true = ++, false = --;
+    //     boolean unaryType;
+    //     // true = ++x/--x, false = x++/x--
+    //     boolean beforeAfter;
+
+    //     //listAllOfType(unaryOperatorString);
+
+    //     // Loop until all unary operators are handled
+    //     while(indices.size() > 0) {
+    //         tempLexemeInt = indices.get(0);
+    //         tempLexeme = lexemeList.get(tempLexemeInt);
+
+    //         unaryType = false;
+    //         beforeAfter = false;
+
+    //         // Case: ++
+    //         if(tempLexeme == "++") {
+    //             unaryType = true;
+    //         }
+    //         // If not changed -> Case: --
+            
+    //         if(tempLexemeInt != 0 && tokenList.get(tempLexemeInt - 1).equals(variableString)) {
+    //             beforeAfter = true;
+    //         }
+
+    //         // Gets correct replacement for unary operator case
+    //         tempLexeme = handleUnary(tempLexemeInt, unaryType, beforeAfter);
+            
+    //         // If false, element behind tempLexemeInt is removed, so tempLexemeInt needs to shift as well
+    //         if(!beforeAfter) {tempLexemeInt -= 1;}
+
+    //         // Replace symbols with new expression
+    //         lexemeList.set(tempLexemeInt, tempLexeme);
+    //         // Moves onto the next unary operator
+    //         indices.remove(indices.get(0));
+    //     }
+    // }
 
     // --------------------------------------------------------------------------------
     //          SECONDARY FUNCTIONS - UNARY OPERATORS
     // --------------------------------------------------------------------------------
 
     // Main logic for handling Unary Operator cases
-    private static String handleUnary(int lexemeInt, boolean type, boolean placement) {
+    private static String handleUnary(ArrayList<TokenData> fullList, int lexemeInt, boolean type, boolean placement) {
         String unaryReplacement;
         // Case: True/True -> ++x
         if(type && placement) {
             // "x += 1", remove x
-            unaryReplacement = lexemeList.get(lexemeInt+1) + "+=1";
-            lexemeList.remove(lexemeInt + 1);
+            unaryReplacement = fullList.get(lexemeInt+1).lexeme + "+=1";
+            fullList.remove(lexemeInt + 1);
         }
         // Case: True/False -> x++
         else if(type && !placement) {
             // remove x, "x += 1"
-            unaryReplacement = lexemeList.get(lexemeInt-1) + "+=1";
-            lexemeList.remove(lexemeInt-1);
+            unaryReplacement = fullList.get(lexemeInt-1).lexeme + "+=1";
+            fullList.remove(lexemeInt-1);
         }
         // Case: False/True -> --x
         else if(!type && placement) {
             // "x -= 1", remove x
-            unaryReplacement = lexemeList.get(lexemeInt+1) + "-=1";
-            lexemeList.remove(lexemeInt + 1);
+            unaryReplacement = fullList.get(lexemeInt+1).lexeme + "-=1";
+            fullList.remove(lexemeInt + 1);
         } 
         // Case: False/False -> x--
         else {
             // remove x, "x -= 1"
-            unaryReplacement = lexemeList.get(lexemeInt-1) + "+=1";
-            lexemeList.remove(lexemeInt-1);
+            unaryReplacement = fullList.get(lexemeInt-1).lexeme + "-=1";
+            fullList.remove(lexemeInt-1);
         }
         
         // Each case removes something, so the indices need to be decremented else 
-        decrementIndices();
+        //decrementIndices();
 
         return unaryReplacement;
     }
