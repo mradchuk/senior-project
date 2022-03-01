@@ -400,6 +400,11 @@ public class LexicalAnalyzer {
                         arrayOfTokens.add(new TokenData("VAR_IDENTIFIER", prevToken));
                         System.out.println("VAR_IDENTIFIER - " + prevToken);
                         prevToken = "";
+                    }//Check for math keyword before . separator
+                    else if(prevToken.equals("Math")) {
+                  	arrayOfTokens.add(new TokenData("Math", prevToken));
+                  	System.out.println("Math" + "-" + prevToken);
+                  	prevToken = "";
                     }
 
                     arrayOfTokens.add(new TokenData(separator.get(String.valueOf(c)), String.valueOf(c)));
@@ -435,7 +440,89 @@ public class LexicalAnalyzer {
                         System.out.println("Equals method - " + prevToken);
                         prevToken = "";
                     }
-
+                    //Check for math keywords after the . seperator
+                      else if(prevToken.equals("abs")) {
+                    	arrayOfTokens.add(new TokenData("abs", prevToken));
+                    	System.out.println("abs" + " - " + prevToken);
+                    	prevToken = "";
+                    } else if(prevToken.equals("min")) {
+                    	arrayOfTokens.add(new TokenData("min", prevToken));
+                    	System.out.println("min" + " - " + prevToken);
+                    	prevToken = "";
+                    } else if(prevToken.equals("max")) {
+                    	arrayOfTokens.add(new TokenData("max", prevToken));
+                    	System.out.println("max" + " - " + prevToken);
+                    	prevToken = "";
+                    } else if(prevToken.equals("pow")) {
+                    	arrayOfTokens.add(new TokenData("pow", prevToken));
+                    	System.out.println("pow" + " - " + prevToken);
+                    	prevToken = "";
+                    } else if(prevToken.equals("acos")) {
+                    	arrayOfTokens.add(new TokenData("acos", prevToken));
+                    	System.out.println("acos" + " - " + prevToken);
+                    	prevToken = "";
+                    } else if(prevToken.equals("asin")) {
+                    	arrayOfTokens.add(new TokenData("asin", prevToken));
+                    	System.out.println("asin" + " - " + prevToken);
+                    	prevToken = "";
+                    } else if(prevToken.equals("atan")) {
+                    	arrayOfTokens.add(new TokenData("atan", prevToken));
+                    	System.out.println("atan" + " - " + prevToken);
+                      	prevToken = "";
+                    } else if(prevToken.equals("atan2")) {
+                    	arrayOfTokens.add(new TokenData("atan2", prevToken));
+                    	System.out.println("atan2" + " - " + prevToken);
+                    	prevToken = "";
+                    } else if(prevToken.equals("cos")) {
+                    	arrayOfTokens.add(new TokenData("cos", prevToken));
+                    	System.out.println("cos" + " - " + prevToken);
+                    	prevToken = "";
+                    } else if(prevToken.equals("cosh")) {
+                    	arrayOfTokens.add(new TokenData("cosh", prevToken));
+                    	System.out.println("cosh" + " - " + prevToken);
+                    	prevToken = "";
+                    } else if(prevToken.equals("exp")) {
+                    	arrayOfTokens.add(new TokenData("exp", prevToken));
+                    	System.out.println("exp" + " - " + prevToken);
+                    	prevToken = "";
+                    } else if(prevToken.equals("log")) {
+                    	arrayOfTokens.add(new TokenData("log", prevToken));
+                    	System.out.println("log" + " - " + prevToken);
+                    	prevToken = "";
+                    } else if(prevToken.equals("log10")) {
+                    	arrayOfTokens.add(new TokenData("log10", prevToken));
+                    	System.out.println("log10" + " - " + prevToken);
+                    	prevToken = "";
+                    } else if(prevToken.equals("sin")) {
+                    	arrayOfTokens.add(new TokenData("sin", prevToken));
+                    	System.out.println("sin" + " - " + prevToken);
+                    	prevToken = "";
+                    } else if(prevToken.equals("sinh")) {
+                    	arrayOfTokens.add(new TokenData("sinh", prevToken));
+                    	System.out.println("sinh" + " - " + prevToken);
+                    	prevToken = "";
+                    } else if(prevToken.equals("sqrt")) {
+                    	arrayOfTokens.add(new TokenData("sqrt", prevToken));
+                    	System.out.println("sqrt" + " - " + prevToken);
+                    	prevToken = "";
+                    } else if(prevToken.equals("tan")) {
+                    	arrayOfTokens.add(new TokenData("tan", prevToken));
+                    	System.out.println("tan" + " - " + prevToken);
+                    	prevToken = "";
+                    } else if(prevToken.equals("tanh")) {
+                    	arrayOfTokens.add(new TokenData("tanh", prevToken));
+                    	System.out.println("tanh" + " - " + prevToken);
+                    	prevToken = "";
+                    } else if(prevToken.equals("toDegrees")) {
+                    	arrayOfTokens.add(new TokenData("toDegrees", prevToken));
+                    	System.out.println("toDegrees" + " - " + prevToken);
+                    	prevToken = "";
+                    } else if(prevToken.equals("toRadians")) {
+                    	arrayOfTokens.add(new TokenData("toRadians", prevToken));
+                    	System.out.println("toRadians" + " - " + prevToken);
+                    	prevToken = "";
+                    } 
+                    
                 }
 
             }
