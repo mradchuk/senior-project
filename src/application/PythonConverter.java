@@ -31,7 +31,9 @@ public class PythonConverter {
     static boolean skipMain = false;
     static boolean classOnlyHasMain = false;
     static boolean casting = false;
-    
+
+    //static boolean ifStatement = false;
+
     //If file needs to import python math module
     static boolean needsMathImport = false;
     //Need this variable so math statements aren't identified as casting statements when also declaring a variable on the same line
@@ -79,6 +81,8 @@ public class PythonConverter {
         skipMain = false;
         classOnlyHasMain = false;
         casting = false;
+
+        //ifStatement = false;
 
         tokenList.clear();
         lexemeList.clear();
@@ -130,50 +134,50 @@ public class PythonConverter {
     //Method for determining if checkprintstatement is a math statement to avoid adding :
     public static boolean isMathStatement(String substring)
     {
-    	if (substring.equals("Math.abs"))
-    		return true;
-    	else if (substring.equals("Math.min"))
-    		return true;
-    	else if (substring.equals("Math.max"))
-    		return true;
-    	else if (substring.equals("Math.pow"))
-    		return true;
-    	else if (substring.equals("Math.acos"))
-    		return true;
-    	else if (substring.equals("Math.asin"))
-    		return true;
-    	else if (substring.equals("Math.atan"))
-    		return true;
-    	else if (substring.equals("Math.atan2"))
-    		return true;
-    	else if (substring.equals("Math.cos"))
-    		return true;
-    	else if (substring.equals("Math.cosh"))
-    		return true;
-    	else if (substring.equals("Math.exp"))
-    		return true;
-    	else if (substring.equals("Math.log"))
-    		return true;
-    	else if (substring.equals("Math.log10"))
-    		return true;
-    	else if (substring.equals("Math.sin"))
-    		return true;
-    	else if (substring.equals("Math.sinh"))
-    		return true;
-    	else if (substring.equals("Math.sqrt"))
-    		return true;
-    	else if (substring.equals("Math.tan"))
-    		return true;
-    	else if (substring.equals("Math.tanh"))
-    		return true;
-    	else if (substring.equals("Math.toRadians"))
-    		return true;
-    	else if (substring.equals("Math.Degrees"))
-    		return true;
-    	else
-    		return false;
+        if (substring.equals("Math.abs"))
+            return true;
+        else if (substring.equals("Math.min"))
+            return true;
+        else if (substring.equals("Math.max"))
+            return true;
+        else if (substring.equals("Math.pow"))
+            return true;
+        else if (substring.equals("Math.acos"))
+            return true;
+        else if (substring.equals("Math.asin"))
+            return true;
+        else if (substring.equals("Math.atan"))
+            return true;
+        else if (substring.equals("Math.atan2"))
+            return true;
+        else if (substring.equals("Math.cos"))
+            return true;
+        else if (substring.equals("Math.cosh"))
+            return true;
+        else if (substring.equals("Math.exp"))
+            return true;
+        else if (substring.equals("Math.log"))
+            return true;
+        else if (substring.equals("Math.log10"))
+            return true;
+        else if (substring.equals("Math.sin"))
+            return true;
+        else if (substring.equals("Math.sinh"))
+            return true;
+        else if (substring.equals("Math.sqrt"))
+            return true;
+        else if (substring.equals("Math.tan"))
+            return true;
+        else if (substring.equals("Math.tanh"))
+            return true;
+        else if (substring.equals("Math.toRadians"))
+            return true;
+        else if (substring.equals("Math.Degrees"))
+            return true;
+        else
+            return false;
     }
-    
+
     public static void translateDriver(ArrayList<TokenData> list) {
 
         System.out.println();
@@ -298,13 +302,29 @@ public class PythonConverter {
 
                         casting = true;
 
+                        /*
+
+                        splitTokenList(tempData);
+                        handleLogicalOperators();
+
+                        //System.out.println(lexemeList);
+                        //System.out.println(lexemeList.get(0));
+
+                        pythonStr += " " + lexemeList.get(0) + " ";
+
+                        lexemeList.clear();
+                        tokenList.clear();
+                        tempData.clear();
+
+                         */
+
                         break;
                     }
 
                     // float var =
                     if(statementArr[0] == "T_FLOAT" && statementArr[1] == "VAR_IDENTIFIER" && statementArr[2] == "T_ASSIGN" && !isAMathMethodDoNotCastIt) {
 
-                        //treat a float in Python the same way in Java
+
                         pythonStr += "";
 
                         for(int c = 0; c < statementArr.length; c++) {
@@ -316,23 +336,69 @@ public class PythonConverter {
                         break;
                     }
 
+                    // long var =
+                    if(statementArr[0] == "T_LONG" && statementArr[1] == "VAR_IDENTIFIER" && statementArr[2] == "T_ASSIGN" && !isAMathMethodDoNotCastIt) {
+
+
+                        pythonStr += "";
+
+                        for(int d = 0; d < statementArr.length; d++) {
+                            statementArr[d] = "";
+                        }
+
+                        casting = true;
+
+                        break;
+                    }
+
+                    // byte var =
+                    if(statementArr[0] == "T_BYTE" && statementArr[1] == "VAR_IDENTIFIER" && statementArr[2] == "T_ASSIGN" && !isAMathMethodDoNotCastIt) {
+
+                        //treat a float in Python the same way in Java
+                        pythonStr += "";
+
+                        for(int e = 0; e < statementArr.length; e++) {
+                            statementArr[e] = "";
+                        }
+
+                        casting = true;
+
+                        /*
+
+                        splitTokenList(tempData);
+                        handleLogicalOperators();
+
+                        //System.out.println(lexemeList);
+                        //System.out.println(lexemeList.get(0));
+
+                        pythonStr += " " + lexemeList.get(0) + " ";
+
+                        lexemeList.clear();
+                        tokenList.clear();
+                        tempData.clear();
+
+                         */
+
+                        break;
+                    }
+
                     // String var = Integer.toString, or String var = String.valueOf, String var = String.format
                     if(statementArr[0] == "String Identifier" && statementArr[1] == "VAR_IDENTIFIER" && statementArr[2] == "T_ASSIGN"
-                       && (intCastStr.equals("Integer.toString") || strCastStr.equals("String.valueOf") || strCastFormat.equals("String.format"))) {
+                            && (intCastStr.equals("Integer.toString") || strCastStr.equals("String.valueOf") || strCastFormat.equals("String.format"))) {
 
-                            pythonStr += "str(";
+                        pythonStr += "str(";
 
-                            for(int d = 0; d < statementArr.length; d++) {
-                                statementArr[d] = "";
-                            }
+                        for(int d = 0; d < statementArr.length; d++) {
+                            statementArr[d] = "";
+                        }
 
-                            casting = true;
+                        casting = true;
 
-                            intCastStr = "";
-                            strCastStr = "";
-                            strCastFormat = "";
+                        intCastStr = "";
+                        strCastStr = "";
+                        strCastFormat = "";
 
-                            break;
+                        break;
 
                     }
 
@@ -386,7 +452,13 @@ public class PythonConverter {
                         }
                     }
 
+                    //if(!ifStatement) {
+
                     pythonStr += list.get(i).lexeme;
+
+                    //}
+
+                    //pythonStr += list.get(i).lexeme;
 
                     break;
 
@@ -417,11 +489,11 @@ public class PythonConverter {
                         break;
 
                     } else if (isAMathMethodDoNotCastIt) {
-                    	//math statement is translated and no longer subject to being misinterpreted
-                    	isAMathMethodDoNotCastIt = false;
-                    	pythonStr += list.get(i).lexeme;
-                    	break;
-            		} else if(methodWithNoArgs) {
+                        //math statement is translated and no longer subject to being misinterpreted
+                        isAMathMethodDoNotCastIt = false;
+                        pythonStr += list.get(i).lexeme;
+                        break;
+                    } else if(methodWithNoArgs) {
 
                         //need 'self' parameter in Python
                         pythonStr += "self";
@@ -447,8 +519,21 @@ public class PythonConverter {
                         break;
 
                     } else if(isMathStatement(checkPrintStatement)) {
-                    	pythonStr += list.get(i).lexeme;
-                    } else {
+                        pythonStr += list.get(i).lexeme;
+                    }
+
+                    /*
+                    else if(ifStatement) {
+
+                        pythonStr += ":";
+                        ifStatement = false;
+                        break;
+
+                    }
+
+                     */
+
+                    else {
 
                         pythonStr += list.get(i).lexeme;
                         currentMethodTkn = "";
@@ -490,8 +575,10 @@ public class PythonConverter {
                     if(checkPrintStatement.equals("System.out.println")) {
                         pythonStr += "print";
                     }
+
                     //Properly reset this variable once println is added to the pythonStr
                     checkPrintStatement = "";
+
                     break;
 
                 case "string literal":
@@ -500,7 +587,7 @@ public class PythonConverter {
 
                     // If the string literal is format specifier "%f"
                     if(casting && temp.length() == 4 && temp.charAt(1) == '%' && temp.charAt(2) == 'f') {
-                        continue;
+                        break;
                     } else {
                         pythonStr += list.get(i).lexeme;
                         break;
@@ -522,7 +609,7 @@ public class PythonConverter {
                 case "T_INT":
 
                     statementArr[0] = "T_INT";
-                    continue;
+                    break;
 
                 case "T_DOUBLE":
 
@@ -537,7 +624,17 @@ public class PythonConverter {
                 case "T_SHORT":
 
                     statementArr[0] = "T_SHORT";
-                    continue;
+                    break;
+
+                case "T_LONG":
+
+                    statementArr[0] = "T_LONG";
+                    break;
+
+                case "T_BYTE":
+
+                    statementArr[0] = "T_BYTE";
+                    break;
 
                 case "String Cast":
 
@@ -581,7 +678,7 @@ public class PythonConverter {
 
                     int lenOfLastSixChars = 6;
                     int lenOfLastFourChars = 4;
-                    
+
                     int pyStrIndexLen = pythonStr.length() - 1;
 
                     int counter1 = (pyStrIndexLen - lenOfLastSixChars) + 1;
@@ -644,7 +741,7 @@ public class PythonConverter {
                         checkEqualOperator = false;
 
                         /* James B's logical operators code */
-                        tempData.add(new TokenData("comparison operator", "=="));
+                        //tempData.add(new TokenData("comparison operator", "=="));
 
                         break;
 
@@ -657,11 +754,11 @@ public class PythonConverter {
 
                     } else {
 
-                        pythonStr += list.get(i).lexeme + " ";
+                        pythonStr += " " + list.get(i).lexeme + " ";
                         statementArr[2] = "T_ASSIGN";
 
                         /* James B's logical operators code */
-                        tempData.add(new TokenData("assignment operator", "="));
+                        //tempData.add(new TokenData("assignment operator", "="));
 
                         break;
 
@@ -676,32 +773,32 @@ public class PythonConverter {
                        to a variable of type integer of short in the statement.
                     */
 
-                    //If 'int x =' or 'short x ='
-                    if((statementArr[0] == "T_INT" || statementArr[0] == "T_SHORT") && statementArr[1] == "VAR_IDENTIFIER"
-                       && statementArr[2] == "T_ASSIGN") {
+                    //If 'int x =', 'short x =', or 'byte x ='
+                    if((statementArr[0] == "T_INT" || statementArr[0] == "T_SHORT" || statementArr[0] == "T_BYTE") && statementArr[1] == "VAR_IDENTIFIER"
+                            && statementArr[2] == "T_ASSIGN") {
 
-                       String num = list.get(i).lexeme;
+                        String num = list.get(i).lexeme;
 
-                       // Remove the last two characters in the number if its assigned variable is type short or int
-                       if(num.charAt(num.length()-2) == '.' && num.charAt(num.length()-1) == '0') {
+                        // Remove the last two characters in the number if its assigned variable is type short or int
+                        if(num.charAt(num.length()-2) == '.' && num.charAt(num.length()-1) == '0') {
 
-                           num = num.substring(0, num.length() -1);
-                           num = num.substring(0, num.length() -1);
+                            num = num.substring(0, num.length() -1);
+                            num = num.substring(0, num.length() -1);
 
-                           pythonStr += num;
+                            pythonStr += num + " ";
 
-                           for(int q = 0; q < statementArr.length; q++) {
-                               statementArr[q] = "";
-                           }
+                            for(int q = 0; q < statementArr.length; q++) {
+                                statementArr[q] = "";
+                            }
 
-                           break;
+                            break;
 
-                       } else {
+                        } else {
 
-                           pythonStr += list.get(i).lexeme;
-                           break;
+                            pythonStr += list.get(i).lexeme + " ";
+                            break;
 
-                       }
+                        }
 
 
                     } else if(equalOpStatement[0] == "VAR_IDENTIFIER" && equalOpStatement[1] == "Equal Operator") {
@@ -724,19 +821,74 @@ public class PythonConverter {
 
                         }
 
-                    } else {
+                    } else if(statementArr[0] == "T_LONG" && statementArr[1] == "VAR_IDENTIFIER"
+                            && statementArr[2] == "T_ASSIGN" && list.get(i+1).lexeme.equals("L")) {
 
-                    	//Remove the decimal from numbers whose decimal is 0 but is not caught in the above methods because it is not a variable declaration
-                        try {
-                        	if(Double.valueOf(list.get(i).lexeme) - Double.valueOf(list.get(i).lexeme).intValue() < 0.000000000000001) {
-                        		pythonStr += Double.valueOf(list.get(i).lexeme).intValue();
-                        		break;
-                        	}
+                        String numStr = list.get(i).lexeme.replace(".", "");
+
+                        char[] charDigits = new char[numStr.length()];
+
+                        for(int count = 0; count < numStr.length(); count++) {
+                            charDigits[count] = numStr.charAt(count);
                         }
-                       catch(Exception e){
-                       }
-                    	
-                        pythonStr += list.get(i).lexeme;
+
+                        int count1 = 0;
+                        String resultNum = "";
+
+                        while(charDigits[count1] != 'E') {
+
+                            resultNum += charDigits[count1];
+                            count1++;
+                        }
+
+                        pythonStr += resultNum + " ";
+
+                        for(int s = 0; s < statementArr.length; s++) {
+                            statementArr[s] = "";
+                        }
+
+                        break;
+
+
+
+                        // only an assignment statement, not declaration and initialization. Ex: x = num
+                    }
+
+                    /*
+                    else if(list.get(i-1).token == "T_ASSIGN" && list.get(i-2).token == "VAR_IDENTIFIER"
+                        && (list.get(i-3).token == "T_SEMICOLON") || (list.get(i-3).token == "T_LBRACE")) {
+
+                                String num = list.get(i).lexeme;
+
+                                // Remove the last two characters in the number if its assigned variable is type short or int
+                                if(num.charAt(num.length()-2) == '.' && num.charAt(num.length()-1) == '0') {
+
+                                    num = num.substring(0, num.length() -1);
+                                    num = num.substring(0, num.length() -1);
+
+                                    pythonStr += num;
+
+                                    break;
+
+                                }
+
+                    }
+
+                     */
+
+                    else {
+
+                        //Remove the decimal from numbers whose decimal is 0 but is not caught in the above methods because it is not a variable declaration
+                        try {
+                            if(Double.valueOf(list.get(i).lexeme) - Double.valueOf(list.get(i).lexeme).intValue() < 0.000000000000001) {
+                                pythonStr += Double.valueOf(list.get(i).lexeme).intValue();
+                                break;
+                            }
+                        }
+                        catch(Exception e){
+                        }
+
+                        pythonStr += list.get(i).lexeme + " ";
                         break;
 
                     }
@@ -745,7 +897,7 @@ public class PythonConverter {
 
                     // Modified Logical Operator Functionality
                     list.set(i, handleLogicalOperator(list, list.get(i), i));
-                    
+
 
                     // // '&&'
                     // if(list.get(i).lexeme.equals("&") && list.get(i+1).lexeme.equals("&")) {
@@ -789,7 +941,31 @@ public class PythonConverter {
                         break;
                     }
 
+                case "arithmetic operator":
+
+                    break;
+
+                case "long specification":
+
+                    continue;
+
+                case "boolean literal":
+
+                    if(list.get(i).lexeme.equals("true")) {
+                        pythonStr += "True";
+                    } else if(list.get(i).lexeme.equals("false")) {
+                        pythonStr += "False";
+                    }
+
+                    break;
+
+                case "character literal":
+
+                    pythonStr += list.get(i).lexeme;
+                    break;
+
                 case "T_IF":
+                    //ifStatement = true;
                     pythonStr += "if ";
                     break;
 
@@ -805,134 +981,137 @@ public class PythonConverter {
                 case "Equals Method":
                     pythonStr += " == ";
                     break;
-                    
-                //Math handling  
+
+
+
+                //Math handling
                 case "Math":
-                	checkPrintStatement += list.get(i).lexeme;
-                	isAMathMethodDoNotCastIt = true;
+                    checkPrintStatement += list.get(i).lexeme;
+                    isAMathMethodDoNotCastIt = true;
                     break;
                 case "abs":
-                	checkPrintStatement += list.get(i).lexeme;
+                    checkPrintStatement += list.get(i).lexeme;
                     if(checkPrintStatement.equals("Math.abs"))
                         pythonStr += "abs";
                     break;
-            	case "min":
-                	checkPrintStatement += list.get(i).lexeme;
+                case "min":
+                    checkPrintStatement += list.get(i).lexeme;
                     if(checkPrintStatement.equals("Math.min"))
                         pythonStr += "min";
                     break;
-        		case "max":
-                	checkPrintStatement += list.get(i).lexeme;
+                case "max":
+                    checkPrintStatement += list.get(i).lexeme;
                     if(checkPrintStatement.equals("Math.max"))
                         pythonStr += "max";
                     break;
-        		case "pow":
-        			checkPrintStatement += list.get(i).lexeme;
-        			if(checkPrintStatement.equals("Math.pow"))
+                case "pow":
+                    checkPrintStatement += list.get(i).lexeme;
+                    if(checkPrintStatement.equals("Math.pow"))
                         pythonStr += "pow";
-        			break;
-        		case "acos":
-        			checkPrintStatement += list.get(i).lexeme;
-        			if(checkPrintStatement.equals("Math.acos"))
+                    break;
+                case "acos":
+                    checkPrintStatement += list.get(i).lexeme;
+                    if(checkPrintStatement.equals("Math.acos"))
                         pythonStr += "math.acos";
-        			needsMathImport = true;
-        			break;
-        		case "asin":
-        			checkPrintStatement += list.get(i).lexeme;
-        			if(checkPrintStatement.equals("Math.asin"))
+                    needsMathImport = true;
+                    break;
+                case "asin":
+                    checkPrintStatement += list.get(i).lexeme;
+                    if(checkPrintStatement.equals("Math.asin"))
                         pythonStr += "math.asin";
-        			needsMathImport = true;
-        			break;
-        		case "atan":
-        			checkPrintStatement += list.get(i).lexeme;
-        			if(checkPrintStatement.equals("Math.atan"))
+                    needsMathImport = true;
+                    break;
+                case "atan":
+                    checkPrintStatement += list.get(i).lexeme;
+                    if(checkPrintStatement.equals("Math.atan"))
                         pythonStr += "math.atan";
-        			needsMathImport = true;
-        			break;
-        		case "atan2":
-        			checkPrintStatement += list.get(i).lexeme;
-        			if(checkPrintStatement.equals("Math.atan2"))
+                    needsMathImport = true;
+                    break;
+                case "atan2":
+                    checkPrintStatement += list.get(i).lexeme;
+                    if(checkPrintStatement.equals("Math.atan2"))
                         pythonStr += "math.atan2";
-        			needsMathImport = true;
-        			break;
-        		case "cos":
-        			checkPrintStatement += list.get(i).lexeme;
-        			if(checkPrintStatement.equals("Math.cos"))
+                    needsMathImport = true;
+                    break;
+                case "cos":
+                    checkPrintStatement += list.get(i).lexeme;
+                    if(checkPrintStatement.equals("Math.cos"))
                         pythonStr += "math.cos";
-        			needsMathImport = true;
-        			break;
-        		case "cosh":
-        			checkPrintStatement += list.get(i).lexeme;
-        			if(checkPrintStatement.equals("Math.cosh"))
+                    needsMathImport = true;
+                    break;
+                case "cosh":
+                    checkPrintStatement += list.get(i).lexeme;
+                    if(checkPrintStatement.equals("Math.cosh"))
                         pythonStr += "math.cosh";
-        			needsMathImport = true;
-        			break;
-        		case "exp":
-        			checkPrintStatement += list.get(i).lexeme;
-        			if(checkPrintStatement.equals("Math.exp"))
+                    needsMathImport = true;
+                    break;
+                case "exp":
+                    checkPrintStatement += list.get(i).lexeme;
+                    if(checkPrintStatement.equals("Math.exp"))
                         pythonStr += "math.exp";
-        			needsMathImport = true;
-        			break;
-        		case "log":
-        			checkPrintStatement += list.get(i).lexeme;
-        			if(checkPrintStatement.equals("Math.log"))
+                    needsMathImport = true;
+                    break;
+                case "log":
+                    checkPrintStatement += list.get(i).lexeme;
+                    if(checkPrintStatement.equals("Math.log"))
                         pythonStr += "math.log";
-        			needsMathImport = true;
-        			break;
-        		case "log10":
-        			checkPrintStatement += list.get(i).lexeme;
-        			if(checkPrintStatement.equals("Math.log10"))
+                    needsMathImport = true;
+                    break;
+                case "log10":
+                    checkPrintStatement += list.get(i).lexeme;
+                    if(checkPrintStatement.equals("Math.log10"))
                         pythonStr += "math.log10";
-        			needsMathImport = true;
-        			break;
-        		case "sin":
-        			checkPrintStatement += list.get(i).lexeme;
-        			if(checkPrintStatement.equals("Math.sin"))
+                    needsMathImport = true;
+                    break;
+                case "sin":
+                    checkPrintStatement += list.get(i).lexeme;
+                    if(checkPrintStatement.equals("Math.sin"))
                         pythonStr += "math.sin";
-        			needsMathImport = true;
-        			break;
-        		case "sinh":
-        			checkPrintStatement += list.get(i).lexeme;
-        			if(checkPrintStatement.equals("Math.sinh"))
+                    needsMathImport = true;
+                    break;
+                case "sinh":
+                    checkPrintStatement += list.get(i).lexeme;
+                    if(checkPrintStatement.equals("Math.sinh"))
                         pythonStr += "math.sinh";
-        			break;
-        		case "sqrt":
-        			checkPrintStatement += list.get(i).lexeme;
-        			if(checkPrintStatement.equals("Math.sqrt"))
+                    break;
+                case "sqrt":
+                    checkPrintStatement += list.get(i).lexeme;
+                    if(checkPrintStatement.equals("Math.sqrt"))
                         pythonStr += "math.sqrt";
-        			needsMathImport = true;
-        			break;
-        		case "tan":
-        			checkPrintStatement += list.get(i).lexeme;
-        			if(checkPrintStatement.equals("Math.tan"))
+                    needsMathImport = true;
+                    break;
+                case "tan":
+                    checkPrintStatement += list.get(i).lexeme;
+                    if(checkPrintStatement.equals("Math.tan"))
                         pythonStr += "math.tan";
-        			break;
-        		case "tanh":
-        			checkPrintStatement += list.get(i).lexeme;
-        			if(checkPrintStatement.equals("Math.tanh"))
+                    break;
+                case "tanh":
+                    checkPrintStatement += list.get(i).lexeme;
+                    if(checkPrintStatement.equals("Math.tanh"))
                         pythonStr += "math.tanh";
-        			needsMathImport = true;
-        			break;
-        		case "toRadians":
-        			checkPrintStatement += list.get(i).lexeme;
-        			if(checkPrintStatement.equals("Math.toRadians"))
+                    needsMathImport = true;
+                    break;
+                case "toRadians":
+                    checkPrintStatement += list.get(i).lexeme;
+                    if(checkPrintStatement.equals("Math.toRadians"))
                         pythonStr += "math.radians";
-        			needsMathImport = true;
-        			break;
-        		case "toDegrees":
-        			checkPrintStatement += list.get(i).lexeme;
-        			if(checkPrintStatement.equals("Math.toDegrees"))
+                    needsMathImport = true;
+                    break;
+                case "toDegrees":
+                    checkPrintStatement += list.get(i).lexeme;
+                    if(checkPrintStatement.equals("Math.toDegrees"))
                         pythonStr += "math.degrees";
-        			needsMathImport = true;
-        			break;
+                    needsMathImport = true;
+                    break;
             }
 
         }
 
         //Add math import statement if required
         if(needsMathImport)
-        	pythonStr = "import math \n\n" + pythonStr; 
-        
+            pythonStr = "import math \n\n" + pythonStr;
+
+
         /*
             Add the python result string to the function that will get the output string that will be different
             depending on if the Java class contains only a main method or contains other methods additionally.
@@ -949,6 +1128,8 @@ public class PythonConverter {
         //handleLogicalOperators();
         //handleUnaryOperators();
 
+        //System.out.println(lexemeList);
+
     }
 
     // --------------------------------------------------------------------------------
@@ -958,7 +1139,7 @@ public class PythonConverter {
     // Using the list of tokens to find where all logical operators are located in
     // lexeme list
     // private static void listAllOfType(String thisType) {
-        
+
     //     // Clean slate
     //     indices.clear();
 
@@ -1013,7 +1194,7 @@ public class PythonConverter {
     //         tempLexeme = lexemeList.get(tempLexemeInt);
 
     //         tempLexeme = chooseLogicalOperatorCase(tempLexeme, tempLexemeInt);
-            
+
 
     //         // Replace symbol with word
     //         lexemeList.set(tempLexemeInt, tempLexeme);
@@ -1081,9 +1262,9 @@ public class PythonConverter {
             //lexemeList.remove(tempLexemeInt + 1);
             //tokenList.remove(tempLexemeInt + 1);
             //indices.remove(indices.get(0));
-            
 
-            //decrementIndices();        
+
+            //decrementIndices();
 
             // Modified for switch case implementation
             fullList.remove(tempLexemeInt + 1);
@@ -1096,7 +1277,7 @@ public class PythonConverter {
 
     private static void handleUnaryOperator(ArrayList<TokenData> fullList, String caseToCheck, int caseIndex) {
         String variableString = "VAR_IDENTIFIER";
-        
+
         // True = ++, False = --
         boolean unaryType = false;
         // True = ++x/--x, False = x++/x--;
@@ -1147,14 +1328,14 @@ public class PythonConverter {
     //             unaryType = true;
     //         }
     //         // If not changed -> Case: --
-            
+
     //         if(tempLexemeInt != 0 && tokenList.get(tempLexemeInt - 1).equals(variableString)) {
     //             beforeAfter = true;
     //         }
 
     //         // Gets correct replacement for unary operator case
     //         tempLexeme = handleUnary(tempLexemeInt, unaryType, beforeAfter);
-            
+
     //         // If false, element behind tempLexemeInt is removed, so tempLexemeInt needs to shift as well
     //         if(!beforeAfter) {tempLexemeInt -= 1;}
 
@@ -1189,15 +1370,15 @@ public class PythonConverter {
             // "x -= 1", remove x
             unaryReplacement = fullList.get(lexemeInt+1).lexeme + "-=1";
             fullList.remove(lexemeInt + 1);
-        } 
+        }
         // Case: False/False -> x--
         else {
             // remove x, "x -= 1"
             unaryReplacement = fullList.get(lexemeInt-1).lexeme + "-=1";
             fullList.remove(lexemeInt-1);
         }
-        
-        // Each case removes something, so the indices need to be decremented else 
+
+        // Each case removes something, so the indices need to be decremented else
         //decrementIndices();
 
         return unaryReplacement;

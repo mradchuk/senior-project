@@ -19,7 +19,6 @@ public class LexicalAnalyzer {
     static protected Map<String,String> keyWord = new HashMap<>();
 
     static protected Map<Character, String> stringLiteral = new HashMap<>();
-    static protected Map<String, String> characterLiteral = new HashMap<>();
     static protected Map<String, String> integerLiteral = new HashMap<>();
     static protected Map<String, String> doubleLiteral = new HashMap<>();
     static protected Map<String, String> booleanLiteral = new HashMap<>();
@@ -40,33 +39,36 @@ public class LexicalAnalyzer {
     static protected Map<String,String> stringIdent = new HashMap<>();
     static protected Map<String,String> argsIdent = new HashMap<>();
 
-    static ArrayList<TokenData> arrayOfTokens = new ArrayList<>();
+    static String[] checkLongSpecificationStatement = new String[4];
 
+    static ArrayList<TokenData> arrayOfTokens = new ArrayList<>();
     static ArrayList<String> listOfVariables = new ArrayList<>();
 
-    static boolean isDataType = false;
+    //static ArrayList<String> listOfVariables = new ArrayList<>();
+
+    static boolean insideOfNonMainMethod = false;
+    static boolean insideOfMainMethod = false;
+    static boolean insideOfClass = false;
     static boolean publicBool = false;
     static boolean classBool = false;
 
     // Store tokens
     public LexicalAnalyzer() {
 
-        booleanLiteral.put("true", "boolean literal");
-        booleanLiteral.put("false", "boolean literal");
-
-        characterLiteral.put("'", "character literal");
+        booleanLiteral.put("TRUE", "boolean literal");
+        booleanLiteral.put("FALSE", "boolean literal");
 
         comment.put("//", "comment");
         comment.put("/*", "comment");
         comment.put("*/", "comment");
 
         keyWord.put("ABSTRACT", "keyword");
-        keyWord.put("BOOLEAN", "keyword");
+        keyWord.put("BOOLEAN", "T_BOOL");
         keyWord.put("BREAK", "keyword");
-        keyWord.put("BYTE", "keyword");
+        keyWord.put("BYTE", "T_BYTE");
         keyWord.put("CASE", "keyword");
         keyWord.put("CATCH", "keyword");
-        keyWord.put("CHAR", "keyword");
+        keyWord.put("CHAR", "T_CHAR");
         keyWord.put("CLASS", "T_CLASS");
         keyWord.put("CONTINUE", "keyword");
         keyWord.put("DEFAULT", "keyword");
@@ -82,7 +84,7 @@ public class LexicalAnalyzer {
         keyWord.put("IF", "T_IF");
         keyWord.put("IMPORT", "keyword");
         keyWord.put("INT", "T_INT");
-        keyWord.put("LONG", "keyword");
+        keyWord.put("LONG", "T_LONG");
         keyWord.put("NEW", "keyword");
         keyWord.put("NULL", "keyword");
         keyWord.put("PACKAGE", "keyword");
@@ -172,6 +174,8 @@ public class LexicalAnalyzer {
 
                 if (st.ttype == '"') {
                     tokens.add('"' + st.sval + '"');
+                } else if (st.ttype == '\'') {
+                    tokens.add("'" + st.sval + "'");
                 } else {
                     tokens.add(st.sval);
                 }
@@ -209,6 +213,8 @@ public class LexicalAnalyzer {
 
         arrayOfTokens.add(new TokenData("NUMBER", strObject));
         System.out.println("NUMBER" + " - " + strObject);
+
+        checkLongSpecificationStatement[3] = "NUMBER";
 
     }
 
@@ -264,13 +270,6 @@ public class LexicalAnalyzer {
 
         if(keyWord.containsKey(strObject.toUpperCase())) {
 
-            if(strObject.toUpperCase().equals("INT") || strObject.toUpperCase().equals("DOUBLE") ||
-                    strObject.toUpperCase().equals("SHORT") || strObject.toUpperCase().equals("FLOAT")) {
-
-                        isDataType = true;
-
-            }
-
             if(strObject.equals("public")) {
                 publicBool = true;
             }
@@ -282,21 +281,44 @@ public class LexicalAnalyzer {
             arrayOfTokens.add(new TokenData(keyWord.get(strObject.toUpperCase()), strObject));
             System.out.println(keyWord.get(strObject.toUpperCase()) + " - " + strObject);
 
+            checkLongSpecificationStatement[0] = keyWord.get(strObject.toUpperCase());
+
         } else if(separator.containsKey(strObject.toUpperCase())) {
 
+            if(strObject.equals("{")) {
+
+                if(insideOfClass) {
+                    insideOfNonMainMethod = false;
+                    insideOfClass = false;
+                } else {
+                    insideOfNonMainMethod = true;
+                }
+
+            }
+
             if(strObject.equals("}")) {
-                isDataType = false;
+                insideOfNonMainMethod = false;
+                insideOfMainMethod = false;
             }
 
             arrayOfTokens.add(new TokenData(separator.get(strObject.toUpperCase()), strObject));
             System.out.println(separator.get(strObject.toUpperCase()) + " - " + strObject);
+
+            checkLongSpecificationStatement[2] = separator.get(strObject.toUpperCase());
 
         } else if(strObject.charAt(0) == '"' && strObject.charAt(strObject.length()-1) == '"') {
 
             arrayOfTokens.add(new TokenData(stringLiteral.get('"'), strObject));
             System.out.println(stringLiteral.get('"') + " - " + strObject);
 
+        } else if(strObject.charAt(0) == '\'' && strObject.charAt(strObject.length()-1) == '\'' && strObject.length() == 3) {
+
+            arrayOfTokens.add(new TokenData("character literal", strObject));
+            System.out.println("character literal" + " - " + strObject);
+
         } else if(mainIdent.containsKey(strObject.toUpperCase())) {
+
+            insideOfMainMethod = true;
 
             arrayOfTokens.add(new TokenData(mainIdent.get(strObject.toUpperCase()), strObject));
             System.out.println(mainIdent.get(strObject.toUpperCase()) + " - " + strObject);
@@ -326,14 +348,24 @@ public class LexicalAnalyzer {
             arrayOfTokens.add(new TokenData(opRelational.get(strObject.toUpperCase()), strObject));
             System.out.println(opRelational.get(strObject.toUpperCase()) + " - " + strObject);
 
+        } else if(booleanLiteral.containsKey(strObject.toUpperCase())) {
+
+            arrayOfTokens.add(new TokenData(booleanLiteral.get(strObject.toUpperCase()), strObject));
+            System.out.println(booleanLiteral.get(strObject.toUpperCase()) + " - " + strObject);
+
+        } else if(opArithmetic.containsKey(strObject.toUpperCase())) {
+
+            arrayOfTokens.add(new TokenData(opArithmetic.get(strObject.toUpperCase()), strObject));
+            System.out.println(opArithmetic.get(strObject.toUpperCase()) + " - " + strObject);
+
         } else if(!strObject.contains(".")) {
             /*
                 If the unrecognized string object DOES NOT contain a '.' separator, it is likely NEITHER a print nor casting statement.
                 So the string object could be a class name, method name, variable identifier.
             */
 
-            /* The string object belongs to statement that contains a datatype keyword */
-            if(isDataType) {
+            /* The string object is within a non main method */
+            if(insideOfNonMainMethod && !insideOfMainMethod) {
 
                 /*
                    If the string object is not 'f' that is separated by the stream tokenizer from
@@ -344,11 +376,29 @@ public class LexicalAnalyzer {
                 */
                 if(!strObject.equals("f")) {
 
-                    arrayOfTokens.add(new TokenData("VAR_IDENTIFIER", strObject));
-                    System.out.println("VAR_IDENTIFIER" + " - " + strObject);
+                    // check for long var = 0L
+                    if(checkLongSpecificationStatement[0] == "T_LONG" && checkLongSpecificationStatement[1] == "VAR_IDENTIFIER" &&
+                            checkLongSpecificationStatement[2] == "T_ASSIGN" && checkLongSpecificationStatement[3] == "NUMBER") {
 
-                    if (!listOfVariables.contains(strObject))
-                        listOfVariables.add(strObject);
+                        arrayOfTokens.add(new TokenData("long specification", strObject));
+                        System.out.println("long specification" + " - " + strObject);
+
+                        for(int count = 0; count < checkLongSpecificationStatement.length; count++) {
+                            checkLongSpecificationStatement[count] = "";
+                        }
+
+                    } else {
+
+                        arrayOfTokens.add(new TokenData("VAR_IDENTIFIER", strObject));
+                        System.out.println("VAR_IDENTIFIER" + " - " + strObject);
+
+                        checkLongSpecificationStatement[1] = "VAR_IDENTIFIER";
+
+                        if (!listOfVariables.contains(strObject))
+                            listOfVariables.add(strObject);
+
+                    }
+
                 }
 
             } else if(classBool && publicBool) {
@@ -360,6 +410,8 @@ public class LexicalAnalyzer {
 
                 classBool = false;
                 publicBool = false;
+
+                insideOfClass = true;
 
             } else {
 
@@ -402,9 +454,9 @@ public class LexicalAnalyzer {
                         prevToken = "";
                     }//Check for math keyword before . separator
                     else if(prevToken.equals("Math")) {
-                  	arrayOfTokens.add(new TokenData("Math", prevToken));
-                  	System.out.println("Math" + "-" + prevToken);
-                  	prevToken = "";
+                        arrayOfTokens.add(new TokenData("Math", prevToken));
+                        System.out.println("Math" + "-" + prevToken);
+                        prevToken = "";
                     }
 
                     arrayOfTokens.add(new TokenData(separator.get(String.valueOf(c)), String.valueOf(c)));
@@ -440,89 +492,90 @@ public class LexicalAnalyzer {
                         System.out.println("Equals method - " + prevToken);
                         prevToken = "";
                     }
+
                     //Check for math keywords after the . seperator
-                      else if(prevToken.equals("abs")) {
-                    	arrayOfTokens.add(new TokenData("abs", prevToken));
-                    	System.out.println("abs" + " - " + prevToken);
-                    	prevToken = "";
+                    else if(prevToken.equals("abs")) {
+                        arrayOfTokens.add(new TokenData("abs", prevToken));
+                        System.out.println("abs" + " - " + prevToken);
+                        prevToken = "";
                     } else if(prevToken.equals("min")) {
-                    	arrayOfTokens.add(new TokenData("min", prevToken));
-                    	System.out.println("min" + " - " + prevToken);
-                    	prevToken = "";
+                        arrayOfTokens.add(new TokenData("min", prevToken));
+                        System.out.println("min" + " - " + prevToken);
+                        prevToken = "";
                     } else if(prevToken.equals("max")) {
-                    	arrayOfTokens.add(new TokenData("max", prevToken));
-                    	System.out.println("max" + " - " + prevToken);
-                    	prevToken = "";
+                        arrayOfTokens.add(new TokenData("max", prevToken));
+                        System.out.println("max" + " - " + prevToken);
+                        prevToken = "";
                     } else if(prevToken.equals("pow")) {
-                    	arrayOfTokens.add(new TokenData("pow", prevToken));
-                    	System.out.println("pow" + " - " + prevToken);
-                    	prevToken = "";
+                        arrayOfTokens.add(new TokenData("pow", prevToken));
+                        System.out.println("pow" + " - " + prevToken);
+                        prevToken = "";
                     } else if(prevToken.equals("acos")) {
-                    	arrayOfTokens.add(new TokenData("acos", prevToken));
-                    	System.out.println("acos" + " - " + prevToken);
-                    	prevToken = "";
+                        arrayOfTokens.add(new TokenData("acos", prevToken));
+                        System.out.println("acos" + " - " + prevToken);
+                        prevToken = "";
                     } else if(prevToken.equals("asin")) {
-                    	arrayOfTokens.add(new TokenData("asin", prevToken));
-                    	System.out.println("asin" + " - " + prevToken);
-                    	prevToken = "";
+                        arrayOfTokens.add(new TokenData("asin", prevToken));
+                        System.out.println("asin" + " - " + prevToken);
+                        prevToken = "";
                     } else if(prevToken.equals("atan")) {
-                    	arrayOfTokens.add(new TokenData("atan", prevToken));
-                    	System.out.println("atan" + " - " + prevToken);
-                      	prevToken = "";
+                        arrayOfTokens.add(new TokenData("atan", prevToken));
+                        System.out.println("atan" + " - " + prevToken);
+                        prevToken = "";
                     } else if(prevToken.equals("atan2")) {
-                    	arrayOfTokens.add(new TokenData("atan2", prevToken));
-                    	System.out.println("atan2" + " - " + prevToken);
-                    	prevToken = "";
+                        arrayOfTokens.add(new TokenData("atan2", prevToken));
+                        System.out.println("atan2" + " - " + prevToken);
+                        prevToken = "";
                     } else if(prevToken.equals("cos")) {
-                    	arrayOfTokens.add(new TokenData("cos", prevToken));
-                    	System.out.println("cos" + " - " + prevToken);
-                    	prevToken = "";
+                        arrayOfTokens.add(new TokenData("cos", prevToken));
+                        System.out.println("cos" + " - " + prevToken);
+                        prevToken = "";
                     } else if(prevToken.equals("cosh")) {
-                    	arrayOfTokens.add(new TokenData("cosh", prevToken));
-                    	System.out.println("cosh" + " - " + prevToken);
-                    	prevToken = "";
+                        arrayOfTokens.add(new TokenData("cosh", prevToken));
+                        System.out.println("cosh" + " - " + prevToken);
+                        prevToken = "";
                     } else if(prevToken.equals("exp")) {
-                    	arrayOfTokens.add(new TokenData("exp", prevToken));
-                    	System.out.println("exp" + " - " + prevToken);
-                    	prevToken = "";
+                        arrayOfTokens.add(new TokenData("exp", prevToken));
+                        System.out.println("exp" + " - " + prevToken);
+                        prevToken = "";
                     } else if(prevToken.equals("log")) {
-                    	arrayOfTokens.add(new TokenData("log", prevToken));
-                    	System.out.println("log" + " - " + prevToken);
-                    	prevToken = "";
+                        arrayOfTokens.add(new TokenData("log", prevToken));
+                        System.out.println("log" + " - " + prevToken);
+                        prevToken = "";
                     } else if(prevToken.equals("log10")) {
-                    	arrayOfTokens.add(new TokenData("log10", prevToken));
-                    	System.out.println("log10" + " - " + prevToken);
-                    	prevToken = "";
+                        arrayOfTokens.add(new TokenData("log10", prevToken));
+                        System.out.println("log10" + " - " + prevToken);
+                        prevToken = "";
                     } else if(prevToken.equals("sin")) {
-                    	arrayOfTokens.add(new TokenData("sin", prevToken));
-                    	System.out.println("sin" + " - " + prevToken);
-                    	prevToken = "";
+                        arrayOfTokens.add(new TokenData("sin", prevToken));
+                        System.out.println("sin" + " - " + prevToken);
+                        prevToken = "";
                     } else if(prevToken.equals("sinh")) {
-                    	arrayOfTokens.add(new TokenData("sinh", prevToken));
-                    	System.out.println("sinh" + " - " + prevToken);
-                    	prevToken = "";
+                        arrayOfTokens.add(new TokenData("sinh", prevToken));
+                        System.out.println("sinh" + " - " + prevToken);
+                        prevToken = "";
                     } else if(prevToken.equals("sqrt")) {
-                    	arrayOfTokens.add(new TokenData("sqrt", prevToken));
-                    	System.out.println("sqrt" + " - " + prevToken);
-                    	prevToken = "";
+                        arrayOfTokens.add(new TokenData("sqrt", prevToken));
+                        System.out.println("sqrt" + " - " + prevToken);
+                        prevToken = "";
                     } else if(prevToken.equals("tan")) {
-                    	arrayOfTokens.add(new TokenData("tan", prevToken));
-                    	System.out.println("tan" + " - " + prevToken);
-                    	prevToken = "";
+                        arrayOfTokens.add(new TokenData("tan", prevToken));
+                        System.out.println("tan" + " - " + prevToken);
+                        prevToken = "";
                     } else if(prevToken.equals("tanh")) {
-                    	arrayOfTokens.add(new TokenData("tanh", prevToken));
-                    	System.out.println("tanh" + " - " + prevToken);
-                    	prevToken = "";
+                        arrayOfTokens.add(new TokenData("tanh", prevToken));
+                        System.out.println("tanh" + " - " + prevToken);
+                        prevToken = "";
                     } else if(prevToken.equals("toDegrees")) {
-                    	arrayOfTokens.add(new TokenData("toDegrees", prevToken));
-                    	System.out.println("toDegrees" + " - " + prevToken);
-                    	prevToken = "";
+                        arrayOfTokens.add(new TokenData("toDegrees", prevToken));
+                        System.out.println("toDegrees" + " - " + prevToken);
+                        prevToken = "";
                     } else if(prevToken.equals("toRadians")) {
-                    	arrayOfTokens.add(new TokenData("toRadians", prevToken));
-                    	System.out.println("toRadians" + " - " + prevToken);
-                    	prevToken = "";
-                    } 
-                    
+                        arrayOfTokens.add(new TokenData("toRadians", prevToken));
+                        System.out.println("toRadians" + " - " + prevToken);
+                        prevToken = "";
+                    }
+
                 }
 
             }

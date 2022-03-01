@@ -35,7 +35,22 @@ public class Complex2 {
         System.out.println("Reached the end of Boolean Logic Section");
     }
 
-	public static void mathSection() {
+    public void varSection() {
+
+        byte testByte = 22; 
+        short testShort = 2045; // Bigger than byte
+        int testInt = 40341; // Bigger than short
+        long testLong = 3685469852L; // Bigger than int
+        float testFloat = 45.87f;
+        double testDouble = 458.2247852682; // Handles more decimal places than float
+        boolean testBoolean = true;
+        char testChar = 'a';
+        String testString = "text";
+
+        System.out.println("Reached the end of Variable Section");
+    }
+
+    public static void mathSection() {
     	    	
     	int x = Math.abs(1);
     	System.out.println( Math.min(1,2));
@@ -63,6 +78,8 @@ public class Complex2 {
     public static void main(String[] args) {
         castSection();
         boolSection();
+        varSection();
+        mathSection();
     }
     
 }
