@@ -184,6 +184,10 @@ public class PythonConverter {
 
         ArrayList<TokenData> tempData = new ArrayList<TokenData>();
 
+        for(int in8 = 0; in8 < list.size(); in8++) {
+            System.out.println(list.get(in8).lexeme + " --- " + in8);
+        }
+
         for(int i = 0; i < list.size(); i++) {
 
             switch(list.get(i).token) {
@@ -747,7 +751,8 @@ public class PythonConverter {
 
                     } else if(checkNotEqual) {
 
-                        pythonStr += " != ";
+                        //pythonStr += " != ";
+                        pythonStr += list.get(i).lexeme + " ";
                         checkNotEqual = false;
 
                         break;
@@ -897,6 +902,8 @@ public class PythonConverter {
 
                     // Modified Logical Operator Functionality
                     list.set(i, handleLogicalOperator(list, list.get(i), i));
+                    pythonStr += " " + list.get(i).lexeme;
+                    break;
 
 
                     // // '&&'
@@ -926,7 +933,8 @@ public class PythonConverter {
                 case "unary operator":
 
                     // Modified Unary Operator Functionality
-                    handleUnaryOperator(list, list.get(i).lexeme, i);
+                    //handleUnaryOperator(list, list.get(i).lexeme, i);
+                    break;
 
 
                     // if(list.get(i).lexeme.equals("!") && list.get(i+1).lexeme.equals("=")) {
@@ -943,7 +951,28 @@ public class PythonConverter {
 
                 case "arithmetic operator":
 
-                    break;
+                    if(list.get(i).lexeme.equals("+") && list.get(i+1).lexeme.equals("+") && list.get(i+2).token.equals("T_SEMICOLON")) {
+                        handleUnaryOperator(list, "++", i);
+                        pythonStr += list.get(i).lexeme.substring(1);
+                        break;
+                    } else if(list.get(i).lexeme.equals("-") && list.get(i+1).lexeme.equals("-") && list.get(i+2).token.equals("T_SEMICOLON")) {
+                        handleUnaryOperator(list, "--", i);
+                        pythonStr += list.get(i).lexeme.substring(1);
+                        break;
+
+                    // Have not found the proper way to use handleUnaryOperator() for pre-increments and pre-decrements due to how the unary
+                    // functions alter the original list of TokenData. This implementation should work for now.
+                    } else if(list.get(i).lexeme.equals("+") && list.get(i+1).lexeme.equals("+") && list.get(i+2).token.equals("VAR_IDENTIFIER")) {
+                        pythonStr += list.get(i+2).lexeme + "+=1";
+                        list.remove(i+2);
+                        break;
+                    } else if(list.get(i).lexeme.equals("-") && list.get(i+1).lexeme.equals("-") && list.get(i+2).token.equals("VAR_IDENTIFIER")) {
+                        pythonStr += list.get(i+2).lexeme + "-=1";
+                        list.remove(i+2);
+                        break;
+                    } else {
+                        break;
+                    }
 
                 case "long specification":
 
@@ -1123,6 +1152,15 @@ public class PythonConverter {
 
         System.out.println();
 
+
+
+
+        System.out.println();
+        System.out.println();
+        for(int in9 = 0; in9 < list.size(); in9++) {
+            System.out.println(list.get(in9).lexeme + " --- " + in9);
+        }
+
         /* James B's logical operators code */
         //splitTokenList(tempData);
         //handleLogicalOperators();
@@ -1210,17 +1248,24 @@ public class PythonConverter {
     private static String chooseLogicalOperatorCase(ArrayList<TokenData> fullList, String caseToCheck, int caseIndex) {
 
         // Case: &
-        if (caseToCheck == "&") {
+        if (caseToCheck.equals("&")) {
             caseToCheck = handleAmpersand(fullList, caseIndex);
         }
         // Case: |
-        else if(caseToCheck == "|") {
+        else if(caseToCheck.equals("|")) {
             caseToCheck = handleVertBar(fullList, caseIndex);
         }
         // Case: !
         else {
-            // Must be a ! operator
-            caseToCheck = handleExclamation();
+
+            if(fullList.get(caseIndex + 1).lexeme.equals("=")) {
+                caseToCheck = "!";
+                checkNotEqual = true;
+            } else {
+                // Must be a ! operator
+                caseToCheck = handleExclamation();
+            }
+
         }
 
         return caseToCheck;
@@ -1235,7 +1280,9 @@ public class PythonConverter {
 
         // If Single & in java, needs to be replaced with "and"
         // Single & in Python is a bitwise AND function, which is very different
-        return "and";
+
+        return "and ";
+        //return "and";
     }
 
     // Vertical Bar logic
@@ -1245,14 +1292,18 @@ public class PythonConverter {
         // Check for double ||
         handleDoubles(fullList, tempLexemeInt, fullList.size(), vertBarSymbol);
 
-        return "or";
+        return "or ";
+        //return "or";
     }
 
     // Exclamation logic
     private static String handleExclamation() {
         // String exclamationSymbol = "!";
         // No doubles for !, so if the symbol is ! it just needs to be replaced with "not".
-        return "not";
+
+        return "not ";
+        //return "not";
+        //return "!";
     }
 
     // Logic for double symbols && and ||

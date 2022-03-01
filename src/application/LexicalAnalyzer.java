@@ -389,13 +389,52 @@ public class LexicalAnalyzer {
 
                     } else {
 
-                        arrayOfTokens.add(new TokenData("VAR_IDENTIFIER", strObject));
-                        System.out.println("VAR_IDENTIFIER" + " - " + strObject);
+                        /*
+                            Stream tokenizer does not separate variable identifier followed by two arithmetic '-'
+                            operators. Ex: x-- is not separated from the entire thing being a var identifier even
+                            though there are two '-' (for decrementing) after the var ident. So we have to treat
+                            this as a special case and loop through strObject as a charArray and check the result
+                            string '--' decrement and recognize them as operator arithmetic symbols from the hash map.
 
-                        checkLongSpecificationStatement[1] = "VAR_IDENTIFIER";
+                            Otherwise, the variable identifier is normal and assume it has already been isolated
+                            by the stream tokenizer.
+                         */
 
-                        if (!listOfVariables.contains(strObject))
-                            listOfVariables.add(strObject);
+                        String result = "";
+
+                        char[] charArray = strObject.toCharArray();
+
+                        for(int ct = 1; ct < charArray.length; ct++) {
+                            result += charArray[ct];
+                        }
+
+                        if(result.equals("--")) {
+
+                            arrayOfTokens.add(new TokenData("VAR_IDENTIFIER", strObject.substring(0, 1)));
+                            System.out.println("VAR_IDENTIFIER" + " - " + strObject.substring(0, 1));
+
+                            checkLongSpecificationStatement[1] = "VAR_IDENTIFIER";
+
+                            if (!listOfVariables.contains(strObject.substring(0, 1)))
+                                listOfVariables.add(strObject.substring(0, 1));
+
+                            arrayOfTokens.add(new TokenData(opArithmetic.get(strObject.substring(1, 2)), strObject.substring(1, 2)));
+                            System.out.println(opArithmetic.get(strObject.substring(1, 2)) + " - " + strObject.substring(1, 2));
+
+                            arrayOfTokens.add(new TokenData(opArithmetic.get(strObject.substring(2, 3)), strObject.substring(2, 3)));
+                            System.out.println(opArithmetic.get(strObject.substring(2, 3)) + " - " + strObject.substring(2, 3));
+
+                        } else {
+
+                            arrayOfTokens.add(new TokenData("VAR_IDENTIFIER", strObject));
+                            System.out.println("VAR_IDENTIFIER" + " - " + strObject);
+
+                            checkLongSpecificationStatement[1] = "VAR_IDENTIFIER";
+
+                            if (!listOfVariables.contains(strObject))
+                                listOfVariables.add(strObject);
+
+                        }
 
                     }
 

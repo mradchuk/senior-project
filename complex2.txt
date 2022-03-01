@@ -35,6 +35,17 @@ public class Complex2 {
         System.out.println("Reached the end of Boolean Logic Section");
     }
 
+    public void operatorSection() {
+        // Increment/Decrement Operators don't exist in Python
+        int x = 1;
+        x++;
+        ++x;
+        x--;
+        --x;
+
+        System.out.println("Reached the end of Operator Section");
+    }
+
     public void varSection() {
 
         byte testByte = 22; 
@@ -78,6 +89,7 @@ public class Complex2 {
     public static void main(String[] args) {
         castSection();
         boolSection();
+        operatorSection();
         varSection();
         mathSection();
     }
