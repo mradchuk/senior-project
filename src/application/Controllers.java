@@ -119,7 +119,7 @@ public class Controllers implements Initializable {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
+		System.out.println(tokens);
 		listLength = tokens.size();
 
 		for(int i = 0; i < listLength; i++) {
