@@ -82,6 +82,9 @@ public class PythonConverter {
         classOnlyHasMain = false;
         casting = false;
 
+        needsMathImport = false;
+        isAMathMethodDoNotCastIt = false;
+
         //ifStatement = false;
 
         tokenList.clear();
@@ -183,10 +186,6 @@ public class PythonConverter {
         System.out.println();
 
         ArrayList<TokenData> tempData = new ArrayList<TokenData>();
-
-        for(int in8 = 0; in8 < list.size(); in8++) {
-            System.out.println(list.get(in8).lexeme + " --- " + in8);
-        }
 
         for(int i = 0; i < list.size(); i++) {
 
@@ -512,18 +511,18 @@ public class PythonConverter {
 
                         break;
 
-                    } else if(classOnlyHasMain && !checkPrintStatement.equals("System.out.println") && !isMathStatement(checkPrintStatement)) {
+                    } else if(classOnlyHasMain && !checkPrintStatement.equals("System.out.println")
+                            && !isMathStatement(checkPrintStatement) && pythonStr.substring(pythonStr.length()-4).equals("self")) {
 
                         pythonStr += list.get(i).lexeme + ":";
                         break;
 
-                    } else if(classOnlyHasMain && checkPrintStatement.equals("System.out.println")) {
+                    } else if(classOnlyHasMain && !checkPrintStatement.equals("System.out.println") && !isMathStatement(checkPrintStatement)
+                            && !pythonStr.substring(pythonStr.length()-4).equals("self") || isMathStatement(checkPrintStatement)) {
 
                         pythonStr += list.get(i).lexeme;
                         break;
 
-                    } else if(isMathStatement(checkPrintStatement)) {
-                        pythonStr += list.get(i).lexeme;
                     }
 
                     /*
@@ -1151,15 +1150,6 @@ public class PythonConverter {
         System.out.println(pythonStr + onlyMainMethodOrOtherMethods(classContainsMain, classContainsOtherMethods));
 
         System.out.println();
-
-
-
-
-        System.out.println();
-        System.out.println();
-        for(int in9 = 0; in9 < list.size(); in9++) {
-            System.out.println(list.get(in9).lexeme + " --- " + in9);
-        }
 
         /* James B's logical operators code */
         //splitTokenList(tempData);
