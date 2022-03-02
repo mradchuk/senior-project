@@ -72,7 +72,7 @@ public class LexicalAnalyzer {
         keyWord.put("CLASS", "T_CLASS");
         keyWord.put("CONTINUE", "keyword");
         keyWord.put("DEFAULT", "keyword");
-        keyWord.put("DO", "keyword");
+        keyWord.put("DO", "T_DO");
         keyWord.put("DOUBLE", "T_DOUBLE");
         keyWord.put("ELSE", "T_ELSE");
         keyWord.put("ENUM", "keyword");
@@ -80,7 +80,7 @@ public class LexicalAnalyzer {
         keyWord.put("FINAL", "keyword");
         keyWord.put("FINALLY", "keyword");
         keyWord.put("FLOAT", "T_FLOAT");
-        keyWord.put("FOR", "keyword");
+        keyWord.put("FOR", "T_FOR");
         keyWord.put("IF", "T_IF");
         keyWord.put("IMPORT", "keyword");
         keyWord.put("INT", "T_INT");
@@ -101,7 +101,7 @@ public class LexicalAnalyzer {
         keyWord.put("THROWS", "keyword");
         keyWord.put("TRY", "keyword");
         keyWord.put("VOID", "T_VOID");
-        keyWord.put("WHILE", "keyword");
+        keyWord.put("WHILE", "T_WHILE");
 
         nullLiteral.put("null", "null literal");
 
