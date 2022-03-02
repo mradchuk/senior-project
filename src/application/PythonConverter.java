@@ -31,20 +31,22 @@ public class PythonConverter {
     static boolean skipMain = false;
     static boolean classOnlyHasMain = false;
     static boolean casting = false;
-//static boolean ifStatement = false;
+    //static boolean ifStatement = false;
     //If file needs to import python math module
     static boolean needsMathImport = false;
     //Need this variable so math statements aren't identified as casting statements when also declaring a variable on the same line
     static boolean isAMathMethodDoNotCastIt = false;
 
-    static int skipParenthesis = 0, doWhileBraceCount=0;
+    static int skipParenthesis = 0;
+    static boolean endOfDo = false;
     static boolean doWhileLoop = false;
 
     private static ArrayList<String> tokenList = new ArrayList<String>();
     private static ArrayList<String> lexemeList = new ArrayList<String>();
     private static ArrayList<Integer> indices = new ArrayList<Integer>();
 
-    public static ArrayList<TokenData> tempArrayList = new ArrayList<>();
+    public static ArrayList<String> listOfVariables = new ArrayList<>();
+    public static ArrayList<TokenData> doWhileCondition = new ArrayList<>();
 
 
 
@@ -88,16 +90,16 @@ public class PythonConverter {
         needsMathImport = false;
         isAMathMethodDoNotCastIt = false;
 
+        skipParenthesis = 0;
+        endOfDo = false;
+        doWhileLoop = false;
+
         //ifStatement = false;
 
         tokenList.clear();
         lexemeList.clear();
         indices.clear();
-
-        skipParenthesis=0;
-        doWhileLoop=false;
-        doWhileBraceCount=0;
-        tempArrayList.clear();
+        doWhileCondition.clear();
 
     }
 
@@ -106,6 +108,7 @@ public class PythonConverter {
 
         String resultStr = "";
 
+        resultStr += "\t";
         resultStr += "if __name__ == " + '"' + "__main__" + '"' + ":";
         resultStr += "\n\t\t";
 
@@ -231,10 +234,12 @@ public class PythonConverter {
                     break;
 
                 case "T_LBRACE":
-                    if(doWhileLoop)
-                        doWhileBraceCount+=1;
 
-                    pythonStr += ":\n";
+                    if(count >= 2) {
+                        pythonStr += ":\n";
+                    } else {
+                        pythonStr += "\n";
+                    }
 
                     //determines how many times a statement will be indented based on its syntactic position in the code
                     count++;
@@ -253,8 +258,6 @@ public class PythonConverter {
                     break;
 
                 case "T_RBRACE":
-                    if(doWhileLoop)
-                        doWhileBraceCount -= 1;
 
                     pythonStr += "\n";
 
@@ -295,8 +298,7 @@ public class PythonConverter {
                     break;
 
                 case "T_LPARENTH":
-                    if(skipParenthesis!=0)
-                        break;
+
                     // double var =
                     if(statementArr[0] == "T_DOUBLE" && statementArr[1] == "VAR_IDENTIFIER" && statementArr[2] == "T_ASSIGN" && !isAMathMethodDoNotCastIt) {
 
@@ -623,24 +625,6 @@ public class PythonConverter {
                     }
 
                 case "T_SEMICOLON":
-                    if(doWhileLoop && doWhileBraceCount==0){
-                        doWhileLoop = false;
-                        pythonStr += ":\n";
-                        for(int p = 0; p < count+2; p++) {
-                            pythonStr += "\t";
-                        }
-                        pythonStr += "continue\n";
-
-                        for(int p = 0; p < count+1; p++) {
-                            pythonStr += "\t";
-                        }
-                        pythonStr += "else:\n";
-
-                        for(int p = 0; p < count+2; p++) {
-                            pythonStr += "\t";
-                        }
-                        pythonStr += "break\n";
-                    }
 
                     pythonStr += "\n";
 
@@ -949,29 +933,29 @@ public class PythonConverter {
                     break;
 
 
-                    // // '&&'
-                    // if(list.get(i).lexeme.equals("&") && list.get(i+1).lexeme.equals("&")) {
+                // // '&&'
+                // if(list.get(i).lexeme.equals("&") && list.get(i+1).lexeme.equals("&")) {
 
-                    //     pythonStr += " and ";
+                //     pythonStr += " and ";
 
-                    //     /* James B's logic operators code */
-                    //     tempData.add(new TokenData("logical operator", "&"));
-                    //     tempData.add(new TokenData("logical operator", "&"));
+                //     /* James B's logic operators code */
+                //     tempData.add(new TokenData("logical operator", "&"));
+                //     tempData.add(new TokenData("logical operator", "&"));
 
-                    //     break;
-                    // }
+                //     break;
+                // }
 
-                    // // '||'
-                    // if(list.get(i).lexeme.equals("|") && list.get(i+1).lexeme.equals("|")) {
+                // // '||'
+                // if(list.get(i).lexeme.equals("|") && list.get(i+1).lexeme.equals("|")) {
 
-                    //     pythonStr += " or ";
+                //     pythonStr += " or ";
 
-                    //     /* James B's logical operators code */
-                    //     tempData.add(new TokenData("logical operator", "|"));
-                    //     tempData.add(new TokenData("logical operator", "|"));
+                //     /* James B's logical operators code */
+                //     tempData.add(new TokenData("logical operator", "|"));
+                //     tempData.add(new TokenData("logical operator", "|"));
 
-                    //     break;
-                    // }
+                //     break;
+                // }
 
                 case "unary operator":
 
@@ -980,10 +964,10 @@ public class PythonConverter {
                     break;
 
 
-                    // if(list.get(i).lexeme.equals("!") && list.get(i+1).lexeme.equals("=")) {
-                    //     checkNotEqual = true;
-                    //     break;
-                    // }
+                // if(list.get(i).lexeme.equals("!") && list.get(i+1).lexeme.equals("=")) {
+                //     checkNotEqual = true;
+                //     break;
+                // }
 
                 case "relational operator":
 
@@ -1003,8 +987,8 @@ public class PythonConverter {
                         pythonStr += list.get(i).lexeme.substring(1);
                         break;
 
-                    // Have not found the proper way to use handleUnaryOperator() for pre-increments and pre-decrements due to how the unary
-                    // functions alter the original list of TokenData. This implementation should work for now.
+                        // Have not found the proper way to use handleUnaryOperator() for pre-increments and pre-decrements due to how the unary
+                        // functions alter the original list of TokenData. This implementation should work for now.
                     } else if(list.get(i).lexeme.equals("+") && list.get(i+1).lexeme.equals("+") && list.get(i+2).token.equals("VAR_IDENTIFIER")) {
                         pythonStr += list.get(i+2).lexeme + "+=1";
                         list.remove(i+2);
@@ -1171,31 +1155,33 @@ public class PythonConverter {
                     checkPrintStatement += list.get(i).lexeme;
                     if(checkPrintStatement.equals("Math.toDegrees"))
                         pythonStr += "math.degrees";
-        			needsMathImport = true;
-        			break;
+                    needsMathImport = true;
+                    break;
 
                 case "T_FOR":
-                    String variableIdentifier="";
-
-                    for(int x=i+1; !list.get(x).lexeme.equals("{"); x++){
-                        if(list.get(x).token.equals("T_INT"))
-                            variableIdentifier = list.get(x+1).lexeme;
-
-                        if(list.get(x).token.equals("relational operator"))
-                            tempArrayList.add(new TokenData(list.get(x+1).token, list.get(x+1).lexeme));
-
-                        list.get(x).token = "T_SKIP";
-                    }
-
-                    pythonStr += "for " + variableIdentifier + " in range(";
-                    translateDriver(tempArrayList);
-                    pythonStr += ")";
+                    pythonStr += "for";
                     break;
 
                 case "T_WHILE":
-                    if(doWhileLoop && doWhileBraceCount==0){
+                    if(doWhileLoop && endOfDo){
+                        //Have to add at the end of the loop if condition is true continue, else break to act as the 'do' portion of the loop
                         pythonStr += "\tif";
-                        skipParenthesis+=1;
+                        translateDriver(doWhileCondition);
+                        pythonStr += ":\n";
+                        for(int p = 0; p < count+2; p++) {
+                            pythonStr += "\t";
+                        }
+                        pythonStr += "continue\n";
+
+                        for(int p = 0; p < count+1; p++) {
+                            pythonStr += "\t";
+                        }
+                        pythonStr += "else:\n";
+
+                        for(int p = 0; p < count+2; p++) {
+                            pythonStr += "\t";
+                        }
+                        pythonStr += "break\n";
                         break;
                     }
 
@@ -1203,8 +1189,38 @@ public class PythonConverter {
                     break;
 
                 case "T_DO":
-                    pythonStr += "while True";
+                    pythonStr += "while";
+
+                    int braceCount=0;
                     doWhileLoop = true;
+                    TokenData currObject;
+
+                    //Have to find the while with the condition and add it to pythonStr and then skip it once it comes across
+                    //later
+                    for(int x=i+1; x<list.size(); x++){
+
+                        if(list.get(x).lexeme.equals("{"))
+                            braceCount+=1;
+
+                        if(braceCount==0)
+                            endOfDo=true;
+
+                        if(braceCount==0 && list.get(x).lexeme.equals(";")){
+                            break;
+                        }
+
+                        if(braceCount==0 && !list.get(x).lexeme.equals("while") && !list.get(x).lexeme.equals("(") && !list.get(x).lexeme.equals(")")){
+                            currObject = list.get(x);
+                            doWhileCondition.add(new TokenData(currObject.token, currObject.lexeme));
+                            list.get(x).token = "T_SKIP";
+                        }
+
+                        if(list.get(x).lexeme.equals("}"))
+                            braceCount-=1;
+
+                    }
+                    translateDriver(doWhileCondition);
+
                     break;
 
                 case "T_SKIP":

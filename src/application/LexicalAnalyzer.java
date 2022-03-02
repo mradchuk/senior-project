@@ -52,6 +52,8 @@ public class LexicalAnalyzer {
     static boolean publicBool = false;
     static boolean classBool = false;
 
+    static int indentionLevelCount = 0;
+
     // Store tokens
     public LexicalAnalyzer() {
 
@@ -290,15 +292,23 @@ public class LexicalAnalyzer {
                 if(insideOfClass) {
                     insideOfNonMainMethod = false;
                     insideOfClass = false;
+                    indentionLevelCount++;
                 } else {
                     insideOfNonMainMethod = true;
+                    indentionLevelCount++;
                 }
 
             }
 
-            if(strObject.equals("}")) {
+
+            if(strObject.equals("}") && indentionLevelCount >= 3) {
+                insideOfNonMainMethod = true;
+                insideOfMainMethod = false;
+                indentionLevelCount--;
+            } else if(strObject.equals("}") && indentionLevelCount < 3) {
                 insideOfNonMainMethod = false;
                 insideOfMainMethod = false;
+                indentionLevelCount--;
             }
 
             arrayOfTokens.add(new TokenData(separator.get(strObject.toUpperCase()), strObject));

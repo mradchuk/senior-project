@@ -1,5 +1,6 @@
 public class Complex2 {
 
+   
     public static void castSection() {
 
         short testShort = 2045;
@@ -67,15 +68,15 @@ public class Complex2 {
     	System.out.println( Math.min(1,2));
     	x = Math.max(1,2);
     	Math.pow(1,2);
-    	Math.acos(2);
-    	Math.asin(2);
-    	Math.atan(25);
-    	Math.atan2(4, 5);
+    	//Math.acos(2);
+    	//Math.asin(2);
+    	//Math.atan(25);
+    	//Math.atan2(4, 5);
     	int y = Math.cos(6);
     	Math.cosh(3);
     	Math.exp(34);
     	Math.log(4);
-    	int r = Math.log10(4);
+    	//int r = Math.log10(4);
     	Math.sin(12);
     	y = Math.sqrt(9);
     	Math.tan(10);
@@ -86,12 +87,58 @@ public class Complex2 {
     	System.out.println("Reached the end of the math section");
     }
 
+    public void conditionalSection() {
+        int x = 1;
+        int y = 2;
+        String z = "testText";
+
+        if(x > y) {
+            x = 200;
+        } else if(z.equals("text")) {
+            z = "newText";
+        } else {
+            System.out.println("Random text");
+        }
+
+        System.out.println("Reached the end of Conditional Section");
+    }
+
+    public void loopSection() {
+        
+        // While Loop
+        boolean stopLoop = false;
+        int count = 0;
+        while(!stopLoop) {
+            System.out.println("While loop running");
+            count++;
+            
+            if(count == 3) {
+                stopLoop = true;
+            }
+        }
+
+        stopLoop = false;
+        count = 0;
+
+        // Do While Loop
+        do {
+            System.out.println("Do/While loop running");
+            count++;
+            if(count == 3) {
+                stopLoop = true;
+            }   
+        } while (!stopLoop);
+
+    }
+
     public static void main(String[] args) {
         castSection();
         boolSection();
         operatorSection();
         varSection();
         mathSection();
+        conditionalSection();
+        loopSection();
     }
     
 }
