@@ -474,7 +474,14 @@ public class LexicalAnalyzer {
 
             /* If the unrecognized string object DOES contain a '.' separator, it is likely EITHER a print or casting statement */
 
-            for(char c : strObject.toCharArray()) {
+        	char[] temp = strObject.toCharArray();
+        	
+        	for(int i = 0; i < temp.length; i++)
+        	{
+        		
+        		char c = temp[i];
+        	
+            //for(char c : strObject.toCharArray()) {
 
                 /* If the char separator is likely '.', evaluate the previous token that comes before '.' that should belong to a cast
                     or print statement. Ex: System., out., Integer.
@@ -517,7 +524,13 @@ public class LexicalAnalyzer {
                         Create a valid token from successive characters that either that belongs to a print
                         or cast statement to be including in the array of tokens
                      */
-                    prevToken += c;
+                	prevToken += c;
+                    char nextChar = 0;
+                    if((i + 1) < temp.length)
+                    {
+                    	nextChar = temp[i+1];
+                    }
+                	
 
                     // Whatever string occurs after the '.' separator (ex: .println, .toString, .format)
                     if(prevToken.equals("println")) {
@@ -567,7 +580,7 @@ public class LexicalAnalyzer {
                         arrayOfTokens.add(new TokenData("asin", prevToken));
                         System.out.println("asin" + " - " + prevToken);
                         prevToken = "";
-                    } else if(prevToken.equals("atan")) {
+                    } else if(prevToken.equals("atan") && nextChar != '2') {
                         arrayOfTokens.add(new TokenData("atan", prevToken));
                         System.out.println("atan" + " - " + prevToken);
                         prevToken = "";
@@ -575,7 +588,7 @@ public class LexicalAnalyzer {
                         arrayOfTokens.add(new TokenData("atan2", prevToken));
                         System.out.println("atan2" + " - " + prevToken);
                         prevToken = "";
-                    } else if(prevToken.equals("cos")) {
+                    } else if(prevToken.equals("cos") && nextChar != 'h') {
                         arrayOfTokens.add(new TokenData("cos", prevToken));
                         System.out.println("cos" + " - " + prevToken);
                         prevToken = "";
@@ -587,7 +600,7 @@ public class LexicalAnalyzer {
                         arrayOfTokens.add(new TokenData("exp", prevToken));
                         System.out.println("exp" + " - " + prevToken);
                         prevToken = "";
-                    } else if(prevToken.equals("log")) {
+                    } else if(prevToken.equals("log") && nextChar != '1') {
                         arrayOfTokens.add(new TokenData("log", prevToken));
                         System.out.println("log" + " - " + prevToken);
                         prevToken = "";
@@ -595,7 +608,7 @@ public class LexicalAnalyzer {
                         arrayOfTokens.add(new TokenData("log10", prevToken));
                         System.out.println("log10" + " - " + prevToken);
                         prevToken = "";
-                    } else if(prevToken.equals("sin")) {
+                    } else if(prevToken.equals("sin") && nextChar != 'h') {
                         arrayOfTokens.add(new TokenData("sin", prevToken));
                         System.out.println("sin" + " - " + prevToken);
                         prevToken = "";
@@ -607,7 +620,7 @@ public class LexicalAnalyzer {
                         arrayOfTokens.add(new TokenData("sqrt", prevToken));
                         System.out.println("sqrt" + " - " + prevToken);
                         prevToken = "";
-                    } else if(prevToken.equals("tan")) {
+                    } else if(prevToken.equals("tan") && nextChar != 'h') {
                         arrayOfTokens.add(new TokenData("tan", prevToken));
                         System.out.println("tan" + " - " + prevToken);
                         prevToken = "";
