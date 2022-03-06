@@ -11,9 +11,10 @@ public class PythonConverter {
 
     static String[] statementArr = new String[3];
     static String[] equalOpStatement = new String[2];
+    static String[] arrInitAndDeclaration = new String[5];
+    static String[] arrDecAndAllocateMemory = new String[10];
 
     public static String resultPythonStr = "";
-
     static String pythonStr = "";
     static String currentMethodTkn = "";
     static String checkPrintStatement = "";
@@ -36,6 +37,9 @@ public class PythonConverter {
     static boolean needsMathImport = false;
     //Need this variable so math statements aren't identified as casting statements when also declaring a variable on the same line
     static boolean isAMathMethodDoNotCastIt = false;
+
+    static boolean isArrayStatementAddRbracket = false;
+    static boolean isArrDecMemAllocStatement = false;
 
     static int skipParenthesis = 0;
     static boolean endOfDo = false;
@@ -68,6 +72,14 @@ public class PythonConverter {
             equalOpStatement[i2] = "";
         }
 
+        for(int i3 = 0; i3 < arrInitAndDeclaration.length; i3++) {
+            arrInitAndDeclaration[i3] = "";
+        }
+
+        for(int i4 = 0; i4 < arrDecAndAllocateMemory.length; i4++) {
+            arrDecAndAllocateMemory[i4] = "";
+        }
+
         resultPythonStr = "";
         pythonStr = "";
         currentMethodTkn = "";
@@ -89,6 +101,9 @@ public class PythonConverter {
 
         needsMathImport = false;
         isAMathMethodDoNotCastIt = false;
+
+        isArrayStatementAddRbracket = false;
+        isArrDecMemAllocStatement = false;
 
         skipParenthesis = 0;
         endOfDo = false;
@@ -235,8 +250,30 @@ public class PythonConverter {
 
                 case "T_LBRACE":
 
-                    if(count >= 2) {
+                    boolean isArrayStatement = false;
+
+                    if((arrInitAndDeclaration[0] == "T_INT" || arrInitAndDeclaration[0] == "String Identifier") && arrInitAndDeclaration[1] == "T_LBRACKET"
+                        && arrInitAndDeclaration[2] == "T_RBRACKET" && arrInitAndDeclaration[3] == "VAR_IDENTIFIER" && arrInitAndDeclaration[4] == "T_ASSIGN"
+                            && ((list.get(i+1).token == "NUMBER" && list.get(i+2).token == "T_COMMA") || list.get(i+1).token == "T_RBRACE")) {
+
+                        isArrayStatement = true;
+                        isArrayStatementAddRbracket = true;
+
+                        for(int clrArr = 0; clrArr < arrInitAndDeclaration.length; clrArr++) {
+                            arrInitAndDeclaration[clrArr] = "";
+                        }
+
+                    } else {
+
+                        isArrayStatement = false;
+                    }
+
+                    if(count >= 2 && isArrayStatement == false) {
                         pythonStr += ":\n";
+                    } else if(count >= 2 && isArrayStatement == true) {
+                        pythonStr += "[";
+                        count++;
+                        break;
                     } else {
                         pythonStr += "\n";
                     }
@@ -259,6 +296,11 @@ public class PythonConverter {
 
                 case "T_RBRACE":
 
+                    if(isArrayStatementAddRbracket) {
+                        pythonStr += "]";
+                        isArrayStatementAddRbracket = false;
+                    }
+
                     pythonStr += "\n";
 
                     //We have reached the end of the current function. We now need less indentation for a new function declaration.
@@ -272,6 +314,44 @@ public class PythonConverter {
 
                     methodWithNoArgs = false;
                     skipMain = false;
+
+                    break;
+
+                case "T_LBRACKET":
+
+                    if(isArrDecMemAllocStatement) {
+
+                        arrDecAndAllocateMemory[7] = list.get(i).token;
+                        pythonStr += list.get(i).lexeme;
+                        break;
+
+                    }
+
+                    arrInitAndDeclaration[1] = list.get(i).token;
+                    arrDecAndAllocateMemory[1] = list.get(i).token;
+
+                    break;
+
+                case "T_RBRACKET":
+
+                    if(isArrDecMemAllocStatement) {
+
+                        // var = [""] * length of the array
+                        if(arrDecAndAllocateMemory[6] == "String Identifier") {
+                            pythonStr += "\"" + "\"" + "]*" + arrDecAndAllocateMemory[8];
+                        }
+
+                        // var = [0] * length of the array
+                        if(arrDecAndAllocateMemory[6] == "T_INT") {
+                            pythonStr += "0" + "]*" + arrDecAndAllocateMemory[8];
+                        }
+
+                        break;
+
+                    }
+
+                    arrInitAndDeclaration[2] = list.get(i).token;
+                    arrDecAndAllocateMemory[2] = list.get(i).token;
 
                     break;
 
@@ -325,23 +405,8 @@ public class PythonConverter {
 
                         casting = true;
 
-                        /*
-
-                        splitTokenList(tempData);
-                        handleLogicalOperators();
-
-                        //System.out.println(lexemeList);
-                        //System.out.println(lexemeList.get(0));
-
-                        pythonStr += " " + lexemeList.get(0) + " ";
-
-                        lexemeList.clear();
-                        tokenList.clear();
-                        tempData.clear();
-
-                         */
-
                         break;
+
                     }
 
                     // float var =
@@ -386,23 +451,8 @@ public class PythonConverter {
 
                         casting = true;
 
-                        /*
-
-                        splitTokenList(tempData);
-                        handleLogicalOperators();
-
-                        //System.out.println(lexemeList);
-                        //System.out.println(lexemeList.get(0));
-
-                        pythonStr += " " + lexemeList.get(0) + " ";
-
-                        lexemeList.clear();
-                        tokenList.clear();
-                        tempData.clear();
-
-                         */
-
                         break;
+
                     }
 
                     // String var = Integer.toString, or String var = String.valueOf, String var = String.format
@@ -490,7 +540,15 @@ public class PythonConverter {
 
                 case "STRING_IDENTIFIER":
 
+                    if(isArrDecMemAllocStatement) {
+
+                        arrDecAndAllocateMemory[6] = "String Identifier";
+                        break;
+                    }
+
                     statementArr[0] = "String Identifier";
+                    arrInitAndDeclaration[0] = "String Identifier";
+                    arrDecAndAllocateMemory[0] = "String Identifier";
 
                     break;
 
@@ -552,17 +610,6 @@ public class PythonConverter {
                         break;
 
                     }
-
-                    /*
-                    else if(ifStatement) {
-
-                        pythonStr += ":";
-                        ifStatement = false;
-                        break;
-
-                    }
-
-                     */
 
                     else {
 
@@ -626,6 +673,29 @@ public class PythonConverter {
 
                 case "T_SEMICOLON":
 
+
+                    // Reset all statement evaluation arrays after every statement or semicolon to prevent array
+                    // value carryover when analyzing the next statement in the function.
+                    for(int clrStatementArr = 0; clrStatementArr < statementArr.length; clrStatementArr++) {
+                        statementArr[clrStatementArr] = "";
+                    }
+
+                    for(int clrEqualOpSt = 0; clrEqualOpSt < equalOpStatement.length; clrEqualOpSt++) {
+                        equalOpStatement[clrEqualOpSt] = "";
+                    }
+
+                    for(int clrArrInitAndDec = 0; clrArrInitAndDec < arrInitAndDeclaration.length; clrArrInitAndDec++) {
+                        arrInitAndDeclaration[clrArrInitAndDec] = "";
+                    }
+
+                    for(int clrDecAllMem = 0; clrDecAllMem < arrDecAndAllocateMemory.length; clrDecAllMem++) {
+                        arrDecAndAllocateMemory[clrDecAllMem] = "";
+                    }
+
+                    isArrDecMemAllocStatement = false;
+
+                    /*---------------------------------------------------------------------------------------*/
+
                     pythonStr += "\n";
 
                     //Determine syntax of python output by tabbing new lines
@@ -639,7 +709,16 @@ public class PythonConverter {
 
                 case "T_INT":
 
+                    if(isArrDecMemAllocStatement) {
+
+                        arrDecAndAllocateMemory[6] = "T_INT";
+                        break;
+                    }
+
                     statementArr[0] = "T_INT";
+                    arrInitAndDeclaration[0] = "T_INT";
+                    arrDecAndAllocateMemory[0] = "T_INT";
+
                     break;
 
                 case "T_DOUBLE":
@@ -732,9 +811,16 @@ public class PythonConverter {
                         pythonStr += list.get(i).lexeme + ")";
                         break;
                     } else if(lastFourChars.equals("int(") && lastSixChars.equals("print(")) { //prevents the 'print(..))' bug
-                        statementArr[1] = "VAR_IDENTIFIER";
-                        pythonStr += list.get(i).lexeme;
+
+                        if(list.get(i+1).token.equals("T_DOT") && list.get(i+2).token.equals("length")) {
+                            pythonStr += "len(" + list.get(i).lexeme + ")";
+                        } else {
+                            statementArr[1] = "VAR_IDENTIFIER";
+                            pythonStr += list.get(i).lexeme;
+                        }
+
                         break;
+
                     } else if(lastFourChars.equals("int(") && !lastSixChars.equals("print(")) {
                         statementArr[1] = "VAR_IDENTIFIER";
                         pythonStr += list.get(i).lexeme + ")";
@@ -746,7 +832,12 @@ public class PythonConverter {
                     } else {
                         statementArr[1] = "VAR_IDENTIFIER";
                         equalOpStatement[0] = "VAR_IDENTIFIER";
+                        arrInitAndDeclaration[3] = "VAR_IDENTIFIER";
+
+                        arrDecAndAllocateMemory[3] = "VAR_IDENTIFIER";
+
                         pythonStr += list.get(i).lexeme;
+
                         break;
                     }
 
@@ -754,6 +845,9 @@ public class PythonConverter {
 
                     if(casting) {
                         continue;
+                    } else {
+                        pythonStr += list.get(i).lexeme + " ";
+                        break;
                     }
 
                 case "T_ASSIGN":
@@ -771,9 +865,6 @@ public class PythonConverter {
                         equalOpStatement[1] = "Equal Operator";
                         checkEqualOperator = false;
 
-                        /* James B's logical operators code */
-                        //tempData.add(new TokenData("comparison operator", "=="));
-
                         break;
 
                     } else if(checkNotEqual) {
@@ -787,10 +878,10 @@ public class PythonConverter {
                     } else {
 
                         pythonStr += " " + list.get(i).lexeme + " ";
-                        statementArr[2] = "T_ASSIGN";
 
-                        /* James B's logical operators code */
-                        //tempData.add(new TokenData("assignment operator", "="));
+                        statementArr[2] = "T_ASSIGN";
+                        arrInitAndDeclaration[4] = "T_ASSIGN";
+                        arrDecAndAllocateMemory[4]= "T_ASSIGN";
 
                         break;
 
@@ -798,6 +889,48 @@ public class PythonConverter {
 
 
                 case "NUMBER":
+
+                    if(isArrDecMemAllocStatement) {
+
+                        String num = list.get(i).lexeme;
+
+                        num = num.substring(0, num.length() -1);
+                        num = num.substring(0, num.length() -1);
+
+                        arrDecAndAllocateMemory[8] = num;
+
+                        break;
+                    }
+
+                    if(isArrayStatementAddRbracket) {
+
+                        String num = list.get(i).lexeme;
+
+                        num = num.substring(0, num.length() -1);
+                        num = num.substring(0, num.length() -1);
+
+                        pythonStr += num;
+
+                        break;
+
+                    }
+
+                    if(list.get(i - 2).token.equals("VAR_IDENTIFIER") && list.get(i - 1).lexeme.equals("[")
+                        && list.get(i + 1).lexeme.equals("]") && list.get(i + 2).token.equals("T_ASSIGN")) {
+
+                            pythonStr += "[";
+
+                            String num = list.get(i).lexeme;
+
+                            num = num.substring(0, num.length() -1);
+                            num = num.substring(0, num.length() -1);
+
+                            pythonStr += num;
+
+                            pythonStr += "]";
+
+                            break;
+                    }
 
                     /*
                        The stream tokenizer seems to produce numbers ending in '.0' if they are whole (ex: 2045 -> 2045.0).
@@ -881,32 +1014,7 @@ public class PythonConverter {
 
                         break;
 
-
-
-                        // only an assignment statement, not declaration and initialization. Ex: x = num
                     }
-
-                    /*
-                    else if(list.get(i-1).token == "T_ASSIGN" && list.get(i-2).token == "VAR_IDENTIFIER"
-                        && (list.get(i-3).token == "T_SEMICOLON") || (list.get(i-3).token == "T_LBRACE")) {
-
-                                String num = list.get(i).lexeme;
-
-                                // Remove the last two characters in the number if its assigned variable is type short or int
-                                if(num.charAt(num.length()-2) == '.' && num.charAt(num.length()-1) == '0') {
-
-                                    num = num.substring(0, num.length() -1);
-                                    num = num.substring(0, num.length() -1);
-
-                                    pythonStr += num;
-
-                                    break;
-
-                                }
-
-                    }
-
-                     */
 
                     else {
 
@@ -932,42 +1040,11 @@ public class PythonConverter {
                     pythonStr += " " + list.get(i).lexeme;
                     break;
 
-
-                // // '&&'
-                // if(list.get(i).lexeme.equals("&") && list.get(i+1).lexeme.equals("&")) {
-
-                //     pythonStr += " and ";
-
-                //     /* James B's logic operators code */
-                //     tempData.add(new TokenData("logical operator", "&"));
-                //     tempData.add(new TokenData("logical operator", "&"));
-
-                //     break;
-                // }
-
-                // // '||'
-                // if(list.get(i).lexeme.equals("|") && list.get(i+1).lexeme.equals("|")) {
-
-                //     pythonStr += " or ";
-
-                //     /* James B's logical operators code */
-                //     tempData.add(new TokenData("logical operator", "|"));
-                //     tempData.add(new TokenData("logical operator", "|"));
-
-                //     break;
-                // }
-
                 case "unary operator":
 
                     // Modified Unary Operator Functionality
                     //handleUnaryOperator(list, list.get(i).lexeme, i);
                     break;
-
-
-                // if(list.get(i).lexeme.equals("!") && list.get(i+1).lexeme.equals("=")) {
-                //     checkNotEqual = true;
-                //     break;
-                // }
 
                 case "relational operator":
 
@@ -1225,6 +1302,22 @@ public class PythonConverter {
 
                 case "T_SKIP":
                     break;
+
+                case "T_NEW":
+
+                    arrDecAndAllocateMemory[5] = "T_NEW";
+
+                    // if String[] var = new or int[] var = new, it is an array declaration and memory allocation statement
+                    if((arrDecAndAllocateMemory[0] == "String Identifier" || arrDecAndAllocateMemory[0] == "T_INT")
+                        && arrDecAndAllocateMemory[1] == "T_LBRACKET" && arrDecAndAllocateMemory[2] == "T_RBRACKET"
+                            && arrDecAndAllocateMemory[3] == "VAR_IDENTIFIER" && arrDecAndAllocateMemory[4] == "T_ASSIGN"
+                                && arrDecAndAllocateMemory[5] == "T_NEW") {
+
+                        isArrDecMemAllocStatement = true;
+
+                    }
+                    break;
+
             }
 
         }

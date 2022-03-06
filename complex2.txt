@@ -104,6 +104,21 @@ public class Complex2 {
         System.out.println("Reached the end of Conditional Section");
     }
 
+    public void arraySection() {
+        // Singular Arrays for now
+        int[] smallInts = {1, 2, 3};
+        System.out.println(smallInts);
+        smallInts[0] = 4;
+        System.out.println(smallInts);
+
+        String[] testStringArray = new String[3];
+        testStringArray[0] = "Change 1";
+        testStringArray[1] = "Change 2";
+        testStringArray[2] = "Change 3";
+        System.out.println(testStringArray.length);
+
+    }
+
     public void loopSection() {
         
         // While Loop
@@ -139,6 +154,7 @@ public class Complex2 {
         varSection();
         mathSection();
         conditionalSection();
+        arraySection();
         loopSection();
     }
     

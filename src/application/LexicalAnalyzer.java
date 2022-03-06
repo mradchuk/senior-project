@@ -87,7 +87,7 @@ public class LexicalAnalyzer {
         keyWord.put("IMPORT", "keyword");
         keyWord.put("INT", "T_INT");
         keyWord.put("LONG", "T_LONG");
-        keyWord.put("NEW", "keyword");
+        keyWord.put("NEW", "T_NEW");
         keyWord.put("NULL", "keyword");
         keyWord.put("PACKAGE", "keyword");
         keyWord.put("PRIVATE", "T_PRIVATE");
@@ -552,6 +552,10 @@ public class LexicalAnalyzer {
                     } else if(prevToken.equals("equals")){
                         arrayOfTokens.add(new TokenData("Equals Method", prevToken));
                         System.out.println("Equals method - " + prevToken);
+                        prevToken = "";
+                    } else if(prevToken.equals("length")) {
+                        arrayOfTokens.add(new TokenData("length", prevToken));
+                        System.out.println("length - " + prevToken);
                         prevToken = "";
                     }
 
