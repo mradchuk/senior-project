@@ -1,0 +1,97 @@
+public class Complex2 {
+
+    public static void castSection() {
+
+        short testShort = 2045;
+        int testInt = 40341;
+        float testFloat = 45.87f;
+        double testDouble = 458.2247852682;
+
+        int castInt = (int)testFloat;
+        float castFloat = (float)testDouble;
+
+        String castString1 = Integer.toString(testInt);
+        String castString2 = String.valueOf(testShort);
+
+        String castString3 = String.format("%f", testDouble);
+
+        System.out.println(castInt);
+        System.out.println(castFloat);
+        System.out.println(castString1);
+        System.out.println(castString2);
+        System.out.println(castString3);
+
+        System.out.println("Reached the end of Casting Section");
+
+    }
+
+    public static void boolSection() {
+        int x = 5;
+        int y = 22;
+        int z = 1;
+        System.out.println(x > y && x != z);
+        System.out.println(x > z || z == 4);
+
+        System.out.println("Reached the end of Boolean Logic Section");
+    }
+
+    public void operatorSection() {
+        // Increment/Decrement Operators don't exist in Python
+        int x = 1;
+        x++;
+        ++x;
+        x--;
+        --x;
+
+        System.out.println("Reached the end of Operator Section");
+    }
+
+    public void varSection() {
+
+        byte testByte = 22; 
+        short testShort = 2045; // Bigger than byte
+        int testInt = 40341; // Bigger than short
+        long testLong = 3685469852L; // Bigger than int
+        float testFloat = 45.87f;
+        double testDouble = 458.2247852682; // Handles more decimal places than float
+        boolean testBoolean = true;
+        char testChar = 'a';
+        String testString = "text";
+
+        System.out.println("Reached the end of Variable Section");
+    }
+
+    public static void mathSection() {
+    	    	
+    	int x = Math.abs(1);
+    	System.out.println( Math.min(1,2));
+    	x = Math.max(1,2);
+    	Math.pow(1,2);
+    	Math.acos(2);
+    	Math.asin(2);
+    	Math.atan(25);
+    	Math.atan2(4, 5);
+    	int y = Math.cos(6);
+    	Math.cosh(3);
+    	Math.exp(34);
+    	Math.log(4);
+    	int r = Math.log10(4);
+    	Math.sin(12);
+    	y = Math.sqrt(9);
+    	Math.tan(10);
+    	Math.tanh(11);
+    	System.out.println(Math.toDegrees(25));
+    	Math.toRadians(90);
+    	
+    	System.out.println("Reached the end of the math section");
+    }
+
+    public static void main(String[] args) {
+        castSection();
+        boolSection();
+        operatorSection();
+        varSection();
+        mathSection();
+    }
+    
+}
