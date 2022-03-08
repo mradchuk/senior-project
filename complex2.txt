@@ -118,7 +118,23 @@ public class Complex2 {
         System.out.println(testStringArray.length);
 
     }
-
+    
+    public static void testParamsOne(int x, short y) {
+    	System.out.println("This method tests function parameters");
+    	System.out.println(x);
+    	System.out.println(y);
+    }
+    
+    public static void testParamsTwo(double x, float y) {
+    	System.out.println(x);
+    	System.out.println(y);
+    }
+    public static void testParamsThree(String s) {
+    	System.out.println(s);
+    	System.out.println("This is the end of the parameter test");
+    }
+    
+	
     public void loopSection() {
         
         // While Loop
@@ -156,6 +172,8 @@ public class Complex2 {
         conditionalSection();
         arraySection();
         loopSection();
+        testParamOne(3,4);
+        
     }
     
 }

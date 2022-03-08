@@ -53,6 +53,8 @@ public class LexicalAnalyzer {
     static boolean classBool = false;
 
     static int indentionLevelCount = 0;
+    
+    static String prevTokenTwo = "";
 
     // Store tokens
     public LexicalAnalyzer() {
@@ -464,11 +466,19 @@ public class LexicalAnalyzer {
 
             } else {
 
-                arrayOfTokens.add(new TokenData("METHOD_NAME", strObject));
-                System.out.println("METHOD_NAME" + " - " + strObject);
+            	if(prevTokenTwo.equals("int") || prevTokenTwo.equals("short") || prevTokenTwo.equals("long") || prevTokenTwo.equals("double") || prevTokenTwo.equals("String")
+            			|| prevTokenTwo.equals("float") || prevTokenTwo.equals("char")) {
+            		arrayOfTokens.add(new TokenData("VAR_IDENTIFIER", strObject));
+                    System.out.println("VAR_IDENTIFIER" + " - " + strObject);
+            	}
+            	else {
+            		arrayOfTokens.add(new TokenData("METHOD_NAME", strObject));
+                    System.out.println("METHOD_NAME" + " - " + strObject);
+            	}
+            		
+                
 
             }
-
 
         } else {
 
@@ -645,10 +655,9 @@ public class LexicalAnalyzer {
                 }
 
             }
-
         }
-
+        prevTokenTwo = strObject;
     }
-
+    
 }
 
