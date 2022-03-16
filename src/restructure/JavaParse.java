@@ -2,217 +2,456 @@ package restructure;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map.Entry;
 import java.io.*;
-import application.TokenData;
+
 
 public class JavaParse {
-    protected static HashMap<String, String> javaMap = new HashMap<String, String>();
-    protected static HashMap<String, String> pythonMap = new HashMap<String, String>();
+
+    // --------------------------------------------------------------------------------
+    //                          VARIABLES - FINALS
+    // --------------------------------------------------------------------------------
+
+    private static final int QUOTE_CHARACTER = '\'';
+    private static final int DOUBLE_QUOTE_CHARACTER = '"';
+    private static final String DEFAULT_NUMBER_LEXEME = "0.0";
+    private static final String DEFAULT_STRING_LITERAL_LEXEME = "\"";
+    private static final String DEFAULT_STRING_LABEL_LEXEME = "LABEL";
+    private static final String KEY_NOT_FOUND_DEFAULT = "n/a";
+
+    // --------------------------------------------------------------------------------
+    //                          VARIABLES - HASH MAPS
+    // --------------------------------------------------------------------------------
+
+    protected static HashMap<String, ArrayList<String>> javaMap = new HashMap<String, ArrayList<String>>();
+    protected static HashMap<String, ArrayList<String>> pythonMap = new HashMap<String, ArrayList<String>>();
     protected static HashMap<String, Boolean> tokenMap = new HashMap<String, Boolean>();
 
-    public static ArrayList<TokenData> tokenList = new ArrayList<TokenData>();
+    // --------------------------------------------------------------------------------
+    //                          VARIABLES - LISTS
+    // --------------------------------------------------------------------------------
 
-    public static void populateJavaMap() {
+    private static ArrayList<TokenData> tokenList = new ArrayList<TokenData>();
+
+    // --------------------------------------------------------------------------------
+    //                          GETTERS/SETTERS
+    // --------------------------------------------------------------------------------
+
+    public static HashMap<String, Boolean> getTokenMap() {return tokenMap;}
+    public static void setTokenMap(HashMap<String, Boolean> tMap) {tokenMap = tMap;}
+
+    public static ArrayList<TokenData> getTokenList() {return tokenList;}
+    public static void setTokenList(ArrayList<TokenData> newList) {tokenList = newList;}
+
+    // --------------------------------------------------------------------------------
+    //                      FUNCTIONS - HASH MAP POPULATION
+    // --------------------------------------------------------------------------------
+
+    private static void populateJavaMap() {
 
         // Keywords
-        javaMap.put("keyword", "ABSTRACT");
-        javaMap.put("keyword", "ASSERT");
-        javaMap.put("keyword", "BOOLEAN");
-        javaMap.put("keyword", "BREAK");
-        javaMap.put("keyword", "BYTE");
-        javaMap.put("keyword", "CASE");
-        javaMap.put("keyword", "CATCH");
-        javaMap.put("keyword", "CHAR");
-        javaMap.put("keyword", "CLASS");
+        ArrayList<String> keywords = new ArrayList<String>();
 
-        javaMap.put("keyword", "CONTINUE");
-        javaMap.put("keyword", "DEFAULT");
-        javaMap.put("keyword", "DO");
-        javaMap.put("keyword", "DOUBLE");
-        javaMap.put("keyword", "ELSE");
-        javaMap.put("keyword", "ENUM");
-        javaMap.put("keyword", "EXTENDS");
-        javaMap.put("keyword", "FINAL");
-        javaMap.put("keyword", "FINALLY");
-        javaMap.put("keyword", "FLOAT");
+        keywords.add("ABSTRACT");
+        keywords.add("ASSERT");
+        keywords.add("BOOLEAN");
+        keywords.add("BREAK");
+        keywords.add("BYTE");
+        keywords.add("CASE");
+        keywords.add("CATCH");
+        keywords.add("CHAR");
+        keywords.add("CLASS");
 
-        javaMap.put("keyword", "FOR");
-        javaMap.put("keyword", "IF");
-        javaMap.put("keyword", "IMPLEMENTS");
-        javaMap.put("keyword", "IMPORT");
-        javaMap.put("keyword", "INSTANCEOF");
-        javaMap.put("keyword", "INT");
-        javaMap.put("keyword", "INTERFACE");
-        javaMap.put("keyword", "LONG");
-        javaMap.put("keyword", "NATIVE");
+        keywords.add("CONTINUE");
+        keywords.add("DEFAULT");
+        keywords.add("DO");
+        keywords.add("DOUBLE");
+        keywords.add("ELSE");
+        keywords.add("ENUM");
+        keywords.add("EXTENDS");
+        keywords.add("FINAL");
+        keywords.add("FINALLY");
+        keywords.add("FLOAT");
 
-        javaMap.put("keyword", "NEW");
-        javaMap.put("keyword", "PACKAGE");
-        javaMap.put("keyword", "PRIVATE");
-        javaMap.put("keyword", "PROTECTED");
-        javaMap.put("keyword", "PUBLIC");
-        javaMap.put("keyword", "RETURN");
-        javaMap.put("keyword", "SHORT");
-        javaMap.put("keyword", "STATIC");
-        javaMap.put("keyword", "STRICTFP");
-        javaMap.put("keyword", "SUPER");
+        keywords.add("FOR");
+        keywords.add("IF");
+        keywords.add("IMPLEMENTS");
+        keywords.add("IMPORT");
+        keywords.add("INSTANCEOF");
+        keywords.add("INT");
+        keywords.add("INTERFACE");
+        keywords.add("LONG");
+        keywords.add("NATIVE");
 
-        javaMap.put("keyword", "SWITCH");
-        javaMap.put("keyword", "SYNCHRONIZED");
-        javaMap.put("keyword", "THIS");
-        javaMap.put("keyword", "THROW");
-        javaMap.put("keyword", "THROWS");
-        javaMap.put("keyword", "TRANSIENT");
-        javaMap.put("keyword", "TRY");
-        javaMap.put("keyword", "VOID");
-        javaMap.put("keyword", "VOLATILE");
-        javaMap.put("keyword", "WHILE");
+        keywords.add("NEW");
+        keywords.add("PACKAGE");
+        keywords.add("PRIVATE");
+        keywords.add("PROTECTED");
+        keywords.add("PUBLIC");
+        keywords.add("RETURN");
+        keywords.add("SHORT");
+        keywords.add("STATIC");
+        keywords.add("STRICTFP");
+        keywords.add("STRING");
+        keywords.add("SUPER");
+
+        keywords.add("SWITCH");
+        keywords.add("SYNCHRONIZED");
+        keywords.add("THIS");
+        keywords.add("THROW");
+        keywords.add("THROWS");
+        keywords.add("TRANSIENT");
+        keywords.add("TRY");
+        keywords.add("VOID");
+        keywords.add("VOLATILE");
+        keywords.add("WHILE");
+
+        javaMap.put("keyword", keywords);
+
+        // String Label
+        ArrayList<String> stringLabels = new ArrayList<String>();
+        stringLabels.add("LABEL");
+        javaMap.put("string label", stringLabels);
 
         // String Literal
-        javaMap.put("string literal", "\"");
+        ArrayList<String> stringLiterals = new ArrayList<String>();
+        stringLiterals.add("\"");
+        javaMap.put("string literal", stringLiterals);
 
-        // Integer Literal
-        javaMap.put("integer literal", "0.0");
-
-        // Double Literal
-        //javaMap.put("double literal", );
+        // Number Literal
+        ArrayList<String> numLiterals = new ArrayList<String>();
+        numLiterals.add("0.0");
+        javaMap.put("number literal", numLiterals);
 
         // Boolean Literal
-        javaMap.put("boolean literal", "TRUE");
-        javaMap.put("boolean literal", "FALSE");
+        ArrayList<String> boolLiterals = new ArrayList<String>();
+        boolLiterals.add("TRUE");
+        boolLiterals.add("FALSE");
+
+        javaMap.put("boolean literal", boolLiterals);
 
         // Null Literal
-        javaMap.put("null literal", "NULL");
-
-        // Constant
-        //javaMap.put("double literal", );
+        ArrayList<String> nullLiterals = new ArrayList<String>();
+        nullLiterals.add("NULL");
+        javaMap.put("null literal", nullLiterals);
 
         // Arithmetic Operator
-        javaMap.put("arithmetic operator", "+");
-        javaMap.put("arithmetic operator", "-");
-        javaMap.put("arithmetic operator", "/");
-        javaMap.put("arithmetic operator", "*");
-        javaMap.put("arithmetic operator", "%");
+        ArrayList<String> arithmeticOperators = new ArrayList<String>();
+        
+        arithmeticOperators.add("+");
+        arithmeticOperators.add("-");
+        arithmeticOperators.add("/");
+        arithmeticOperators.add("*");
+        arithmeticOperators.add("%");
+
+        javaMap.put("arithmetic operator", arithmeticOperators);
 
         // Unary Operator
-        javaMap.put("unary operator", "++");
-        javaMap.put("unary operator", "--");
+        ArrayList<String> unaryOperators = new ArrayList<String>();
+        unaryOperators.add("++");
+        unaryOperators.add("--");
+        javaMap.put("unary operator", unaryOperators);
 
         // Assignmnet Operator
-        javaMap.put("assignment operator", "=");
-        javaMap.put("assignment operator", "+=");
-        javaMap.put("assignment operator", "-=");
-        javaMap.put("assignment operator", "*=");
-        javaMap.put("assignment operator", "/=");
-        javaMap.put("assignment operator", "%=");
+        ArrayList<String> assignmentOperators = new ArrayList<String>();
+        
+        assignmentOperators.add("=");
+        assignmentOperators.add("+=");
+        assignmentOperators.add("-=");
+        assignmentOperators.add("*=");
+        assignmentOperators.add("/=");
+        assignmentOperators.add("%=");
+
+        javaMap.put("assignment operator", assignmentOperators);
 
         // Relational Operator
-        javaMap.put("relational operator", "==");
-        javaMap.put("relational operator", "!=");
-        javaMap.put("relational operator", "<");
-        javaMap.put("relational operator", ">");
-        javaMap.put("relational operator", "<=");
-        javaMap.put("relational operator", ">=");
+        ArrayList<String> relationalOperators = new ArrayList<String>();
+        
+        relationalOperators.add("==");
+        relationalOperators.add("!=");
+        relationalOperators.add("<");
+        relationalOperators.add(">");
+        relationalOperators.add("<=");
+        relationalOperators.add(">=");
+
+        javaMap.put("relational operator", relationalOperators);
 
         // Logical Operator
-        javaMap.put("logical operator", "&");
-        javaMap.put("logical operator", "|");
-        javaMap.put("logical operator", "!");
+        ArrayList<String> logicalOperators = new ArrayList<String>();
+        logicalOperators.add("&");
+        logicalOperators.add("|");
+        logicalOperators.add("!");
+
+        javaMap.put("logical operator", logicalOperators);
 
         // Separator
-        javaMap.put("separator", "[");
-        javaMap.put("separator", "]");
-        javaMap.put("separator", "(");
-        javaMap.put("separator", ")");
-        javaMap.put("separator", "{");
-        javaMap.put("separator", "}");
-        javaMap.put("separator", ",");
-        javaMap.put("separator", ";");
-        javaMap.put("separator", ".");
+        ArrayList<String> separators = new ArrayList<String>();
+        separators.add("[");
+        separators.add("]");
+        separators.add("(");
+        separators.add(")");
+        separators.add("{");
+        separators.add("}");
+        separators.add(",");
+        separators.add(";");
+        separators.add(".");
+
+        javaMap.put("separator", separators);
 
         // Main Method Specification
-        javaMap.put("main identifier", "MAIN");
-        javaMap.put("string identifier", "STRING");
-        javaMap.put("args identifier", "ARGS");
+        ArrayList<String> systemConsoleSpecific = new ArrayList<String>();
+        systemConsoleSpecific.add("SYSTEM");
+        systemConsoleSpecific.add("OUT");
+        systemConsoleSpecific.add("PRINTLN");
+
+        javaMap.put("system console specific", systemConsoleSpecific);
 
     }
 
-    public static void populatePythonMap() {
-        pythonMap.put("keyword", "TRUE");
-        pythonMap.put("keyword", "FALSE");
-        pythonMap.put("keyword", "NONE");
-        pythonMap.put("keyword", "AND");
-        pythonMap.put("keyword", "AS");
-        pythonMap.put("keyword", "ASSERT");
-        pythonMap.put("keyword", "ASYNC");
+    private static void populatePythonMap() {
+        ArrayList<String> keywords = new ArrayList<String>();
+        keywords.add("TRUE");
+        keywords.add("FALSE");
+        keywords.add("NONE");
+        keywords.add("AND");
+        keywords.add("AS");
+        keywords.add("ASSERT");
+        keywords.add("ASYNC");
 
-        pythonMap.put("keyword", "AWAIT");
-        pythonMap.put("keyword", "BREAK");
-        pythonMap.put("keyword", "CLASS");
-        pythonMap.put("keyword", "CONTINUE");
-        pythonMap.put("keyword", "DEF");
-        pythonMap.put("keyword", "DEL");
-        pythonMap.put("keyword", "ELIF");
+        keywords.add("AWAIT");
+        keywords.add("BREAK");
+        keywords.add("CLASS");
+        keywords.add("CONTINUE");
+        keywords.add("DEF");
+        keywords.add("DEL");
+        keywords.add("ELIF");
 
-        pythonMap.put("keyword", "ELSE");
-        pythonMap.put("keyword", "EXCEPT");
-        pythonMap.put("keyword", "FINALLY");
-        pythonMap.put("keyword", "FOR");
-        pythonMap.put("keyword", "FROM");
-        pythonMap.put("keyword", "GLOBAL");
-        pythonMap.put("keyword", "IF");
+        keywords.add("ELSE");
+        keywords.add("EXCEPT");
+        keywords.add("FINALLY");
+        keywords.add("FOR");
+        keywords.add("FROM");
+        keywords.add("GLOBAL");
+        keywords.add("IF");
 
-        pythonMap.put("keyword", "IMPORT");
-        pythonMap.put("keyword", "IN");
-        pythonMap.put("keyword", "IS");
-        pythonMap.put("keyword", "LAMBDA");
-        pythonMap.put("keyword", "NONLOCAL");
-        pythonMap.put("keyword", "NOT");
-        pythonMap.put("keyword", "OR");
+        keywords.add("IMPORT");
+        keywords.add("IN");
+        keywords.add("IS");
+        keywords.add("LAMBDA");
+        keywords.add("NONLOCAL");
+        keywords.add("NOT");
+        keywords.add("OR");
 
-        pythonMap.put("keyword", "PASS");
-        pythonMap.put("keyword", "RAISE");
-        pythonMap.put("keyword", "RETURN");
-        pythonMap.put("keyword", "TRY");
-        pythonMap.put("keyword", "WHILE");
-        pythonMap.put("keyword", "WITH");
-        pythonMap.put("keyword", "YIELD");
+        keywords.add("PASS");
+        keywords.add("RAISE");
+        keywords.add("RETURN");
+        keywords.add("TRY");
+        keywords.add("WHILE");
+        keywords.add("WITH");
+        keywords.add("YIELD");
+
+        pythonMap.put("keyword", keywords);
     }
 
-    public static void populateTokenMap() {
+    private static void populateTokenMap() {
         tokenMap.put("keyword", false);
+        tokenMap.put("string label", false);
         tokenMap.put("string literal", false);
-        tokenMap.put("integer literal", false);
+        tokenMap.put("number literal", false);
         tokenMap.put("boolean literal", false);
         tokenMap.put("null literal", false);
-        tokenMap.put("constant", false);
         tokenMap.put("arithmetic operator", false);
         tokenMap.put("unary operator", false);
         tokenMap.put("assignment operator", false);
         tokenMap.put("relational operator", false);
         tokenMap.put("logical operator", false);
         tokenMap.put("separator", false);
+        tokenMap.put("system console specific", false);
     }
 
-    public static void parseFile(File thisFile)  {
-        // Create new FileReader
-        // Create Stream Tokenizer
+    // --------------------------------------------------------------------------------
+    //                      SECONDARY FUNCTIONS - HASH MAP FOCUS
+    // --------------------------------------------------------------------------------
+
+    // Credit for HashMap Search: https://www.programiz.com/java-programming/examples/get-key-from-hashmap-using-value
+    // Searches given Hash Map for the ArrayList that contains the provided 'value', returns the key for that ArrayList
+    // Purpose: To identify and return the token category that value belongs to
+    private static String findKeyByValue(HashMap<String, ArrayList<String>> searchMap, String value) {
+        String key = KEY_NOT_FOUND_DEFAULT;
+        for(Entry<String, ArrayList<String>> entry: searchMap.entrySet()) {
+            if(entry.getValue().contains(value.toUpperCase())) {
+                key = entry.getKey();
+            }
+        }
+        return key;
+    }
+
+    // Given a specific Hash Map (Type: <String,Boolean>), updates value to true based on given key
+    // Purpose: Indicates which tokens need to be analyzed for translation
+    private static void updateTokenMap(HashMap<String, Boolean> tMap, String key) {
+        tMap.replace(key, true);
+    }
+
+    // --------------------------------------------------------------------------------
+    //                      SECONDARY FUNCTIONS - TOKENDATA FOCUS
+    // --------------------------------------------------------------------------------
+
+    // Creates new TokenData object after determining whether given item is a number, a 'word', or a symbol. Adds TokenData object to list of TokenData
+    // Purpose: Populates TokenData List after identifying necessary TokenData Properties (Token, Lexeme)
+    private static void addTokenDataToList(ArrayList<TokenData> tokenDataList, HashMap<String, ArrayList<String>> thisMap, int typeNum, double numValue, String wordValue) {
+        TokenData newTokenData;
+        String tokenName;
+        Boolean addToList = true;
+
+        // Case: Type is Number (type is -2)
+        if(typeNum == -2) {
+            tokenName = findKeyByValue(thisMap, DEFAULT_NUMBER_LEXEME);
+            newTokenData = new TokenData(tokenName, String.valueOf(numValue));
+        }
+        // Case: Type is 'Word' (type is -3)
+        else if(typeNum == -3) {
+            tokenName = findKeyByValue(thisMap, DEFAULT_STRING_LABEL_LEXEME);
+            newTokenData = new TokenData(tokenName, wordValue);
+            addToList = handleSpecialLabelCheck(thisMap, tokenDataList, newTokenData);
+        }
+        else if(typeNum == QUOTE_CHARACTER ||  typeNum == DOUBLE_QUOTE_CHARACTER) {
+            tokenName = findKeyByValue(thisMap, DEFAULT_STRING_LITERAL_LEXEME);
+            newTokenData = new TokenData(tokenName, (char)typeNum + wordValue + (char)typeNum);
+        }
+        // Case: Type is any other symbol
+        else {
+            tokenName = findKeyByValue(thisMap, String.valueOf((char)typeNum));
+            newTokenData = new TokenData(tokenName, String.valueOf((char)typeNum));
+        }
+
+        // Flags token as necessary to translate
+        if(addToList) {
+            updateTokenMap(tokenMap, tokenName);
+            tokenDataList.add(newTokenData);
+        }
+    }
+
+    private static Boolean handleSpecialLabelCheck(HashMap<String, ArrayList<String>> mapToSearch, ArrayList<TokenData> tokenDataList, TokenData currentElement) {
+        Boolean addedElementToList = false;
+        
+        // Dotwalk check
+        addedElementToList = dotWalkCheck(mapToSearch, tokenDataList, currentElement);
+        
+        // Keyword check
+        String keywordToken = "keyword";
+        specialLabelCheck(mapToSearch, currentElement, keywordToken);
+
+        // System Console check
+        String sysConsoleToken = "system console specific";
+        specialLabelCheck(mapToSearch, currentElement, sysConsoleToken);
+        
+        updateTokenMap(tokenMap, currentElement.token);
+
+        return !addedElementToList;
+    }
+
+    private static void specialLabelCheck(HashMap<String, ArrayList<String>> mapToSearch, TokenData currentElement, String tokenToCheck) {
+        ArrayList<String> tempList = mapToSearch.get(tokenToCheck);
+        tokenSwap(tempList, currentElement, tokenToCheck);
+    }
+
+    // Checks if TokenData element is within ArrayList, changes token property to newToken if element is located in the list
+    // Purpose: Flags proper TokenData elements as keywords
+    private static void tokenSwap(ArrayList<String> listToSearch, TokenData currentElement, String newToken) {
+        if(listToSearch.contains(currentElement.lexeme.toUpperCase())) {
+            currentElement.token = newToken;
+        }
+    } 
+
+    public static Boolean dotWalkCheck(HashMap<String, ArrayList<String>> thisMap, ArrayList<TokenData> dataList, TokenData currentElement) {
+        int currentIndex = dataList.size();
+        Boolean addedToList = false;
+
+        if(currentElement.lexeme.indexOf(".") != -1) {
+            splitDotWalking(thisMap, dataList, currentElement.lexeme, currentIndex);
+            addedToList = true;
+        }
+        return addedToList;
+    }
+
+    public static void splitDotWalking(HashMap<String, ArrayList<String>> thisMap, ArrayList<TokenData> dataList, String stringLabel, int currentIndex) {
+        String dotSymbolRegEx = "\\.";
+        String dotToken = findKeyByValue(thisMap, ".");
+        String primaryToken = findKeyByValue(thisMap, DEFAULT_STRING_LABEL_LEXEME);
+        String tempToken = primaryToken;
+        String[] splitString = stringLabel.split(dotSymbolRegEx);
+        int dotCount = splitString.length - 1;
+        TokenData tempTokenData;
+
+        for(String split : splitString) {
+
+            // If a token is found that isn't the "Key not found" token, make that the primary token
+            if(!(findKeyByValue(thisMap, split).equals(KEY_NOT_FOUND_DEFAULT))) {
+                tempToken = findKeyByValue(thisMap, split);
+                updateTokenMap(tokenMap, tempToken);
+            }
+
+            tempTokenData = new TokenData(tempToken, split);
+            dataList.add(currentIndex, tempTokenData);
+
+            if(dotCount > 0) {
+                currentIndex++;
+                tempTokenData = new TokenData(dotToken, ".");
+                dataList.add(currentIndex, tempTokenData);
+                currentIndex++;
+                dotCount--;
+            }
+            
+            tempToken = primaryToken;
+        }
+    }
+
+    // --------------------------------------------------------------------------------
+    //                      SECONDARY FUNCTIONS - MISCELLANEOUS
+    // --------------------------------------------------------------------------------
+
+    // Purpose: Prints out TokenData information for Parse Testing
+    private static void printTokenData(ArrayList<TokenData> tokenDataList) {
+        for(TokenData tData : tokenDataList) {
+            System.out.println("Token: " + tData.token);
+            System.out.println("Lexeme: " + tData.lexeme);
+        }
+    }
+
+    // --------------------------------------------------------------------------------
+    //                          PRIMARY FUNCTIONS
+    // --------------------------------------------------------------------------------
+
+    private static void parseFile(File thisFile)  {
+        
         try {
             FileReader reader = new FileReader(thisFile);
             StreamTokenizer tokenizer = new StreamTokenizer(reader);
 
             try {
+
+                // Loops through file (until it reaches end of file - TT_EOF) and identifies each element based on type
                 int currentToken = tokenizer.nextToken();    
                 while(currentToken != StreamTokenizer.TT_EOF) {
-                    System.out.println("Type Num: " + tokenizer.ttype);
-
                     if(tokenizer.ttype == StreamTokenizer.TT_NUMBER) {
-                        System.out.println("Num Value: " + tokenizer.nval);
+                        addTokenDataToList(tokenList, javaMap, tokenizer.ttype, tokenizer.nval, "");
                     }
-                    
-                    if(tokenizer.ttype == StreamTokenizer.TT_WORD) {
-                        System.out.println("Word value: " + tokenizer.sval);
+                    else if(tokenizer.ttype == StreamTokenizer.TT_WORD || tokenizer.ttype == QUOTE_CHARACTER || tokenizer.ttype == DOUBLE_QUOTE_CHARACTER) {
+                        
+                        // Stream tokenizer doesn't seem to catch the -- after a character, so this accounts for that
+                        if(tokenizer.sval.contains("--")) {
+                            addTokenDataToList(tokenList, javaMap, tokenizer.ttype, 0.0, tokenizer.sval.substring(0, tokenizer.sval.indexOf("--")));
+                            addTokenDataToList(tokenList, javaMap, 45, 0.0, "");
+                            addTokenDataToList(tokenList, javaMap, 45, 0.0, "");
+                        }
+                        else {
+                            addTokenDataToList(tokenList, javaMap, tokenizer.ttype, 0.0, tokenizer.sval);
+                        }
                     }
+                    else {
+                        addTokenDataToList(tokenList, javaMap, tokenizer.ttype, 0.0, "");
+                    }
+                    currentToken = tokenizer.nextToken();
                 }
             }
             catch (IOException ioException) {
@@ -225,9 +464,24 @@ public class JavaParse {
         }
     }
 
-    public static void main(String[] args) {
-        File testFile = new File("test.txt");
+    // Purpose: Manages Parsing Process
+    public static void runParser(File fileToParse) {
+        populateJavaMap();
+        populatePythonMap();
+        populateTokenMap();
 
-        parseFile(testFile);
+        parseFile(fileToParse);
+        //printTokenData(tokenList);
+    }
+
+    // --------------------------------------------------------------------------------
+    //                          TESTING AREA
+    // --------------------------------------------------------------------------------
+
+    public static void main(String[] args) {
+        File testFile = new File("restructure/test2.txt");
+
+        runParser(testFile);
+        Translator.runTranslator(getTokenMap(), getTokenList());
     }
 }
