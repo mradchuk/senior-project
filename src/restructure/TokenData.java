@@ -5,7 +5,7 @@ public class TokenData {
     public String token;
     public String lexeme;
 
-    TokenData(String token, String lexeme) {
+    public TokenData(String token, String lexeme) {
         this.token = token;
         this.lexeme = lexeme;
     }

@@ -6,79 +6,91 @@ import restructure.TokenData;
 public class TranslateSeparators extends TranslationUtils {
     
     // --------------------------------------------------------------------------------
+    //                          VARIABLES
+    // --------------------------------------------------------------------------------
+
+    private static ArrayList<Integer> indices = new ArrayList<Integer>();
+
+    // --------------------------------------------------------------------------------
+    //                          GETTERS/SETTERS
+    // --------------------------------------------------------------------------------
+
+    public static ArrayList<Integer> getIndicesList() {return indices;}
+    public static void setIndicesList(ArrayList<Integer> newList) {indices = newList;}
+
+    // --------------------------------------------------------------------------------
     //                  PRIMARY SEPARATOR FUNCTION
     // --------------------------------------------------------------------------------
 
     public static void handleSeparator(ArrayList<TokenData> tList, TokenData currentData, int currentIndex) {
-        String newLexeme;
-        newLexeme = determineSeparator(tList, currentData.lexeme, currentIndex);
-        currentData.lexeme = newLexeme;
+        determineSeparator(tList, currentData.lexeme, currentIndex);
     }
 
     // --------------------------------------------------------------------------------
     //                  SECONDARY SEPARATOR FUNCTIONS
     // --------------------------------------------------------------------------------
 
-    private static String determineSeparator(ArrayList<TokenData> tList, String charToCheck, int currentIndex) {
+    private static void determineSeparator(ArrayList<TokenData> tList, String charToCheck, int currentIndex) {
         
         // Case: [
-        if(charToCheck.equals("[")) {handleOpenBracket();}
+        if(charToCheck.equals("[")) {handleOpenBracket(tList, currentIndex);}
 
         // Case: ]
-        if(charToCheck.equals("]")) {handleCloseBracket();}
+        if(charToCheck.equals("]")) {handleCloseBracket(tList, currentIndex);}
 
         // Case: (
         if(charToCheck.equals("(")) {handleOpenParenthesis();}
 
         // Case: )
-        if(charToCheck.equals(")")) {handleCloseParenthesis();}
+        if(charToCheck.equals(")")) {handleCloseParenthesis(tList, currentIndex);}
 
         // Case: {
-        if(charToCheck.equals("{")) {handleOpenCurlyBrace();}
+        if(charToCheck.equals("{")) {handleOpenCurlyBrace(tList, currentIndex);}
 
         // Case: }
-        if(charToCheck.equals("}")) {handleCloseCurlyBrace();}
+        if(charToCheck.equals("}")) {handleCloseCurlyBrace(tList, currentIndex);}
 
         // Case: ,
         if(charToCheck.equals(",")) {handleComma();}
         
         // Case: ;
-        if(charToCheck.equals(";")) {handleSemicolon();}
+        if(charToCheck.equals(";")) {handleSemicolon(tList, currentIndex);}
 
         // Case: .
-        if(charToCheck.equals(".")) {handlePeriod();}
+        if(charToCheck.equals(".")) {handlePeriod(tList, currentIndex);}
         
-        return "";
     }
     
     // Case: [
-    private static void handleOpenBracket() {
-        System.out.println("Found a Separator: [");
+    private static void handleOpenBracket(ArrayList<TokenData> tList, int currentIndex) {
+        removeCharacter(tList, indices, currentIndex);
     }
 
     // Case: ]
-    private static void handleCloseBracket() {
-        System.out.println("Found a Separator: ]");
+    private static void handleCloseBracket(ArrayList<TokenData> tList, int currentIndex) {
+        removeCharacter(tList, indices, currentIndex);
     }
 
     // Case: (
     private static void handleOpenParenthesis() {
-        System.out.println("Found a Separator: (");
+        // Nothing needs to change at this time
     }
 
     // Case: )
-    private static void handleCloseParenthesis() {
-        System.out.println("Found a Separator: )");
+    private static void handleCloseParenthesis(ArrayList<TokenData> tList, int currentIndex) {
+        // Nothing needs to change at this time
     }
 
     // Case: {
-    private static void handleOpenCurlyBrace() {
-        System.out.println("Found a Separator: {");
+    private static void handleOpenCurlyBrace(ArrayList<TokenData> tList, int currentIndex) {
+        TranslationUtils.tabCount++;
+        tList.get(currentIndex).lexeme = TranslationUtils.getCurrentTabs() + "\n";
     }
 
     // Case: }
-    private static void handleCloseCurlyBrace() {
-        System.out.println("Found a Separator: }");
+    private static void handleCloseCurlyBrace(ArrayList<TokenData> tList, int currentIndex) {
+        tList.get(currentIndex).lexeme = TranslationUtils.getCurrentTabs() + "\n";
+        TranslationUtils.tabCount--;
     }
 
     // Case: ,
@@ -87,12 +99,15 @@ public class TranslateSeparators extends TranslationUtils {
     }
 
     // Case: ;
-    private static void handleSemicolon() {
-        System.out.println("Found a Separator: ;");
+    private static void handleSemicolon(ArrayList<TokenData> tList, int currentIndex) {
+        tList.get(currentIndex).lexeme = "\n";
     }
 
     // Case: .
-    private static void handlePeriod() {
-        System.out.println("Found a Separator: .");
+    private static void handlePeriod(ArrayList<TokenData> tList, int currentIndex) {
+        if(tList.get(currentIndex-1).token.equals("system console specific")) {
+            // Any logic added later should go here. System console specific tokens are handled in their own segment
+        }
     }
+    
 }

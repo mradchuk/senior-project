@@ -6,20 +6,38 @@ import restructure.TokenData;
 public class TranslateKeywords extends TranslationUtils {
     
     // --------------------------------------------------------------------------------
+    //                          VARIABLES
+    // --------------------------------------------------------------------------------
+
+    private static ArrayList<Integer> indices = new ArrayList<Integer>();
+
+    // --------------------------------------------------------------------------------
+    //                          GETTERS/SETTERS
+    // --------------------------------------------------------------------------------
+
+    public static ArrayList<Integer> getIndicesList() {return indices;}
+    public static void setIndicesList(ArrayList<Integer> newList) {indices = newList;}
+
+    // --------------------------------------------------------------------------------
     //                  PRIMARY KEYWORD FUNCTION
     // --------------------------------------------------------------------------------
 
     public static void handleKeyword(ArrayList<TokenData> tList, TokenData currentData, int currentIndex) {
-        String newLexeme;
-        newLexeme = determineKeyword(tList, currentData.lexeme, currentIndex);
-        currentData.lexeme = newLexeme;
+        
+        // If it's already a Python keyword, just leave it be
+        if(!isPythonKeyword(currentData.lexeme)) {
+            determineKeyword(tList, currentData.lexeme, currentIndex);
+        }
+        else {
+            currentData.lexeme = TranslationUtils.getCurrentTabs() + currentData.lexeme;
+        }
     }
 
     // --------------------------------------------------------------------------------
     //             SECONDARY KEYWORD FUNCTION - IDENTIFY KEYWORD
     // --------------------------------------------------------------------------------
 
-    private static String determineKeyword(ArrayList<TokenData> tList, String wordToCheck, int currentIndex) {
+    private static void determineKeyword(ArrayList<TokenData> tList, String wordToCheck, int currentIndex) {
         
         // Case: Abstract
         if(wordToCheck.toUpperCase().equals("ABSTRACT")) {handleAbstract();}
@@ -118,7 +136,7 @@ public class TranslateKeywords extends TranslationUtils {
         if(wordToCheck.toUpperCase().equals("PROTECTED")) {handleProtected();}
 
         // Case: Public
-        if(wordToCheck.toUpperCase().equals("PUBLIC")) {handlePublic();}
+        if(wordToCheck.toUpperCase().equals("PUBLIC")) {handlePublic(tList, currentIndex);}
 
         // Case: Return
         if(wordToCheck.toUpperCase().equals("RETURN")) {handleReturn();}
@@ -127,13 +145,13 @@ public class TranslateKeywords extends TranslationUtils {
         if(wordToCheck.toUpperCase().equals("SHORT")) {handleShort();}
 
         // Case: Static
-        if(wordToCheck.toUpperCase().equals("STATIC")) {handleStatic();}
+        if(wordToCheck.toUpperCase().equals("STATIC")) {handleStatic(tList, currentIndex);}
 
         // Case: StrictFP
         if(wordToCheck.toUpperCase().equals("STRICTFP")) {handleStrictFP();}
 
         // Case: String
-        if(wordToCheck.toUpperCase().equals("STRING")) {handleString();}
+        if(wordToCheck.toUpperCase().equals("STRING")) {handleString(tList, currentIndex);}
 
         // Case: Super
         if(wordToCheck.toUpperCase().equals("SUPER")) {handleSuper();}
@@ -160,7 +178,7 @@ public class TranslateKeywords extends TranslationUtils {
         if(wordToCheck.toUpperCase().equals("TRY")) {handleTry();}
 
         // Case: Void
-        if(wordToCheck.toUpperCase().equals("VOID")) {handleVoid();}
+        if(wordToCheck.toUpperCase().equals("VOID")) {handleVoid(tList, currentIndex);}
 
         // Case: Volatile
         if(wordToCheck.toUpperCase().equals("VOLATILE")) {handleVolatile();}
@@ -168,7 +186,6 @@ public class TranslateKeywords extends TranslationUtils {
         // Case: While
         if(wordToCheck.toUpperCase().equals("WHILE")) {handleWhile();}
 
-        return "";
     }
 
     // --------------------------------------------------------------------------------
@@ -217,7 +234,7 @@ public class TranslateKeywords extends TranslationUtils {
 
     // Case: Class
     private static void handleClass() {
-        System.out.println("Found a keyword: Class");
+        // As of now, class is a java and python keyword, so no change needs to occur
     }
 
     // Case: Continue
@@ -336,8 +353,9 @@ public class TranslateKeywords extends TranslationUtils {
     }
 
     // Case: Public
-    private static void handlePublic() {
-        System.out.println("Found a keyword: Public");
+    // Public is not explicitly used, so TokenData is removed
+    private static void handlePublic(ArrayList<TokenData> tList, int currentIndex) {
+        removeCharacter(tList, indices, currentIndex);
     }
 
     // Case: Return
@@ -351,8 +369,18 @@ public class TranslateKeywords extends TranslationUtils {
     }
 
     // Case: Static
-    private static void handleStatic() {
-        System.out.println("Found a keyword: Static");
+    private static void handleStatic(ArrayList<TokenData> tList, int currentIndex) {
+        boolean beforeMethod = false;
+
+        // Checks past 'return type'/'var type' (currentIndex + 1) and label (currentIndex + 2)
+        if(tList.get(currentIndex+3).token.equals("separator")) {
+            beforeMethod = true;
+        }
+
+        // Python adds statement for static method, but nothing for variable
+        if(beforeMethod) {
+            tList.get(currentIndex).lexeme = "@staticmethod\n";
+        }
     }
 
     // Case: StrictFP
@@ -361,8 +389,8 @@ public class TranslateKeywords extends TranslationUtils {
     }
 
     // Case: String
-    private static void handleString() {
-        System.out.println("Found a keyword: String");
+    private static void handleString(ArrayList<TokenData> tList, int currentIndex) {
+        removeCharacter(tList, indices, currentIndex);
     }
 
     // Case: Super
@@ -406,8 +434,9 @@ public class TranslateKeywords extends TranslationUtils {
     }
 
     // Case: Void
-    private static void handleVoid() {
-        System.out.println("Found a keyword: Void");
+    // Void is not explicitly used, so TokenData is removed
+    private static void handleVoid(ArrayList<TokenData> tList, int currentIndex) {
+        removeCharacter(tList, indices, currentIndex);
     }
 
     // Case: Volatile
@@ -419,4 +448,7 @@ public class TranslateKeywords extends TranslationUtils {
     private static void handleWhile() {
         System.out.println("Found a keyword: While");
     }
+
 }
+
+

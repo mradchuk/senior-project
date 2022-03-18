@@ -24,7 +24,6 @@ public class JavaParse {
     // --------------------------------------------------------------------------------
 
     protected static HashMap<String, ArrayList<String>> javaMap = new HashMap<String, ArrayList<String>>();
-    protected static HashMap<String, ArrayList<String>> pythonMap = new HashMap<String, ArrayList<String>>();
     protected static HashMap<String, Boolean> tokenMap = new HashMap<String, Boolean>();
 
     // --------------------------------------------------------------------------------
@@ -208,51 +207,6 @@ public class JavaParse {
 
     }
 
-    private static void populatePythonMap() {
-        ArrayList<String> keywords = new ArrayList<String>();
-        keywords.add("TRUE");
-        keywords.add("FALSE");
-        keywords.add("NONE");
-        keywords.add("AND");
-        keywords.add("AS");
-        keywords.add("ASSERT");
-        keywords.add("ASYNC");
-
-        keywords.add("AWAIT");
-        keywords.add("BREAK");
-        keywords.add("CLASS");
-        keywords.add("CONTINUE");
-        keywords.add("DEF");
-        keywords.add("DEL");
-        keywords.add("ELIF");
-
-        keywords.add("ELSE");
-        keywords.add("EXCEPT");
-        keywords.add("FINALLY");
-        keywords.add("FOR");
-        keywords.add("FROM");
-        keywords.add("GLOBAL");
-        keywords.add("IF");
-
-        keywords.add("IMPORT");
-        keywords.add("IN");
-        keywords.add("IS");
-        keywords.add("LAMBDA");
-        keywords.add("NONLOCAL");
-        keywords.add("NOT");
-        keywords.add("OR");
-
-        keywords.add("PASS");
-        keywords.add("RAISE");
-        keywords.add("RETURN");
-        keywords.add("TRY");
-        keywords.add("WHILE");
-        keywords.add("WITH");
-        keywords.add("YIELD");
-
-        pythonMap.put("keyword", keywords);
-    }
-
     private static void populateTokenMap() {
         tokenMap.put("keyword", false);
         tokenMap.put("string label", false);
@@ -363,6 +317,13 @@ public class JavaParse {
         }
     } 
 
+    // --------------------------------------------------------------------------------
+    //                      SECONDARY FUNCTIONS - MISCELLANEOUS
+    // --------------------------------------------------------------------------------
+
+    // As things are being parsed right now, the stream tokenizer catches likes like 'System.out.println' as one 'word'. 
+    // DotWalkCheck is in charge of checking for cases like that.
+    // NOTE: Assumption is that any String that isn't captured between quotations that has a period (.) character is attempting to dot walk.
     public static Boolean dotWalkCheck(HashMap<String, ArrayList<String>> thisMap, ArrayList<TokenData> dataList, TokenData currentElement) {
         int currentIndex = dataList.size();
         Boolean addedToList = false;
@@ -374,6 +335,9 @@ public class JavaParse {
         return addedToList;
     }
 
+    // If DotWalkCheck is able to locate any 'words' that actually include 'dot walking', splitDotWalking uses . as a delimiter and splits up the dot walking, 
+    // while also adding each portion of the original string
+    
     public static void splitDotWalking(HashMap<String, ArrayList<String>> thisMap, ArrayList<TokenData> dataList, String stringLabel, int currentIndex) {
         String dotSymbolRegEx = "\\.";
         String dotToken = findKeyByValue(thisMap, ".");
@@ -405,10 +369,6 @@ public class JavaParse {
             tempToken = primaryToken;
         }
     }
-
-    // --------------------------------------------------------------------------------
-    //                      SECONDARY FUNCTIONS - MISCELLANEOUS
-    // --------------------------------------------------------------------------------
 
     // Purpose: Prints out TokenData information for Parse Testing
     private static void printTokenData(ArrayList<TokenData> tokenDataList) {
@@ -467,7 +427,6 @@ public class JavaParse {
     // Purpose: Manages Parsing Process
     public static void runParser(File fileToParse) {
         populateJavaMap();
-        populatePythonMap();
         populateTokenMap();
 
         parseFile(fileToParse);
@@ -479,7 +438,7 @@ public class JavaParse {
     // --------------------------------------------------------------------------------
 
     public static void main(String[] args) {
-        File testFile = new File("restructure/test2.txt");
+        File testFile = new File("restructure/test1.txt");
 
         runParser(testFile);
         Translator.runTranslator(getTokenMap(), getTokenList());
