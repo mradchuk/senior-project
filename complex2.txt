@@ -1,4 +1,4 @@
-public class Complex2 {
+class Complex2 {
 
    
     public static void castSection() {
@@ -36,7 +36,7 @@ public class Complex2 {
         System.out.println("Reached the end of Boolean Logic Section");
     }
 
-    public void operatorSection() {
+    public static void operatorSection() {
         // Increment/Decrement Operators don't exist in Python
         int x = 1;
         x++;
@@ -47,7 +47,7 @@ public class Complex2 {
         System.out.println("Reached the end of Operator Section");
     }
 
-    public void varSection() {
+    public static void varSection() {
 
         byte testByte = 22; 
         short testShort = 2045; // Bigger than byte
@@ -88,7 +88,7 @@ public class Complex2 {
     	System.out.println("Reached the end of the math section");
     }
 
-    public void conditionalSection() {
+    public static void conditionalSection() {
         int x = 1;
         int y = 2;
         String z = "testText";
@@ -104,7 +104,7 @@ public class Complex2 {
         System.out.println("Reached the end of Conditional Section");
     }
 
-    public void arraySection() {
+    public static void arraySection() {
         // Singular Arrays for now
         int[] smallInts = {1, 2, 3};
         System.out.println(smallInts);
@@ -135,7 +135,7 @@ public class Complex2 {
     }
     
 	
-    public void loopSection() {
+    public static void loopSection() {
         
         // While Loop
         boolean stopLoop = false;
@@ -172,7 +172,7 @@ public class Complex2 {
         conditionalSection();
         arraySection();
         loopSection();
-        testParamOne(3,4);
+        testParamsOne(3,4);
         
     }
     

@@ -131,7 +131,7 @@ public class Controllers implements Initializable {
 			}
 		}
 
-		LexicalAnalyzer.printLookAheadFunction();
+		//LexicalAnalyzer.printLookAheadFunction();
 		LexicalAnalyzer.printTranslator();
 
 		pythonCode.setText(LexicalAnalyzer.getPythonStr());

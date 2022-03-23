@@ -49,7 +49,7 @@ public class LexicalAnalyzer {
     static boolean insideOfNonMainMethod = false;
     static boolean insideOfMainMethod = false;
     static boolean insideOfClass = false;
-    static boolean publicBool = false;
+    //static boolean publicBool = false;
     static boolean classBool = false;
 
     static int indentionLevelCount = 0;
@@ -201,9 +201,11 @@ public class LexicalAnalyzer {
         PythonConverter.translateDriver(arrayOfTokens);
     }
 
+    /*
     static void printLookAheadFunction() {
         PythonConverter.lookAheadFunction(arrayOfTokens);
     }
+    */
 
     static void getDeletedPyStr() {
         PythonConverter.deletePyStr(arrayOfTokens);
@@ -274,9 +276,11 @@ public class LexicalAnalyzer {
 
         if(keyWord.containsKey(strObject.toUpperCase())) {
 
+            /*
             if(strObject.equals("public")) {
                 publicBool = true;
             }
+            */
 
             if(strObject.equals("class")) {
                 classBool = true;
@@ -452,7 +456,7 @@ public class LexicalAnalyzer {
 
                 }
 
-            } else if(classBool && publicBool) {
+            } else if(classBool) {
 
                 // Public class [class name]...
 
@@ -460,7 +464,7 @@ public class LexicalAnalyzer {
                 System.out.println("CLASS_NAME" + " - " + strObject);
 
                 classBool = false;
-                publicBool = false;
+                //publicBool = false;
 
                 insideOfClass = true;
 
