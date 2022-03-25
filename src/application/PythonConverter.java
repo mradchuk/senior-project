@@ -48,6 +48,8 @@ public class PythonConverter {
     static boolean endOfDo = false;
     static boolean doWhileLoop = false;
 
+    static boolean castJavaMath = false;
+
     private static ArrayList<String> tokenList = new ArrayList<String>();
     private static ArrayList<String> lexemeList = new ArrayList<String>();
     private static ArrayList<Integer> indices = new ArrayList<Integer>();
@@ -116,6 +118,7 @@ public class PythonConverter {
         skipParenthesis = 0;
         endOfDo = false;
         doWhileLoop = false;
+        castJavaMath = false;
 
         //ifStatement = false;
 
@@ -138,6 +141,14 @@ public class PythonConverter {
 
         return resultStr;
 
+    }
+
+    public static boolean castingDatatype(String str) {
+        if(str.equals("int") || str.equals("short") || str.equals("double") || str.equals("byte") || str.equals("float") || str.equals("long")) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     //Method for determining if checkprintstatement is a math statement to avoid adding :
@@ -192,6 +203,12 @@ public class PythonConverter {
         System.out.println();
 
         ArrayList<TokenData> tempData = new ArrayList<TokenData>();
+
+        arrAtStaticMethod[0] = "";
+        arrAtStaticMethod[1] = "";
+        arrAtStaticMethod[2] = "";
+
+        statementArr[0] = "";
 
         for(int i = 0; i < list.size(); i++) {
 
@@ -388,8 +405,8 @@ public class PythonConverter {
                         break;
                     }
 
-                    // int var =
-                    if(statementArr[0] == "T_INT" && statementArr[1] == "VAR_IDENTIFIER" && statementArr[2] == "T_ASSIGN" && !isAMathMethodDoNotCastIt) {
+                    // 'var =' or 'int var =' for casting statements
+                    if((statementArr[0] == "" || statementArr[0] == "T_INT") && statementArr[1] == "VAR_IDENTIFIER" && statementArr[2] == "T_ASSIGN" && !isAMathMethodDoNotCastIt) {
 
                         pythonStr += "int(";
 
@@ -505,13 +522,20 @@ public class PythonConverter {
                         break;
                     }
 
+                    if(castJavaMath) {
+                        pythonStr += ")";
+                        castJavaMath = false;
+                    }
+
                     if(casting) {
 
                         //finished casting the current statement
                         casting = false;
                         break;
 
-                    } else if (isAMathMethodDoNotCastIt) {
+                    }
+
+                    else if (isAMathMethodDoNotCastIt) {
 
                         //math statement is translated and no longer subject to being misinterpreted
                         isAMathMethodDoNotCastIt = false;
@@ -558,6 +582,19 @@ public class PythonConverter {
                     checkPrintStatement += list.get(i).lexeme;
 
                     if(checkPrintStatement.equals("System.out.println")) {
+                        pythonStr += "print";
+                    }
+
+                    //Properly reset this variable once println is added to the pythonStr
+                    checkPrintStatement = "";
+
+                    break;
+
+                case "print":
+
+                    checkPrintStatement += list.get(i).lexeme;
+
+                    if(checkPrintStatement.equals("System.out.print")) {
                         pythonStr += "print";
                     }
 
@@ -927,8 +964,33 @@ public class PythonConverter {
 
                         //Remove the decimal from numbers whose decimal is 0 but is not caught in the above methods because it is not a variable declaration
                         try {
+
+                            boolean castNumber = false;
+
+                            if(list.get(i-3).lexeme.equals("(") && castingDatatype(list.get(i-2).lexeme) && list.get(i-1).lexeme.equals(")")) {
+
+                                // remove last two character for python string. these are '(' and ')' that are picked up by default in
+                                // t_lparenth and t_rparenth cases when casting the number parameters in java when calling the function
+                                // with parameters in the main method
+                                pythonStr = pythonStr.substring(0, pythonStr.length() - 2);
+
+                                if(list.get(i-2).lexeme.equals("int") || list.get(i-2).lexeme.equals("short") || list.get(i-2).lexeme.equals("byte") || list.get(i-2).lexeme.equals("long")) {
+                                    pythonStr += "int(";
+                                    castNumber = true;
+                                }
+
+                                if(list.get(i-2).lexeme.equals("float") || list.get(i-2).lexeme.equals("double")) {
+                                    pythonStr += "float(";
+                                    castNumber = true;
+                                }
+
+                            }
+
                             if(Double.valueOf(list.get(i).lexeme) - Double.valueOf(list.get(i).lexeme).intValue() < 0.000000000000001) {
                                 pythonStr += Double.valueOf(list.get(i).lexeme).intValue();
+                                if(castNumber) {
+                                    pythonStr += ")";
+                                }
                                 break;
                             }
                         }
@@ -1025,6 +1087,9 @@ public class PythonConverter {
                 //Math handling
                 case "Math":
                     checkPrintStatement += list.get(i).lexeme;
+                    if(list.get(i-3).lexeme.equals("(") && castingDatatype(list.get(i-2).lexeme) && list.get(i-1).lexeme.equals(")")) {
+                        castJavaMath = true;
+                    }
                     isAMathMethodDoNotCastIt = true;
                     break;
                 case "abs":

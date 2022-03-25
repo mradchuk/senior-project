@@ -1,6 +1,6 @@
 class Complex2 {
 
-   
+
     public static void castSection() {
 
         short testShort = 2045;
@@ -37,7 +37,7 @@ class Complex2 {
     }
 
     public static void operatorSection() {
-        // Increment/Decrement Operators don't exist in Python
+
         int x = 1;
         x++;
         ++x;
@@ -49,12 +49,12 @@ class Complex2 {
 
     public static void varSection() {
 
-        byte testByte = 22; 
-        short testShort = 2045; // Bigger than byte
-        int testInt = 40341; // Bigger than short
-        long testLong = 3685469852L; // Bigger than int
+        byte testByte = 22;
+        short testShort = 2045;
+        int testInt = 40341;
+        long testLong = 3685469852L;
         float testFloat = 45.87f;
-        double testDouble = 458.2247852682; // Handles more decimal places than float
+        double testDouble = 458.2247852682;
         boolean testBoolean = true;
         char testChar = 'a';
         String testString = "text";
@@ -63,7 +63,7 @@ class Complex2 {
     }
 
     public static void mathSection() {
-    	    	
+
     	int x = Math.abs(1);
     	System.out.println( Math.min(1,2));
     	x = Math.max(1,2);
@@ -72,19 +72,19 @@ class Complex2 {
     	Math.asin(1);
     	Math.atan(1);
     	Math.atan2(2, 1);
-    	int y = Math.cos(6);
+    	int y = (int)Math.cos(6);
     	Math.cosh(3);
     	Math.exp(34);
     	Math.log(4);
-    	int r = Math.log10(4);
+    	int r = (int)Math.log10(4);
     	Math.sin(12);
     	Math.sinh(12);
-    	y = Math.sqrt(9);
+    	y = (int)Math.sqrt(9);
     	Math.tan(10);
     	Math.tanh(11);
     	System.out.println(Math.toDegrees(25));
     	Math.toRadians(90);
-    	
+
     	System.out.println("Reached the end of the math section");
     }
 
@@ -105,7 +105,7 @@ class Complex2 {
     }
 
     public static void arraySection() {
-        // Singular Arrays for now
+
         int[] smallInts = {1, 2, 3};
         System.out.println(smallInts);
         smallInts[0] = 4;
@@ -118,13 +118,13 @@ class Complex2 {
         System.out.println(testStringArray.length);
 
     }
-    
+
     public static void testParamsOne(int x, short y) {
     	System.out.println("This method tests function parameters");
     	System.out.println(x);
     	System.out.println(y);
     }
-    
+
     public static void testParamsTwo(double x, float y) {
     	System.out.println(x);
     	System.out.println(y);
@@ -133,17 +133,17 @@ class Complex2 {
     	System.out.println(s);
     	System.out.println("This is the end of the parameter test");
     }
-    
-	
+
+
     public static void loopSection() {
-        
-        // While Loop
+
+
         boolean stopLoop = false;
         int count = 0;
         while(!stopLoop) {
             System.out.println("While loop running");
             count++;
-            
+
             if(count == 3) {
                 stopLoop = true;
             }
@@ -152,13 +152,13 @@ class Complex2 {
         stopLoop = false;
         count = 0;
 
-        // Do While Loop
+
         do {
             System.out.println("Do/While loop running");
             count++;
             if(count == 3) {
                 stopLoop = true;
-            }   
+            }
         } while (!stopLoop);
 
     }
@@ -172,8 +172,8 @@ class Complex2 {
         conditionalSection();
         arraySection();
         loopSection();
-        testParamsOne(3,4);
-        
+        testParamsOne(3, (short)4);
+
     }
-    
+
 }

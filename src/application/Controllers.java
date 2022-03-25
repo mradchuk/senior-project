@@ -119,15 +119,16 @@ public class Controllers implements Initializable {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		System.out.println(tokens);
+		//System.out.println(tokens);
 		listLength = tokens.size();
 
 		for(int i = 0; i < listLength; i++) {
 			currentObject = tokens.get(i);
-			if(LexicalAnalyzer.isNumber(currentObject) == false) {
-				LexicalAnalyzer.translateToPython(currentObject);
-			} else { //If the token is a number
+			if(LexicalAnalyzer.isNumber(currentObject)) {
+
 				LexicalAnalyzer.directNumber(currentObject);
+			} else { //If the token is a number
+				LexicalAnalyzer.translateToPython(currentObject);
 			}
 		}
 

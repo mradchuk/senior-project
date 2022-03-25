@@ -46,15 +46,19 @@ public class LexicalAnalyzer {
 
     //static ArrayList<String> listOfVariables = new ArrayList<>();
 
-    static boolean insideOfNonMainMethod = false;
-    static boolean insideOfMainMethod = false;
+    static boolean insideOfMethod = false;
+    //static boolean insideOfMainMethod = false;
     static boolean insideOfClass = false;
     //static boolean publicBool = false;
     static boolean classBool = false;
 
+    static boolean classConstructorExists = false;
+
     static int indentionLevelCount = 0;
     
     static String prevTokenTwo = "";
+
+    static String currentClassName = "";
 
     // Store tokens
     public LexicalAnalyzer() {
@@ -101,6 +105,7 @@ public class LexicalAnalyzer {
         keyWord.put("SUPER", "keyword");
         keyWord.put("SWITCH", "keyword");
         keyWord.put("SYNCHRONIZED", "keyword");
+        keyWord.put("THIS", "T_THIS");
         keyWord.put("THROW", "keyword");
         keyWord.put("THROWS", "keyword");
         keyWord.put("TRY", "keyword");
@@ -165,6 +170,9 @@ public class LexicalAnalyzer {
         //to the string it is encasing
         st.wordChars('"',' ');
 
+        // for division operator
+        st.ordinaryChar('/');
+
         //Read tokens until there is none and add to the token list
         //TT_EOF = end of file, TT_Word = string value, tt_number = a number value
         int currToken = st.nextToken();
@@ -198,7 +206,24 @@ public class LexicalAnalyzer {
     }
 
     static void printTranslator() {
+        int referenceNumOne = 1;
+        System.out.print("\nJava token list: [");
+        for(TokenData x : arrayOfTokens) {
+            System.out.print(x.token + " (" + referenceNumOne + ") " + ", ");
+            referenceNumOne++;
+        }
+        System.out.print("]\n");
+
+        int referenceNumTwo = 1;
+        System.out.print("\nJava lexeme list: [");
+        for(TokenData x : arrayOfTokens) {
+            System.out.print(x.lexeme + " (" + referenceNumTwo + ") " + ", ");
+            referenceNumTwo++;
+        }
+        System.out.print("]\n");
+
         PythonConverter.translateDriver(arrayOfTokens);
+
     }
 
     /*
@@ -217,10 +242,47 @@ public class LexicalAnalyzer {
 
         String strObject = testObject.toString();
 
-        arrayOfTokens.add(new TokenData("NUMBER", strObject));
-        System.out.println("NUMBER" + " - " + strObject);
+        // Complex 3: 'obj[i].findAverage()' and 'obj[i].strOutput()' dots are tokenized as numbers
+        if(prevTokenTwo.equals("]")) {
+            arrayOfTokens.add(new TokenData("T_DOT", "."));
+            System.out.println("T_DOT" + " - " + ".");
+        } else {
+            arrayOfTokens.add(new TokenData("NUMBER", strObject));
+            System.out.println("NUMBER" + " - " + strObject);
+            checkLongSpecificationStatement[3] = "NUMBER";
+        }
 
-        checkLongSpecificationStatement[3] = "NUMBER";
+    }
+
+    //Ex: Complex2 - 'z.equals', 'testStringArray.length'.
+    public static boolean variableIsBeforeDot(String strOb, String prevTok) {
+
+        String[] res = strOb.split("[.]", 0);
+        for(int i = 0; i < res.length; i++) {
+            if (res[0].equals(prevTok)) {
+                return true;
+            } else if (res[1].equals(prevTok)){
+                return false;
+            }
+        }
+
+        return false;
+
+    }
+
+    //Ex: Complex3 - 'this.firstName', 'this.lastName'
+    public static boolean variableIsAfterDot(String strOb, String prevTok) {
+
+        String[] res = strOb.split("[.]", 0);
+        for(int i = 0; i < res.length; i++) {
+            if (res[0].equals(prevTok)) {
+                return false;
+            } else if (res[1].equals(prevTok)){
+                return true;
+            }
+        }
+
+        return false;
 
     }
 
@@ -270,6 +332,13 @@ public class LexicalAnalyzer {
 
         String strObject = testObject.toString();
 
+        //System.out.println(strObject);
+
+        //inside of the class at indentation level 1 and there is a 'public class_name', this is the class constructor
+        if(strObject.equals(currentClassName) && prevTokenTwo.equals("public") && indentionLevelCount == 1) {
+            classConstructorExists = true;
+        }
+
         //System.out.println("                                             " + strObject);
 
         String prevToken = "";
@@ -293,14 +362,21 @@ public class LexicalAnalyzer {
 
         } else if(separator.containsKey(strObject.toUpperCase())) {
 
+            //Ex: Complex 3 - '.findAverage(', '.strOutPut('
+            if(strObject.equals("(") && listOfVariables.contains(prevTokenTwo)) {
+                arrayOfTokens.remove(arrayOfTokens.size()-1);
+                arrayOfTokens.add(new TokenData("METHOD_NAME", prevTokenTwo));
+                System.out.println("LAST IS NOT VAR_IDENTIFIER, IS A METHOD_NAME" + " - " + prevTokenTwo);
+            }
+
             if(strObject.equals("{")) {
 
                 if(insideOfClass) {
-                    insideOfNonMainMethod = false;
+                    insideOfMethod = false;
                     insideOfClass = false;
                     indentionLevelCount++;
                 } else {
-                    insideOfNonMainMethod = true;
+                    insideOfMethod = true;
                     indentionLevelCount++;
                 }
 
@@ -308,12 +384,10 @@ public class LexicalAnalyzer {
 
 
             if(strObject.equals("}") && indentionLevelCount >= 3) {
-                insideOfNonMainMethod = true;
-                insideOfMainMethod = false;
+                insideOfMethod = true;
                 indentionLevelCount--;
             } else if(strObject.equals("}") && indentionLevelCount < 3) {
-                insideOfNonMainMethod = false;
-                insideOfMainMethod = false;
+                insideOfMethod = false;
                 indentionLevelCount--;
             }
 
@@ -333,8 +407,6 @@ public class LexicalAnalyzer {
             System.out.println("character literal" + " - " + strObject);
 
         } else if(mainIdent.containsKey(strObject.toUpperCase())) {
-
-            insideOfMainMethod = true;
 
             arrayOfTokens.add(new TokenData(mainIdent.get(strObject.toUpperCase()), strObject));
             System.out.println(mainIdent.get(strObject.toUpperCase()) + " - " + strObject);
@@ -380,8 +452,8 @@ public class LexicalAnalyzer {
                 So the string object could be a class name, method name, variable identifier.
             */
 
-            /* The string object is within a non main method */
-            if(insideOfNonMainMethod && !insideOfMainMethod) {
+            /* The string object is within method that is NOT a constructor method and IS inside of the class */
+            if(insideOfMethod) {
 
                 /*
                    If the string object is not 'f' that is separated by the stream tokenizer from
@@ -424,6 +496,7 @@ public class LexicalAnalyzer {
                             result += charArray[ct];
                         }
 
+                        //variable decrementation
                         if(result.equals("--")) {
 
                             arrayOfTokens.add(new TokenData("VAR_IDENTIFIER", strObject.substring(0, 1)));
@@ -442,13 +515,25 @@ public class LexicalAnalyzer {
 
                         } else {
 
-                            arrayOfTokens.add(new TokenData("VAR_IDENTIFIER", strObject));
-                            System.out.println("VAR_IDENTIFIER" + " - " + strObject);
+                            //class name is recognized but it is already inside of the class
+                            if(strObject.equals(currentClassName) && indentionLevelCount > 1) {
 
-                            checkLongSpecificationStatement[1] = "VAR_IDENTIFIER";
+                                arrayOfTokens.add(new TokenData("CLASS_NAME", strObject));
+                                System.out.println("CLASS_NAME" + " - " + strObject);
 
-                            if (!listOfVariables.contains(strObject))
-                                listOfVariables.add(strObject);
+                            } else {
+
+                                // variable inside of method identified
+                                arrayOfTokens.add(new TokenData("VAR_IDENTIFIER", strObject));
+                                System.out.println("VAR_IDENTIFIER" + " - " + strObject);
+
+                                checkLongSpecificationStatement[1] = "VAR_IDENTIFIER";
+
+                                if (!listOfVariables.contains(strObject))
+                                    listOfVariables.add(strObject);
+
+                            }
+
 
                         }
 
@@ -456,25 +541,42 @@ public class LexicalAnalyzer {
 
                 }
 
-            } else if(classBool) {
-
-                // Public class [class name]...
+                //just the class name, not the class name of class constructor. This is at the first level of 'class class_name'.
+            } else if(classBool && !classConstructorExists) {
 
                 arrayOfTokens.add(new TokenData("CLASS_NAME", strObject));
                 System.out.println("CLASS_NAME" + " - " + strObject);
 
+                currentClassName = strObject;
+
                 classBool = false;
-                //publicBool = false;
 
                 insideOfClass = true;
 
-            } else {
+                //class name of class constructor. classBool is false because we already inside of the class and at the class constructor level
+            } else if(!classBool && classConstructorExists) {
+                arrayOfTokens.add(new TokenData("CLASS_NAME", strObject));
+                System.out.println("CLASS_NAME" + " - " + strObject);
+                classConstructorExists = false;
+            }
 
+
+            else {
+
+                //variable OUTSIDE of a method is identified
+
+                //if previous lexeme is ']', as an example, this is 'double[] scores' in Complex3 so we know 'scores' is the current variable
+                // another example of this is in Complex3 as well where in 'Complex3[] obj' we know 'obj' is the current variable
             	if(prevTokenTwo.equals("int") || prevTokenTwo.equals("short") || prevTokenTwo.equals("long") || prevTokenTwo.equals("double") || prevTokenTwo.equals("String")
-            			|| prevTokenTwo.equals("float") || prevTokenTwo.equals("char")) {
+            			|| prevTokenTwo.equals("float") || prevTokenTwo.equals("char") || prevTokenTwo.equals("]")) {
             		arrayOfTokens.add(new TokenData("VAR_IDENTIFIER", strObject));
                     System.out.println("VAR_IDENTIFIER" + " - " + strObject);
+
+                    if (!listOfVariables.contains(strObject))
+                        listOfVariables.add(strObject);
             	}
+
+            	// method is found found inside the class
             	else {
             		arrayOfTokens.add(new TokenData("METHOD_NAME", strObject));
                     System.out.println("METHOD_NAME" + " - " + strObject);
@@ -518,7 +620,7 @@ public class LexicalAnalyzer {
                         arrayOfTokens.add(new TokenData("Integer Cast", prevToken));
                         System.out.println("Integer Cast" + " - " + prevToken);
                         prevToken = "";
-                    } else if(listOfVariables.contains(prevToken)){
+                    } else if(listOfVariables.contains(prevToken) && variableIsBeforeDot(strObject, prevToken)){
                         arrayOfTokens.add(new TokenData("VAR_IDENTIFIER", prevToken));
                         System.out.println("VAR_IDENTIFIER - " + prevToken);
                         prevToken = "";
@@ -526,6 +628,12 @@ public class LexicalAnalyzer {
                     else if(prevToken.equals("Math")) {
                         arrayOfTokens.add(new TokenData("Math", prevToken));
                         System.out.println("Math" + "-" + prevToken);
+                        prevToken = "";
+                    }
+                    // check for 'this' keyword
+                    else if(keyWord.containsKey(prevToken.toUpperCase())) {
+                        arrayOfTokens.add(new TokenData(keyWord.get(prevToken.toUpperCase()), prevToken));
+                        System.out.println(keyWord.get(prevToken.toUpperCase()) + " - " + prevToken);
                         prevToken = "";
                     }
 
@@ -547,7 +655,11 @@ public class LexicalAnalyzer {
                 	
 
                     // Whatever string occurs after the '.' separator (ex: .println, .toString, .format)
-                    if(prevToken.equals("println")) {
+                    if(prevToken.equals("print") && nextChar != 'l') {
+                        arrayOfTokens.add(new TokenData("print", prevToken));
+                        System.out.println("print" + " - " + prevToken);
+                        prevToken = "";
+                    } else if(prevToken.equals("println")) {
                         arrayOfTokens.add(new TokenData("println", prevToken));
                         System.out.println("println" + " - " + prevToken);
                         prevToken = "";
@@ -570,6 +682,10 @@ public class LexicalAnalyzer {
                     } else if(prevToken.equals("length")) {
                         arrayOfTokens.add(new TokenData("length", prevToken));
                         System.out.println("length - " + prevToken);
+                        prevToken = "";
+                    }else if(listOfVariables.contains(prevToken) && variableIsAfterDot(strObject, prevToken)){
+                        arrayOfTokens.add(new TokenData("VAR_IDENTIFIER", prevToken));
+                        System.out.println("VAR_IDENTIFIER - " + prevToken);
                         prevToken = "";
                     }
 
