@@ -297,14 +297,37 @@ public class PythonConverter {
                         pythonStr += "self.";
                     }
 
+                    String lastThreeCharsInPythonStr = "";
+
+                    char firstChar = pythonStr.charAt(pythonStr.length()-1);
+                    char secondChar = pythonStr.charAt(pythonStr.length()-2);
+                    char thirdChar = pythonStr.charAt(pythonStr.length()-3);
+
+                    lastThreeCharsInPythonStr += firstChar + secondChar + thirdChar;
+
                     /* How we deal with different Java method types and determine if the are being defined or only accessed */
                     if((list.get(i - 2).lexeme.equals("static") || list.get(i - 2).lexeme.equals("public")) && list.get(i - 1).lexeme.equals("void")) {
                         pythonStr += "def " + list.get(i).lexeme;
                     } else if(list.get(i - 2).lexeme.equals("public") && isDatatype(list.get(i -1).lexeme)) {
                         pythonStr += "def " + list.get(i).lexeme;
-                    } else if(insideMainMethod && !classHasClassConstructor) {
+                    }
+
+                    else if(insideMainMethod && !classHasClassConstructor) {
                         pythonStr += getClassName + "." + list.get(i).lexeme;
-                    } else {
+                    }
+
+                    /* Incorporate this code in the future when the functions section is finished */
+
+                    /*
+                    else if(insideMainMethod && !classHasClassConstructor && lastThreeCharsInPythonStr.equals("def")) {
+                        pythonStr += getClassName + "." + list.get(i).lexeme;
+                    } else if(!insideMainMethod && !classHasClassConstructor && !lastThreeCharsInPythonStr.equals("def")) {
+                        pythonStr += getClassName + "." + list.get(i).lexeme;
+                    }
+
+                     */
+
+                    else {
                         pythonStr += list.get(i).lexeme;
                     }
 
@@ -910,14 +933,22 @@ public class PythonConverter {
 
                     String lastSixChars = "";
                     String lastFourChars = "";
+                    String lastFiveChars = "";
+                    //String lastTwoChars = String.valueOf(pythonStr.charAt(pythonStr.length()-2) + pythonStr.charAt(pythonStr.length()-1));
+
+                    String lastTwoChars = "";
+                    lastTwoChars += pythonStr.charAt(pythonStr.length()-2);
+                    lastTwoChars += pythonStr.charAt(pythonStr.length()-1);
 
                     int lenOfLastSixChars = 6;
                     int lenOfLastFourChars = 4;
+                    int lenOfLastFiveChars = 5;
 
                     int pyStrIndexLen = pythonStr.length() - 1;
 
                     int counter1 = (pyStrIndexLen - lenOfLastSixChars) + 1;
                     int counter2 = (pyStrIndexLen - lenOfLastFourChars) + 1;
+                    int counter3 = (pyStrIndexLen - lenOfLastFiveChars) + 1;
 
                     while(counter1 < pyStrIndexLen) {
                         lastSixChars += pythonStr.charAt(counter1);
@@ -930,6 +961,12 @@ public class PythonConverter {
                         counter2++;
                     }
                     lastFourChars += pythonStr.charAt(pyStrIndexLen);
+
+                    while(counter3 < pyStrIndexLen) {
+                        lastFiveChars += pythonStr.charAt(counter3);
+                        counter3++;
+                    }
+                    lastFiveChars += pythonStr.charAt(pyStrIndexLen);
 
                     if(lastSixChars.equals("float(")) {
                         statementArr[1] = "VAR_IDENTIFIER";
@@ -960,6 +997,10 @@ public class PythonConverter {
                         pythonStr += list.get(i).lexeme + ")";
                         break;
 
+                    } else if(lastFiveChars.equals("while") || lastTwoChars.equals("if")) {
+                        pythonStr += " " + list.get(i).lexeme;
+                        break;
+
                     } else {
 
                         // 'var [ ] ='. Inside of the class constructor, we only want the instance of the class for the
@@ -984,7 +1025,9 @@ public class PythonConverter {
                             pythonStr += "self.";
                         }
 
+
                         pythonStr += list.get(i).lexeme;
+
 
                         // we only need to worry about getting the instance of the class of variables for those that are
                         // are defined outside of class constructor.
@@ -1037,7 +1080,11 @@ public class PythonConverter {
 
                     } else {
 
-                        pythonStr += " " + list.get(i).lexeme + " ";
+                        if(list.get(i-1).lexeme.equals("<") || list.get(i-1).lexeme.equals(">")) {
+                            pythonStr += list.get(i).lexeme + " ";
+                        } else {
+                            pythonStr += " " + list.get(i).lexeme + " ";
+                        }
 
                         statementArr[2] = "T_ASSIGN";
                         arrInitAndDeclaration[4] = "T_ASSIGN";
@@ -1241,7 +1288,14 @@ public class PythonConverter {
                 case "relational operator":
 
                     if(list.get(i).lexeme.equals("<") || list.get(i).lexeme.equals(">")) {
-                        pythonStr += " " + list.get(i).lexeme + " ";
+
+                        // if '>=' or '<='
+                        if(list.get(i+1).lexeme.equals("=")) {
+                            pythonStr += " " + list.get(i).lexeme;
+                        } else {
+                            pythonStr += " " + list.get(i).lexeme + " ";
+                        }
+
                         break;
                     }
 
