@@ -5,7 +5,8 @@ class Complex3
     {
         if (j%i == 0) {
             return true;
-        } else {
+        }
+        else {
             return false;
         }
     }
@@ -44,7 +45,7 @@ class Complex3
 
         do {
 
-            resultStr += " " + primes[i];
+            resultStr += " " + String.valueOf(primes[i]);
             i++;
 
         } while(i <= numPrimes - 1);
