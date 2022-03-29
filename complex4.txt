@@ -43,13 +43,17 @@ class Complex4 {
 
         if (findAverage() >= 90) {
             return 'A';
-        } else if (findAverage() >= 80) {
+        }
+        else if (findAverage() >= 80) {
             return 'B';
-        } else if (findAverage() >= 70) {
+        }
+        else if (findAverage() >= 70) {
             return 'C';
-        } else if (findAverage() >= 60) {
+        }
+        else if (findAverage() >= 60) {
             return 'D';
-        } else {
+        }
+        else {
             return 'F';
         }
 
@@ -66,12 +70,12 @@ class Complex4 {
         result += getFirstName() + "\t" + getLastName();
 
         for(int i = 0; i < scores.length; i++) {
-            result += "\t\t" + scores[i];
+            result += "\t\t" + String.valueOf(scores[i]);
         }
 
         String decimalFormatFindAverage = String.format("%.2f", findAverage());
 
-        result += "\t\t" + decimalFormatFindAverage + "\t\t" + findLetterGrade();
+        result += "\t\t" + decimalFormatFindAverage + "\t\t" + String.valueOf(findLetterGrade());
 
         return result;
 
