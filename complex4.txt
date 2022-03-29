@@ -41,16 +41,17 @@ class Complex4 {
 
     public char findLetterGrade() {
 
-        if (findAverage() >= 90)
+        if (findAverage() >= 90) {
             return 'A';
-        else if (findAverage() >= 80)
+        } else if (findAverage() >= 80) {
             return 'B';
-        else if (findAverage() >= 70)
+        } else if (findAverage() >= 70) {
             return 'C';
-        else if (findAverage() >= 60)
+        } else if (findAverage() >= 60) {
             return 'D';
-        else
+        } else {
             return 'F';
+        }
 
     }
 
