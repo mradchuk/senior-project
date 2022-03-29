@@ -3,10 +3,11 @@ class Complex3
 
     static boolean isDivisible (int i, int j)
     {
-        if (j%i == 0)
+        if (j%i == 0) {
             return true;
-        else
+        } else {
             return false;
+        }
     }
 
     static String printPrimes (int n)
