@@ -1,80 +1,32 @@
-package ExampleProblems;
+class Complex2 {
 
-/*
-     Elements being captured in this example:
-     - Comments
-     - Variables
-     - Casting
-     - Boolean Logic
-     - Operators
-     - If/Else if/Else
-     - While Loops
-     - For Loops
-     - Arrays
-*/
-public class Complex2 {
-    // ----------------------------------------------------------------------------    
-    //                          COMMENTS
-    // ----------------------------------------------------------------------------
-    
-    
-    public void commentSection() {
-        // Make this comment a Python Comment
+   
+    public static void castSection() {
 
-        /*
-        Everything in this block area
-        needs to be captured
-        as a comment too
-        */
-        System.out.println("Reached the end of Comment Section");
-    }
-
-    // ----------------------------------------------------------------------------
-    //                           VARIABLES
-    // ----------------------------------------------------------------------------
-    public void varSection() {
-        byte testByte = 22; 
-        short testShort = 2045; // Bigger than byte
-        int testInt = 40341; // Bigger than short
-        long testLong = 3685469852L; // Bigger than int
-        float testFloat = 45.87f;
-        double testDouble = 458.2247852682; // Handles more decimal places than float
-        boolean testBoolean = true;
-        char testChar = 'a';
-        String testString = "text";
-
-        System.out.println("Reached the end of Variable Section");
-    }
-
-    // ----------------------------------------------------------------------------
-    //                            CASTING
-    // ----------------------------------------------------------------------------
-    // Implicit casting handled automatically in Python
-    public void castSection() {
         short testShort = 2045;
         int testInt = 40341;
         float testFloat = 45.87f;
         double testDouble = 458.2247852682;
-       
-        // Explicit Casting: 
 
-        // Digit Casting
-        int castInt = (int)testFloat; // (int), (byte), (short), (long) will all cast to int(example) in Python
-        float castFloat = (float)testDouble; // (float) and (double) will cast to float(example) in Python
+        int castInt = (int)testFloat;
+        float castFloat = (float)testDouble;
 
-        // String Casting
         String castString1 = Integer.toString(testInt);
         String castString2 = String.valueOf(testShort);
-        // Available String Formats: %a , %b, %c, %d, %e, %f, %g, %h, %n, %o, %s,, %x 
+
         String castString3 = String.format("%f", testDouble);
 
+        System.out.println(castInt);
+        System.out.println(castFloat);
+        System.out.println(castString1);
+        System.out.println(castString2);
+        System.out.println(castString3);
+
         System.out.println("Reached the end of Casting Section");
+
     }
 
-    // ----------------------------------------------------------------------------
-    //                        BOOLEAN LOGIC
-    // ----------------------------------------------------------------------------
-    public void boolSection() {
+    public static void boolSection() {
         int x = 5;
         int y = 22;
         int z = 1;
@@ -84,11 +36,8 @@ public class Complex2 {
         System.out.println("Reached the end of Boolean Logic Section");
     }
 
-    // ----------------------------------------------------------------------------
-    //                          OPERATORS
-    // ----------------------------------------------------------------------------
-    public void operatorSection() {
-        // Increment/Decrement Operators don't exist in Python
+    public static void operatorSection() {
+       
         int x = 1;
         x++;
         ++x;
@@ -97,11 +46,49 @@ public class Complex2 {
 
         System.out.println("Reached the end of Operator Section");
     }
-    
-    // ----------------------------------------------------------------------------
-    //                      CONDITIONAL STATEMENTS
-    // ----------------------------------------------------------------------------
-    public void conditionalSection() {
+
+    public static void varSection() {
+
+        byte testByte = 22; 
+        short testShort = 2045; 
+        int testInt = 40341; 
+        long testLong = 3685469852L; 
+        float testFloat = 45.87f;
+        double testDouble = 458.2247852682; 
+        boolean testBoolean = true;
+        char testChar = 'a';
+        String testString = "text";
+
+        System.out.println("Reached the end of Variable Section");
+    }
+
+    public static void mathSection() {
+    	    	
+    	int x = Math.abs(1);
+    	System.out.println( Math.min(1,2));
+    	x = Math.max(1,2);
+    	Math.pow(1,2);
+    	Math.acos(1);
+    	Math.asin(1);
+    	Math.atan(1);
+    	Math.atan2(2, 1);
+    	int y = (int)Math.cos(6);
+    	Math.cosh(3);
+    	Math.exp(34);
+    	Math.log(4);
+    	int r = (int)Math.log10(4);
+    	Math.sin(12);
+    	Math.sinh(12);
+    	y = (int)Math.sqrt(9);
+    	Math.tan(10);
+    	Math.tanh(11);
+    	System.out.println(Math.toDegrees(25));
+    	Math.toRadians(90);
+    	
+    	System.out.println("Reached the end of the math section");
+    }
+
+    public static void conditionalSection() {
         int x = 1;
         int y = 2;
         String z = "testText";
@@ -117,12 +104,8 @@ public class Complex2 {
         System.out.println("Reached the end of Conditional Section");
     }
 
-    // ----------------------------------------------------------------------------
-    //                            ARRAYS
-    // ----------------------------------------------------------------------------
-
-    public void arraySection() {
-        // Singular Arrays for now
+    public static void arraySection() {
+      
         int[] smallInts = {1, 2, 3};
         System.out.println(smallInts);
         smallInts[0] = 4;
@@ -135,14 +118,26 @@ public class Complex2 {
         System.out.println(testStringArray.length);
 
     }
-
-    // ----------------------------------------------------------------------------
-    //                            LOOPS
-    // ----------------------------------------------------------------------------
     
-    public void loopSection() {
+    public static void testParamsOne(int x, short y) {
+    	System.out.println("This method tests function parameters");
+    	System.out.println(x);
+    	System.out.println(y);
+    }
+    
+    public static void testParamsTwo(double x, float y) {
+    	System.out.println(x);
+    	System.out.println(y);
+    }
+    public static void testParamsThree(String s) {
+    	System.out.println(s);
+    	System.out.println("This is the end of the parameter test");
+    }
+    
+	
+    public static void loopSection() {
         
-        // While Loop
+        
         boolean stopLoop = false;
         int count = 0;
         while(!stopLoop) {
@@ -157,7 +152,7 @@ public class Complex2 {
         stopLoop = false;
         count = 0;
 
-        // Do While Loop
+        
         do {
             System.out.println("Do/While loop running");
             count++;
@@ -166,17 +161,19 @@ public class Complex2 {
             }   
         } while (!stopLoop);
 
-        // For Loop
-        for(int index = 0; index < 3; index++) {
-            System.out.println("For loop running");
-        }
-
-        // For Each Loop
-        int[] testInts = {2, 4, 6};
-        for(int i: testInts) {
-            System.out.println("For Each loop running");
-        }
-
-        System.out.println("Reached end of Loop Section");
     }
+
+    public static void main(String[] args) {
+        castSection();
+        boolSection();
+        operatorSection();
+        varSection();
+        mathSection();
+        conditionalSection();
+        arraySection();
+        loopSection();
+        testParamsOne(3, (short)4);
+        
+    }
+    
 }

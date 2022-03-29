@@ -9,6 +9,7 @@ public class PythonConverter {
     // ------------------------------------------------------
 
     static ArrayList<String> methodCollection = new ArrayList<String>();
+    static ArrayList<String> variablesOutsideClassConstructor = new ArrayList<>();
 
     static String[] statementArr = new String[3];
     static String[] equalOpStatement = new String[2];
@@ -18,7 +19,7 @@ public class PythonConverter {
 
     public static String resultPythonStr = "";
     static String pythonStr = "";
-    static String currentMethodTkn = "";
+    //static String currentMethodTkn = "";
     static String checkPrintStatement = "";
     static String intCastStr = "";
     static String strCastStr = "";
@@ -30,18 +31,14 @@ public class PythonConverter {
 
     static boolean checkEqualOperator = false;
     static boolean checkNotEqual = false;
-    static boolean methodWithNoArgs = false;
-    static boolean classContainsMain = false;
-    static boolean classContainsOtherMethods = false;
-    static boolean skipMain = false;
-    static boolean classOnlyHasMain = false;
     static boolean casting = false;
-    //static boolean ifStatement = false;
+
     //If file needs to import python math module
     static boolean needsMathImport = false;
     //Need this variable so math statements aren't identified as casting statements when also declaring a variable on the same line
     static boolean isAMathMethodDoNotCastIt = false;
 
+    static boolean isArrayStatement = false;
     static boolean isArrayStatementAddRbracket = false;
     static boolean isArrDecMemAllocStatement = false;
 
@@ -53,6 +50,7 @@ public class PythonConverter {
 
     static boolean insideClassConstructor = false;
     static boolean classHasClassConstructor = false;
+    static boolean insideMainMethod = false;
 
     static boolean isFloatingPointFormatSpecifier = false;
     static boolean isFixedPointDecimalNumber = false;
@@ -61,7 +59,7 @@ public class PythonConverter {
     private static ArrayList<String> lexemeList = new ArrayList<String>();
     private static ArrayList<Integer> indices = new ArrayList<Integer>();
 
-    public static ArrayList<String> listOfVariables = new ArrayList<>();
+    //public static ArrayList<String> listOfVariables = new ArrayList<>();
     public static ArrayList<TokenData> doWhileCondition = new ArrayList<>();
 
 
@@ -75,6 +73,7 @@ public class PythonConverter {
         list.clear();
 
         methodCollection.clear();
+        variablesOutsideClassConstructor.clear();
 
         for(int i1 = 0; i1 < statementArr.length; i1++) {
             statementArr[i1] = "";
@@ -98,7 +97,7 @@ public class PythonConverter {
 
         resultPythonStr = "";
         pythonStr = "";
-        currentMethodTkn = "";
+        //currentMethodTkn = "";
         checkPrintStatement = "";
         intCastStr = "";
         strCastStr = "";
@@ -109,16 +108,12 @@ public class PythonConverter {
 
         checkEqualOperator = false;
         checkNotEqual = false;
-        methodWithNoArgs = false;
-        classContainsMain = false;
-        classContainsOtherMethods = false;
-        skipMain = false;
-        classOnlyHasMain = false;
         casting = false;
 
         needsMathImport = false;
         isAMathMethodDoNotCastIt = false;
 
+        isArrayStatement = false;
         isArrayStatementAddRbracket = false;
         isArrDecMemAllocStatement = false;
 
@@ -128,10 +123,9 @@ public class PythonConverter {
         castJavaMath = false;
         insideClassConstructor = false;
         classHasClassConstructor = false;
+        insideMainMethod = false;
         isFloatingPointFormatSpecifier = false;
         isFixedPointDecimalNumber = false;
-
-        //ifStatement = false;
 
         tokenList.clear();
         lexemeList.clear();
@@ -246,17 +240,33 @@ public class PythonConverter {
 
                 case "CLASS_NAME":
 
+                    // public class_name() {  }
                     if(list.get(i-1).lexeme.equals("public") && list.get(i+1).lexeme.equals("(")) {
 
                         classHasClassConstructor = true;
                         insideClassConstructor = true;
 
+                        /* Both default and parameterized constructors are declared with 'self' */
                         pythonStr += "def __init__(self, ";
 
-                    } else {
+                    } else if(!insideMainMethod){
 
-                        pythonStr += list.get(i).lexeme + ":";
+                        pythonStr += list.get(i).lexeme;
                         getClassName = list.get(i).lexeme;
+
+                    } else { //inside of main method
+
+                        if(isArrDecMemAllocStatement) {
+                            arrayAllocateMemory[3] = list.get(i).token;
+                            break;
+
+                        //Ex: Complex4 - class_name[] var
+                        } else if(list.get(i+1).lexeme.equals("[") && list.get(i+2).lexeme.equals("]")
+                                    && list.get(i+3).token.equals("VAR_IDENTIFIER")) {
+                            break;
+                        } else {
+                            pythonStr += list.get(i).lexeme;
+                        }
 
                     }
 
@@ -266,9 +276,12 @@ public class PythonConverter {
 
                     arrAtStaticMethod[2] = "METHOD_NAME";
 
+                    /* Here we deal with static methods or methods with no return type */
                     if(arrAtStaticMethod[0].equals("static") && arrAtStaticMethod[1].equals("void") && arrAtStaticMethod[2].equals("METHOD_NAME")) {
+
                         pythonStr += "@staticmethod\n";
 
+                        // the following method should be on the same indentation level as @staticmethod
                         for(int counting = 0; counting < count; counting++) {
                             pythonStr += "\t";
                         }
@@ -278,23 +291,35 @@ public class PythonConverter {
                         }
                     }
 
+                    // if method is not inside main, meaning it is not tied to or being called by an object of the class instance
+                    // because creating objects of class instances are done in the main method to invoke instance methods (or variables) in the class
+                    if(classHasClassConstructor && !insideMainMethod && methodCollection.contains(list.get(i).lexeme)) {
+                        pythonStr += "self.";
+                    }
+
+                    /* How we deal with different Java method types and determine if the are being defined or only accessed */
                     if((list.get(i - 2).lexeme.equals("static") || list.get(i - 2).lexeme.equals("public")) && list.get(i - 1).lexeme.equals("void")) {
                         pythonStr += "def " + list.get(i).lexeme;
                     } else if(list.get(i - 2).lexeme.equals("public") && isDatatype(list.get(i -1).lexeme)) {
                         pythonStr += "def " + list.get(i).lexeme;
-                    } else {
+                    } else if(insideMainMethod && !classHasClassConstructor) {
                         pythonStr += getClassName + "." + list.get(i).lexeme;
+                    } else {
+                        pythonStr += list.get(i).lexeme;
                     }
 
-                    currentMethodTkn = list.get(i).token;
-                    methodCollection.add(list.get(i).lexeme);
+                    //currentMethodTkn = list.get(i).token;
+
+                    /* Add every method in the class to the collection */
+                    if(!methodCollection.contains(list.get(i).lexeme)) {
+                        methodCollection.add(list.get(i).lexeme);
+                    }
 
                     break;
 
                 case "T_LBRACE":
 
-                    boolean isArrayStatement = false;
-
+                    // Ex: Complex2 - int[] var_identifier = {1, 2, 3};
                     if((arrInitAndDeclaration[0] == "T_INT" || arrInitAndDeclaration[0] == "String Identifier") && arrInitAndDeclaration[1] == "T_LBRACKET"
                         && arrInitAndDeclaration[2] == "T_RBRACKET" && arrInitAndDeclaration[3] == "VAR_IDENTIFIER" && arrInitAndDeclaration[4] == "T_ASSIGN"
                             && ((list.get(i+1).token == "NUMBER" && list.get(i+2).token == "T_COMMA") || list.get(i+1).token == "T_RBRACE")) {
@@ -306,19 +331,20 @@ public class PythonConverter {
                             arrInitAndDeclaration[clrArr] = "";
                         }
 
-                    } else {
-
-                        isArrayStatement = false;
                     }
 
-                    if(count >= 1 && isArrayStatement == false) {
+                    /* We have hit the left brace, time for a new line. */
+                    if(count >= 0 && isArrayStatement == false) {
                         pythonStr += ":\n";
+
+                        /* If there is an array, stay on the same line */
                     } else if(count >= 1 && isArrayStatement == true) {
                         pythonStr += "[";
+
+                        // ensures all statement bellow the array are at the same indentation level
                         count++;
                         break;
-                    } else {
-                        pythonStr += "\n";
+
                     }
 
                     //determines how many times a statement will be indented based on its syntactic position in the code
@@ -354,6 +380,7 @@ public class PythonConverter {
 
                 case "T_LBRACKET":
 
+                    // (array or object) [ variable ]
                     if(list.get(i - 1).token.equals("VAR_IDENTIFIER") && list.get(i + 1).token.equals("VAR_IDENTIFIER")
                             && list.get(i + 2).lexeme.equals("]")) {
                         pythonStr += "[";
@@ -364,6 +391,7 @@ public class PythonConverter {
 
                         arrayAllocateMemory[4] = list.get(i).token;
                         pythonStr += list.get(i).lexeme;
+
                         break;
 
                     }
@@ -374,6 +402,7 @@ public class PythonConverter {
 
                 case "T_RBRACKET":
 
+                    // (array or object) [ variable ]
                     if(list.get(i - 1).token.equals("VAR_IDENTIFIER") && list.get(i - 2).lexeme.equals("[")
                             && list.get(i - 3).token.equals("VAR_IDENTIFIER")) {
                         pythonStr += "]";
@@ -390,6 +419,11 @@ public class PythonConverter {
                         // var = [0] * length of the array
                         if(arrayAllocateMemory[3] == "T_INT" || arrayAllocateMemory[3] == "T_DOUBLE") {
                             pythonStr += "0" + "]*" + arrayAllocateMemory[5];
+                        }
+
+                        // Ex: Complex4 - 'obj = [None] * (length of class object)'
+                        if(arrayAllocateMemory[3] == "CLASS_NAME") {
+                            pythonStr += "None] * (" + arrayAllocateMemory[5] + ")";
                         }
 
                         break;
@@ -414,10 +448,11 @@ public class PythonConverter {
 
                 case "MAIN_IDENTIFIER":
 
-                    currentMethodTkn = list.get(i).token;
+                    //currentMethodTkn = list.get(i).token;
 
                     arrAtStaticMethod[2] = "MAIN_IDENTIFIER";
 
+                    /* Similar to how we are translating non-main methods */
                     if(arrAtStaticMethod[0].equals("static") && arrAtStaticMethod[1].equals("void") && arrAtStaticMethod[2].equals("MAIN_IDENTIFIER")) {
                         pythonStr += "@staticmethod\n";
 
@@ -431,7 +466,8 @@ public class PythonConverter {
                     }
 
                     pythonStr += "def " + list.get(i).lexeme;
-                    methodCollection.add(list.get(i).lexeme);
+
+                    insideMainMethod = true;
 
                     break;
 
@@ -533,12 +569,13 @@ public class PythonConverter {
 
                     }
 
-                    // String var = String.format
+                    // 'String var = String.format' floating point format
                     if(statementArr[0] == "String Identifier" && statementArr[1] == "VAR_IDENTIFIER" && statementArr[2] == "T_ASSIGN"
                             && strCastFormat.equals("String.format")) {
 
                         if(list.get(i+1).lexeme.length() == 4 && list.get(i+1).lexeme.charAt(1) == '%' && list.get(i+1).lexeme.charAt(2) == 'f') {
 
+                            // floating point format string specifier
                             pythonStr += "\"" + "{}" + "\"" + ".format(";
 
                             isFloatingPointFormatSpecifier = true;
@@ -551,14 +588,15 @@ public class PythonConverter {
 
                             intCastStr = "";
                             strCastStr = "";
-                            //strCastFormat = "";
 
                             break;
                         }
 
+                        // 'String var = String.format' decimal formatting
                         if(list.get(i+1).lexeme.length() == 6 && list.get(i+1).lexeme.charAt(1) == '%' && list.get(i+1).lexeme.charAt(2) == '.'
                                 && Character.isDigit(list.get(i+1).lexeme.charAt(3)) && list.get(i+1).lexeme.charAt(4) == 'f') {
 
+                            // decimal fixed point format
                             pythonStr += "\"" + "{:." + list.get(i+1).lexeme.charAt(3) + "f}" + "\"" + ".format(";
 
                             isFixedPointDecimalNumber = true;
@@ -571,7 +609,6 @@ public class PythonConverter {
 
                             intCastStr = "";
                             strCastStr = "";
-                            //strCastFormat = "";
 
                             break;
                         }
@@ -585,20 +622,21 @@ public class PythonConverter {
                         break;
                     }
 
+                    // We have already added left parenthesis in 'def __init__(self, ' under the class name case
                     if(insideClassConstructor) {
                         break;
                     }
 
                     pythonStr += list.get(i).lexeme;
 
-                    /*
                     if(classHasClassConstructor && list.get(i-1).token.equals("METHOD_NAME")) {
 
-                        // if the method is being called, do not pass self parameter
-                        if(list.get(i-2).lexeme.equals(".") || list.get(i-2).lexeme.equals("(")) {
-                            pythonStr += "";
-                        } else {
+                        // if the method is being called, do not pass self parameter. Otherwise, the method
+                        // is being defined and we pass the 'self' param. if class has constructor
+                        if(isDatatype(list.get(i-2).lexeme) || list.get(i-2).token.equals("T_VOID")) {
                             pythonStr += "self";
+                        } else {
+                            pythonStr += "";
                         }
 
                         // if class has constructor and the method has parameters
@@ -606,7 +644,6 @@ public class PythonConverter {
                             pythonStr += ", ";
                         }
                     }
-                    */
 
                     break;
 
@@ -670,7 +707,7 @@ public class PythonConverter {
                     else {
 
                         pythonStr += list.get(i).lexeme;
-                        currentMethodTkn = "";
+                        //currentMethodTkn = "";
 
                         break;
 
@@ -692,8 +729,17 @@ public class PythonConverter {
                         strCastFormat += ".";
                     }
 
+                    // self.array (self.scores in Complex4)
                     if(insideClassConstructor) {
                         pythonStr += list.get(i).lexeme;
+                    }
+
+                    //Ex: Complex4 - obj[i].strOutput(), obj[i].findAverage()
+                    if(list.get(i-4).token.equals("VAR_IDENTIFIER") && list.get(i-3).lexeme.equals("[") && list.get(i-2).token.equals("VAR_IDENTIFIER")
+                        && list.get(i-1).lexeme.equals("]") && list.get(i+1).token.equals("METHOD_NAME")) {
+
+                        pythonStr += list.get(i).lexeme;
+
                     }
 
                     checkPrintStatement += list.get(i).lexeme;
@@ -734,7 +780,7 @@ public class PythonConverter {
 
                 case "string literal":
 
-                    String temp = list.get(i).lexeme;
+                    //String temp = list.get(i).lexeme;
 
                     // If the string literal is format specifier "%f"
                     if(isFloatingPointFormatSpecifier || isFixedPointDecimalNumber) {
@@ -766,6 +812,7 @@ public class PythonConverter {
                     }
 
                     isArrDecMemAllocStatement = false;
+                    isArrayStatement = false;
 
                     /*---------------------------------------------------------------------------------------*/
 
@@ -888,8 +935,11 @@ public class PythonConverter {
                         statementArr[1] = "VAR_IDENTIFIER";
                         pythonStr += list.get(i).lexeme + ")";
                         break;
+
+                    // 'print(', not 'int(' integer casting
                     } else if( (lastFourChars.equals("int(") && lastSixChars.equals("print(")) || strCastFormat.equals("String.format") ) { //prevents the 'print(..))' bug
 
+                        // length of the variable inside of print statement
                         if(list.get(i+1).token.equals("T_DOT") && list.get(i+2).token.equals("length")) {
                             pythonStr += "len(" + list.get(i).lexeme + ")";
                         } else {
@@ -899,24 +949,28 @@ public class PythonConverter {
 
                         break;
 
+                    // 'int(' integer casting, not 'print('
                     } else if(lastFourChars.equals("int(") && !lastSixChars.equals("print(")) {
                         statementArr[1] = "VAR_IDENTIFIER";
                         pythonStr += list.get(i).lexeme + ")";
                         break;
+
                     } else if(lastFourChars.equals("str(")) {
                         statementArr[1] = "VAR_IDENTIFIER";
                         pythonStr += list.get(i).lexeme + ")";
                         break;
+
                     } else {
 
-                        /*
+                        // 'var [ ] ='. Inside of the class constructor, we only want the instance of the class for the
+                        // variable on the L.H.S. of the assignment statement when we assign it to the parameter variable
+                        // of the constructor on the R.H.S.
                         if(insideClassConstructor && list.get(i+1).lexeme.equals("[") && list.get(i+3).lexeme.equals("]")
                             && list.get(i+4).lexeme.equals("=")) {
 
                             pythonStr += "self.";
 
                         }
-                         */
 
                         statementArr[1] = "VAR_IDENTIFIER";
                         equalOpStatement[0] = "VAR_IDENTIFIER";
@@ -924,7 +978,19 @@ public class PythonConverter {
 
                         arrayAllocateMemory[0] = "VAR_IDENTIFIER";
 
+                        // If the class has constructor and if outside the constructor, we need to access the variables already declared
+                        // in the class by doing 'self.variable' to get the class instance of the variables.
+                        if(classHasClassConstructor && !insideClassConstructor && variablesOutsideClassConstructor.contains(list.get(i).lexeme)) {
+                            pythonStr += "self.";
+                        }
+
                         pythonStr += list.get(i).lexeme;
+
+                        // we only need to worry about getting the instance of the class of variables for those that are
+                        // are defined outside of class constructor.
+                        if(!variablesOutsideClassConstructor.contains(list.get(i).lexeme) && !classHasClassConstructor) {
+                            variablesOutsideClassConstructor.add(list.get(i).lexeme);
+                        }
 
                         break;
                     }
@@ -963,6 +1029,7 @@ public class PythonConverter {
 
                         break;
 
+                    // '+=', '-=', '*=', or '/='
                     } else if(isArithmeticOperator(list.get(i-1).lexeme)) {
 
                         pythonStr += list.get(i).lexeme + " ";
@@ -987,6 +1054,7 @@ public class PythonConverter {
 
                         String num = list.get(i).lexeme;
 
+                        // Remove '.0' from 'num.0'
                         num = num.substring(0, num.length() -1);
                         num = num.substring(0, num.length() -1);
 
@@ -1008,6 +1076,7 @@ public class PythonConverter {
 
                     }
 
+                    // (array or object) [ number ] =
                     if(list.get(i - 2).token.equals("VAR_IDENTIFIER") && list.get(i - 1).lexeme.equals("[")
                         && list.get(i + 1).lexeme.equals("]") && list.get(i + 2).token.equals("T_ASSIGN")) {
 
@@ -1079,11 +1148,13 @@ public class PythonConverter {
 
                         }
 
+                    // Check number with long specifier
                     } else if(statementArr[0] == "T_LONG" && statementArr[1] == "VAR_IDENTIFIER"
                             && statementArr[2] == "T_ASSIGN" && list.get(i+1).lexeme.equals("L")) {
 
                         String numStr = list.get(i).lexeme.replace(".", "");
 
+                        // convert the current number to an array of character digits
                         char[] charDigits = new char[numStr.length()];
 
                         for(int count = 0; count < numStr.length(); count++) {
@@ -1093,6 +1164,7 @@ public class PythonConverter {
                         int count1 = 0;
                         String resultNum = "";
 
+                        // while the end of the array has not been reached a letter character in char array of digits (L specifier)
                         while(charDigits[count1] != 'E') {
 
                             resultNum += charDigits[count1];
@@ -1120,14 +1192,16 @@ public class PythonConverter {
 
                                 // remove last two character for python string. these are '(' and ')' that are picked up by default in
                                 // t_lparenth and t_rparenth cases when casting the number parameters in java when calling the function
-                                // with parameters in the main method
+                                // with parameters in the main method in Complex2
                                 pythonStr = pythonStr.substring(0, pythonStr.length() - 2);
 
+                                // all of these in java cast to int in Python
                                 if(list.get(i-2).lexeme.equals("int") || list.get(i-2).lexeme.equals("short") || list.get(i-2).lexeme.equals("byte") || list.get(i-2).lexeme.equals("long")) {
                                     pythonStr += "int(";
                                     castNumber = true;
                                 }
 
+                                // float and double in Java cast to float in python
                                 if(list.get(i-2).lexeme.equals("float") || list.get(i-2).lexeme.equals("double")) {
                                     pythonStr += "float(";
                                     castNumber = true;
@@ -1173,27 +1247,34 @@ public class PythonConverter {
 
                 case "arithmetic operator":
 
+                    // var_identifier + + ;
                     if(list.get(i).lexeme.equals("+") && list.get(i+1).lexeme.equals("+") && list.get(i+2).token.equals("T_SEMICOLON")) {
                         handleUnaryOperator(list, "++", i);
                         pythonStr += list.get(i).lexeme.substring(1);
                         break;
+
+                    // var_identifier - - ;
                     } else if(list.get(i).lexeme.equals("-") && list.get(i+1).lexeme.equals("-") && list.get(i+2).token.equals("T_SEMICOLON")) {
                         handleUnaryOperator(list, "--", i);
                         pythonStr += list.get(i).lexeme.substring(1);
                         break;
 
-                        // Have not found the proper way to use handleUnaryOperator() for pre-increments and pre-decrements due to how the unary
-                        // functions alter the original list of TokenData. This implementation should work for now.
+                    // Have not found the proper way to use handleUnaryOperator() for pre-increments and pre-decrements due to how the unary
+                    // functions alter the original list of TokenData. This implementation should work for now.
+
+                    // + + var_identifier ;
                     } else if(list.get(i).lexeme.equals("+") && list.get(i+1).lexeme.equals("+") && list.get(i+2).token.equals("VAR_IDENTIFIER")) {
                         pythonStr += list.get(i+2).lexeme + "+=1";
                         list.remove(i+2);
                         break;
+
+                    // - - var_identifier ;
                     } else if(list.get(i).lexeme.equals("-") && list.get(i+1).lexeme.equals("-") && list.get(i+2).token.equals("VAR_IDENTIFIER")) {
                         pythonStr += list.get(i+2).lexeme + "-=1";
                         list.remove(i+2);
                         break;
 
-                        //if there are no other arithmetic operators on either side of the current ar. operator, then it is a single ar. op.
+                    //if there are no other arithmetic operators on either side of the current ar. operator, then it is a single ar. op.
                     } else if(!list.get(i-1).lexeme.equals(list.get(i).lexeme) && !list.get(i+1).lexeme.equals(list.get(i).lexeme)) {
                         pythonStr += list.get(i).lexeme;
                         break;
@@ -1433,9 +1514,10 @@ public class PythonConverter {
 
                     arrayAllocateMemory[2] = "T_NEW";
 
-                    // if String[] var = new or int[] var = new, it is an array declaration and memory allocation statement
+                    // if var = new (any data type or class name)[], it is an array declaration and memory allocation statement
                     if(arrayAllocateMemory[0] == "VAR_IDENTIFIER" && arrayAllocateMemory[1] == "T_ASSIGN" && arrayAllocateMemory[2] == "T_NEW"
-                        && isDatatype(list.get(i+1).lexeme) && list.get(i+2).lexeme.equals("[") && list.get(i+4).lexeme.equals("]")) {
+                            && (isDatatype(list.get(i+1).lexeme) || list.get(i+1).token.equals("CLASS_NAME")) && list.get(i+2).lexeme.equals("[")
+                                && list.get(i+4).lexeme.equals("]")) {
 
                         isArrDecMemAllocStatement = true;
 
@@ -1459,11 +1541,7 @@ public class PythonConverter {
             pythonStr = "import math \n\n" + pythonStr;
 
 
-        /*
-            Add the python result string to the function that will get the output string that will be different
-            depending on if the Java class contains only a main method or contains other methods additionally.
-         */
-
+        // get the whole python string with the code in python that calls the main method (with its class instance) at the very end
         resultPythonStr = pythonStr + callingMainOutput(getClassName) + "\n";
 
         System.out.println(pythonStr + callingMainOutput(getClassName));
