@@ -33,6 +33,8 @@ public class PythonConverter {
     static boolean checkNotEqual = false;
     static boolean casting = false;
 
+    static boolean castingArrayElement = false;
+
     //If file needs to import python math module
     static boolean needsMathImport = false;
     //Need this variable so math statements aren't identified as casting statements when also declaring a variable on the same line
@@ -40,6 +42,7 @@ public class PythonConverter {
 
     static boolean isArrayStatement = false;
     static boolean isArrayStatementAddRbracket = false;
+    static boolean castingMethodNameAddRParenth = false;
     static boolean isArrDecMemAllocStatement = false;
 
     static int skipParenthesis = 0;
@@ -110,11 +113,14 @@ public class PythonConverter {
         checkNotEqual = false;
         casting = false;
 
+        castingArrayElement = false;
+
         needsMathImport = false;
         isAMathMethodDoNotCastIt = false;
 
         isArrayStatement = false;
         isArrayStatementAddRbracket = false;
+        castingMethodNameAddRParenth = false;
         isArrDecMemAllocStatement = false;
 
         skipParenthesis = 0;
@@ -291,12 +297,32 @@ public class PythonConverter {
                         }
                     }
 
+
+                    String lastFourCharacters = "";
+                    int lengthOfLastFourChars = 4;
+
+                    int pyStrIndexLength = pythonStr.length() - 1;
+
+                    int countr = (pyStrIndexLength - lengthOfLastFourChars) + 1;
+
+
+                    while(countr < pyStrIndexLength) {
+                        lastFourCharacters += pythonStr.charAt(countr);
+                        countr++;
+                    }
+                    lastFourCharacters += pythonStr.charAt(pyStrIndexLength);
+
                     // if method is not inside main, meaning it is not tied to or being called by an object of the class instance
                     // because creating objects of class instances are done in the main method to invoke instance methods (or variables) in the class
                     if(classHasClassConstructor && !insideMainMethod && methodCollection.contains(list.get(i).lexeme)) {
+                        if(lastFourCharacters.equals("str(")) {
+                            castingMethodNameAddRParenth = true;
+                        }
                         pythonStr += "self.";
+
                     }
 
+                    /*
                     String lastThreeCharsInPythonStr = "";
 
                     char firstChar = pythonStr.charAt(pythonStr.length()-1);
@@ -304,6 +330,8 @@ public class PythonConverter {
                     char thirdChar = pythonStr.charAt(pythonStr.length()-3);
 
                     lastThreeCharsInPythonStr += firstChar + secondChar + thirdChar;
+
+                     */
 
                     /* How we deal with different Java method types and determine if the are being defined or only accessed */
                     if((list.get(i - 2).lexeme.equals("static") || list.get(i - 2).lexeme.equals("public")) && list.get(i - 1).lexeme.equals("void")) {
@@ -592,6 +620,25 @@ public class PythonConverter {
 
                     }
 
+                    // '+ String.valueOf' or '+ Integer.toString'
+                    if(list.get(i-4).lexeme.equals("+") && (intCastStr.equals("Integer.toString") || strCastStr.equals("String.valueOf"))) {
+
+                        pythonStr += "str(";
+
+                        for(int d = 0; d < statementArr.length; d++) {
+                            statementArr[d] = "";
+                        }
+
+                        casting = true;
+
+                        intCastStr = "";
+                        strCastStr = "";
+                        strCastFormat = "";
+
+                        break;
+
+                    }
+
                     // 'String var = String.format' floating point format
                     if(statementArr[0] == "String Identifier" && statementArr[1] == "VAR_IDENTIFIER" && statementArr[2] == "T_ASSIGN"
                             && strCastFormat.equals("String.format")) {
@@ -640,7 +687,13 @@ public class PythonConverter {
 
                     }
 
-                    if(list.get(i-1).lexeme.equals("if") || list.get(i-1).lexeme.equals("equals") || list.get(i-1).lexeme.equals("while")){
+                    /*
+                        Don't skip parenthesis if a method belongs to a conditional function.
+                        Ex: Complex4 - 'if (findAverage() >= 90)'
+                        Ex: Complex3 - 'if (isDivisible(primes[i], curPrime))'
+                    */
+                    if((list.get(i-1).lexeme.equals("if") && !list.get(i+1).token.equals("METHOD_NAME"))
+                            || list.get(i-1).lexeme.equals("equals") || list.get(i-1).lexeme.equals("while")){
                         skipParenthesis += 1;
                         break;
                     }
@@ -701,10 +754,26 @@ public class PythonConverter {
                         castJavaMath = false;
                     }
 
-                    if(casting && !isFloatingPointFormatSpecifier && !isFixedPointDecimalNumber) {
+                    if(casting && !castingArrayElement && !isFloatingPointFormatSpecifier && !isFixedPointDecimalNumber) {
+
+                        if(castingMethodNameAddRParenth) {
+                            pythonStr += ")";
+                            castingMethodNameAddRParenth = false;
+                        }
 
                         //finished casting the current statement
                         casting = false;
+                        break;
+
+                    }
+
+                    if(casting && castingArrayElement && !isFloatingPointFormatSpecifier && !isFixedPointDecimalNumber) {
+
+                        pythonStr += ")";
+
+                        //finished casting the current statement
+                        casting = false;
+                        castingArrayElement = false;
                         break;
 
                     }
@@ -993,9 +1062,24 @@ public class PythonConverter {
                         break;
 
                     } else if(lastFourChars.equals("str(")) {
-                        statementArr[1] = "VAR_IDENTIFIER";
-                        pythonStr += list.get(i).lexeme + ")";
-                        break;
+
+                        // If we are casting an array element. Ex: str(array[index])
+                        if(list.get(i+1).lexeme.equals("[") && list.get(i+2).token.equals("VAR_IDENTIFIER")) {
+
+                            if(classHasClassConstructor && !insideClassConstructor && variablesOutsideClassConstructor.contains(list.get(i).lexeme)) {
+
+                                pythonStr += "self.";
+
+                            }
+                            pythonStr += list.get(i).lexeme;
+                            castingArrayElement = true;
+                            break;
+                        } else {
+                            statementArr[1] = "VAR_IDENTIFIER";
+                            pythonStr += list.get(i).lexeme + ")";
+                            break;
+                        }
+
 
                     } else if(lastFiveChars.equals("while") || lastTwoChars.equals("if")) {
                         pythonStr += " " + list.get(i).lexeme;
@@ -1013,6 +1097,7 @@ public class PythonConverter {
 
                         }
 
+                        //statementArr[0] = "VAR_IDENTIFIER";
                         statementArr[1] = "VAR_IDENTIFIER";
                         equalOpStatement[0] = "VAR_IDENTIFIER";
                         arrInitAndDeclaration[3] = "VAR_IDENTIFIER";
@@ -1022,7 +1107,26 @@ public class PythonConverter {
                         // If the class has constructor and if outside the constructor, we need to access the variables already declared
                         // in the class by doing 'self.variable' to get the class instance of the variables.
                         if(classHasClassConstructor && !insideClassConstructor && variablesOutsideClassConstructor.contains(list.get(i).lexeme)) {
-                            pythonStr += "self.";
+
+                            if(list.get(i+1).lexeme.equals(".") && list.get(i+2).lexeme.equals("length")) {
+
+                                pythonStr += "len(" + "self." + list.get(i).lexeme + ")";
+                                break;
+
+                            } else {
+                                pythonStr += "self.";
+                            }
+
+                        }
+
+                        if(!variablesOutsideClassConstructor.contains(list.get(i).lexeme)) {
+
+                            if(list.get(i+1).lexeme.equals(".") && list.get(i+2).lexeme.equals("length")) {
+
+                                pythonStr += "len(" + list.get(i).lexeme + ")";
+                                break;
+
+                            }
                         }
 
 
