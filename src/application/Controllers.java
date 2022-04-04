@@ -1,6 +1,9 @@
 package application;
 
+import java.awt.*;
 import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -19,6 +22,8 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 public class Controllers implements Initializable {
+
+	static String contactInfo = "Nick Tibbetts \n ntibbet1@students.kennesaw.edu \n\n James Bond \n jbond20@students.kennesaw.edu \n\n  Mark Radchuk \n mradchuk@students.kennesaw.edu \n\n Jesus Zamora \n jzamora1@students.kennesaw.edu \n\n James Ring \n jring10@students.kennesaw.edu" ;
 
 	static String fileContent = "";
 
@@ -70,6 +75,19 @@ public class Controllers implements Initializable {
 		 
 		 LexicalAnalyzer.getDeletedPyStr();
 	 }
+
+	public void groupButton (ActionEvent Event) {
+
+		Alert alert = new Alert(AlertType.INFORMATION);
+
+		alert.setTitle("Contact Information");
+		alert.setHeaderText("https://github.com/mradchuk/senior-project");
+
+		alert.setContentText(contactInfo);
+		alert.show();
+
+
+	}
 
 	public void fileOpen (ActionEvent event) throws FileNotFoundException {
 
@@ -386,7 +404,12 @@ public class Controllers implements Initializable {
 
 	}
 
+	@FXML
+	void openLink(ActionEvent event) throws IOException, URISyntaxException {
 
+		Desktop.getDesktop().browse(new URI("https://github.com/mradchuk/senior-project"));
+
+	}
 
 
 
