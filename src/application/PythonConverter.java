@@ -1095,44 +1095,6 @@ public class PythonConverter {
 
                             pythonStr += "self.";
 
-                        //Initializes a default array type variable to None
-                        if(list.get(i-1).token.equals("T_RBRACKET") && list.get(i-2).token.equals("T_LBRACKET") && isDatatype(list.get(i-3).lexeme)  && list.get(i+1).token.equals("T_SEMICOLON") ) {
-                        	pythonStr += list.get(i).lexeme;
-                        	pythonStr += " = None";
-                        	break;
-                        }
-                        
-                        //initializes a  default double type variable to 0.0
-                        if(list.get(i-1).token.equals("T_DOUBLE") && list.get(i+1).token.equals("T_SEMICOLON") ) {
-                        	pythonStr += list.get(i).lexeme;
-                        	pythonStr += " = 0.0";
-                        	break;
-                        }
-                        
-                        //initializes a  default int type variable to 0
-                        if(list.get(i-1).token.equals("T_INT") && list.get(i+1).token.equals("T_SEMICOLON") ) {
-                        	pythonStr += list.get(i).lexeme;
-                        	pythonStr += " = 0";
-                        	break;
-                        }
-                        
-                      //initializes a  default String type variable to None
-                        if(list.get(i-1).token.equals("STRING_IDENTIFIER") && list.get(i+1).token.equals("T_SEMICOLON") ) {
-                        	pythonStr += list.get(i).lexeme;
-                        	pythonStr += "= None" ;
-                        	break;
-                        }
-                        
-                        
-                      //initializes a  default boolean type variable to false
-                        if(list.get(i-1).token.equals("T_BOOL") && list.get(i+1).token.equals("T_SEMICOLON") ) {
-                        	pythonStr += list.get(i).lexeme;
-                        	pythonStr += "= False" ;
-                        	break;
-                        }
-
-
-                            
                         }
 
                         //statementArr[0] = "VAR_IDENTIFIER";
@@ -1169,6 +1131,34 @@ public class PythonConverter {
 
 
                         pythonStr += list.get(i).lexeme;
+
+                        //Initializes a default array type variable to None
+                        if(list.get(i-1).token.equals("T_RBRACKET") && list.get(i-2).token.equals("T_LBRACKET") && isDatatype(list.get(i-3).lexeme)  && list.get(i+1).token.equals("T_SEMICOLON") ) {
+
+                            pythonStr += " = None";
+
+                        }
+
+                        //initializes a  default double type variable to 0.0
+                        if(list.get(i-1).token.equals("T_DOUBLE") && list.get(i+1).token.equals("T_SEMICOLON") ) {
+
+                            pythonStr += " = 0.0";
+
+                        }
+
+                        //initializes a  default int type variable to 0
+                        if(list.get(i-1).token.equals("T_INT") && list.get(i+1).token.equals("T_SEMICOLON") ) {
+
+                            pythonStr += " = 0";
+
+                        }
+
+                        //initializes a  default String type variable to None
+                        if(list.get(i-1).token.equals("STRING_IDENTIFIER") && list.get(i+1).token.equals("T_SEMICOLON") ) {
+
+                            pythonStr += "= None" ;
+
+                        }
 
 
                         // we only need to worry about getting the instance of the class of variables for those that are
