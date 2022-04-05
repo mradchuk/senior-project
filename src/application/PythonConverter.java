@@ -45,8 +45,7 @@ public class PythonConverter {
     static boolean castingMethodNameAddRParenth = false;
     static boolean isArrDecMemAllocStatement = false;
 
-    static int skipParenthesis = 0;
-    static boolean endOfDo = false;
+    static int skipParenthesis = 0, doWhileBraceCount=0;
     static boolean doWhileLoop = false;
 
     static boolean castJavaMath = false;
@@ -62,9 +61,7 @@ public class PythonConverter {
     private static ArrayList<String> lexemeList = new ArrayList<String>();
     private static ArrayList<Integer> indices = new ArrayList<Integer>();
 
-    //public static ArrayList<String> listOfVariables = new ArrayList<>();
     public static ArrayList<TokenData> doWhileCondition = new ArrayList<>();
-
 
 
     // --------------------------------------------------------------------------------
@@ -124,7 +121,6 @@ public class PythonConverter {
         isArrDecMemAllocStatement = false;
 
         skipParenthesis = 0;
-        endOfDo = false;
         doWhileLoop = false;
         castJavaMath = false;
         insideClassConstructor = false;
@@ -369,6 +365,8 @@ public class PythonConverter {
                     break;
 
                 case "T_LBRACE":
+                    if(doWhileLoop)
+                        doWhileBraceCount+=1;
 
                     // Ex: Complex2 - int[] var_identifier = {1, 2, 3};
                     if((arrInitAndDeclaration[0] == "T_INT" || arrInitAndDeclaration[0] == "String Identifier") && arrInitAndDeclaration[1] == "T_LBRACKET"
@@ -409,6 +407,8 @@ public class PythonConverter {
                     break;
 
                 case "T_RBRACE":
+                    if(doWhileLoop)
+                        doWhileBraceCount -= 1;
 
                     if(isArrayStatementAddRbracket) {
                         pythonStr += "]";
@@ -523,6 +523,16 @@ public class PythonConverter {
                     break;
 
                 case "T_LPARENTH":
+                    if(list.get(i-1).lexeme.equals("print"))
+                        break;
+
+                    if(skipParenthesis!=0) {
+                        if (list.get(i-1).lexeme.equals("equals")) {
+                            skipParenthesis += 1;
+                            break;
+                        }
+                        break;
+                    }
 
                     // double var = ( data type
                     if(statementArr[0] == "T_DOUBLE" && statementArr[1] == "VAR_IDENTIFIER" && statementArr[2] == "T_ASSIGN" && isDatatype(list.get(i+1).lexeme) && !isAMathMethodDoNotCastIt) {
@@ -883,7 +893,28 @@ public class PythonConverter {
                     }
 
                 case "T_SEMICOLON":
+                    if(doWhileLoop && doWhileBraceCount==0){
+                        doWhileLoop = false;
+                        pythonStr += ":\n";
 
+                        for(int p = 0; p < count+2; p++) {
+                            pythonStr += "\t";
+                            if(p==count+1)
+                                pythonStr += "continue\n";
+                        }
+
+                        for(int p = 0; p < count+1; p++) {
+                            pythonStr += "\t";
+                            if(p==count)
+                                pythonStr += "else:\n";
+                        }
+
+                        for(int p = 0; p < count+2; p++) {
+                            pythonStr += "\t";
+                            if(p==count+1)
+                                pythonStr += "break\n";
+                        }
+                    }
 
                     // Reset all statement evaluation arrays after every statement or semicolon to prevent array
                     // value carryover when analyzing the next statement in the function.
@@ -1629,29 +1660,25 @@ public class PythonConverter {
                     break;
 
                 case "T_FOR":
-                    pythonStr += "for";
+                    String variableIdentifier="", conditionalValue="";
+
+                    for(int x=i+1; !list.get(x).lexeme.equals("{"); x++){
+                        if(list.get(x).token.equals("VAR_IDENTIFIER"))
+                            variableIdentifier = list.get(x).lexeme;
+
+                        if(list.get(x).token.equals("relational operator"))
+                            conditionalValue = list.get(x+1).lexeme;
+
+                        list.get(x).token = "T_SKIP";
+                    }
+
+                    pythonStr += "for " + variableIdentifier + " in range(" + conditionalValue + ")";
                     break;
 
                 case "T_WHILE":
-                    if(doWhileLoop && endOfDo){
-                        //Have to add at the end of the loop if condition is true continue, else break to act as the 'do' portion of the loop
+                    if(doWhileLoop && doWhileBraceCount==0){
                         pythonStr += "\tif";
-                        translateDriver(doWhileCondition);
-                        pythonStr += ":\n";
-                        for(int p = 0; p < count+2; p++) {
-                            pythonStr += "\t";
-                        }
-                        pythonStr += "continue\n";
-
-                        for(int p = 0; p < count+1; p++) {
-                            pythonStr += "\t";
-                        }
-                        pythonStr += "else:\n";
-
-                        for(int p = 0; p < count+2; p++) {
-                            pythonStr += "\t";
-                        }
-                        pythonStr += "break\n";
+                        skipParenthesis+=1;
                         break;
                     }
 
@@ -1659,38 +1686,8 @@ public class PythonConverter {
                     break;
 
                 case "T_DO":
-                    pythonStr += "while";
-
-                    int braceCount=0;
+                    pythonStr += "while True";
                     doWhileLoop = true;
-                    TokenData currObject;
-
-                    //Have to find the while with the condition and add it to pythonStr and then skip it once it comes across
-                    //later
-                    for(int x=i+1; x<list.size(); x++){
-
-                        if(list.get(x).lexeme.equals("{"))
-                            braceCount+=1;
-
-                        if(braceCount==0)
-                            endOfDo=true;
-
-                        if(braceCount==0 && list.get(x).lexeme.equals(";")){
-                            break;
-                        }
-
-                        if(braceCount==0 && !list.get(x).lexeme.equals("while") && !list.get(x).lexeme.equals("(") && !list.get(x).lexeme.equals(")")){
-                            currObject = list.get(x);
-                            doWhileCondition.add(new TokenData(currObject.token, currObject.lexeme));
-                            list.get(x).token = "T_SKIP";
-                        }
-
-                        if(list.get(x).lexeme.equals("}"))
-                            braceCount-=1;
-
-                    }
-                    translateDriver(doWhileCondition);
-
                     break;
 
                 case "T_SKIP":
