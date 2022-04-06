@@ -99,7 +99,7 @@ public class LexicalAnalyzer {
         keyWord.put("PRIVATE", "T_PRIVATE");
         keyWord.put("PROTECTED", "T_PROTECTED");
         keyWord.put("PUBLIC", "T_PUBLIC");
-        keyWord.put("RETURN", "keyword");
+        keyWord.put("RETURN", "T_RETURN");
         keyWord.put("SHORT", "T_SHORT");
         keyWord.put("STATIC", "T_STATIC");
         keyWord.put("SUPER", "keyword");

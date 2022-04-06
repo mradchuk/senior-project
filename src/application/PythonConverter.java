@@ -281,8 +281,9 @@ public class PythonConverter {
                     /* Here we deal with static methods or methods with no return type */
                     if(arrAtStaticMethod[0].equals("static") && arrAtStaticMethod[1].equals("void") && arrAtStaticMethod[2].equals("METHOD_NAME")) {
 
-                        pythonStr += "@staticmethod\n";
-
+                        //pythonStr += "@staticmethod\n";
+                    	pythonStr += "\n";
+                    	
                         // the following method should be on the same indentation level as @staticmethod
                         for(int counting = 0; counting < count; counting++) {
                             pythonStr += "\t";
@@ -330,12 +331,11 @@ public class PythonConverter {
                      */
 
                     /* How we deal with different Java method types and determine if the are being defined or only accessed */
-                    if((list.get(i - 2).lexeme.equals("static") || list.get(i - 2).lexeme.equals("public")) && list.get(i - 1).lexeme.equals("void")) {
-                        pythonStr += "def " + list.get(i).lexeme;
-                    } else if(list.get(i - 2).lexeme.equals("public") && isDatatype(list.get(i -1).lexeme)) {
+                    if((list.get(i - 2).lexeme.equals("static") 
+                    		|| list.get(i - 2).lexeme.equals("public")) 
+                    		|| list.get(i - 2).lexeme.equals("private")){
                         pythonStr += "def " + list.get(i).lexeme;
                     }
-
                     else if(insideMainMethod && !classHasClassConstructor) {
                         pythonStr += getClassName + "." + list.get(i).lexeme;
                     }
@@ -350,7 +350,12 @@ public class PythonConverter {
                     }
 
                      */
-
+                    else if(!(list.get(i - 1).lexeme.equals("static") 
+                    		&& !list.get(i - 1).lexeme.equals("public")) 
+                    		&& !list.get(i - 2).lexeme.equals("private")){
+                        pythonStr += getClassName + "." + list.get(i).lexeme;
+                    }
+                    
                     else {
                         pythonStr += list.get(i).lexeme;
                     }
@@ -1713,6 +1718,10 @@ public class PythonConverter {
                         pythonStr += "self";
                     }
 
+                    break;
+                
+                case "T_RETURN":
+                	pythonStr += list.get(i).lexeme + " ";
                     break;
 
             }
