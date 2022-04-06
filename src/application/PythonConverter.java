@@ -151,7 +151,8 @@ public class PythonConverter {
     }
 
     public static boolean isDatatype(String str) {
-        if(str.equals("int") || str.equals("short") || str.equals("double") || str.equals("byte") || str.equals("float") || str.equals("long") || str.equals("String") || str.equals("char")) {
+        if(str.equals("int") || str.equals("short") || str.equals("double") || str.equals("byte") || str.equals("float")
+                || str.equals("long") || str.equals("String") || str.equals("char") || str.equals("boolean")) {
             return true;
         } else {
             return false;
@@ -294,6 +295,20 @@ public class PythonConverter {
                         }
                     }
 
+                    if(arrAtStaticMethod[0].equals("static") && isDatatype(arrAtStaticMethod[1]) && arrAtStaticMethod[2].equals("METHOD_NAME")) {
+
+                        pythonStr += "@staticmethod\n";
+
+                        // the following method should be on the same indentation level as @staticmethod
+                        for(int counting = 0; counting < count; counting++) {
+                            pythonStr += "\t";
+                        }
+
+                        for(int clStaticMethod = 0; clStaticMethod < arrAtStaticMethod.length; clStaticMethod++) {
+                            arrAtStaticMethod[clStaticMethod] = "";
+                        }
+                    }
+
 
                     String lastFourCharacters = "";
                     int lengthOfLastFourChars = 4;
@@ -352,7 +367,8 @@ public class PythonConverter {
                      */
                     else if(!(list.get(i - 1).lexeme.equals("static") 
                     		&& !list.get(i - 1).lexeme.equals("public")) 
-                    		&& !list.get(i - 2).lexeme.equals("private")){
+                    		&& !list.get(i - 2).lexeme.equals("private")
+                            && !classHasClassConstructor){
                         pythonStr += getClassName + "." + list.get(i).lexeme;
                     }
                     
@@ -528,8 +544,12 @@ public class PythonConverter {
                     break;
 
                 case "T_LPARENTH":
+
+                    /*
                     if(list.get(i-1).lexeme.equals("print"))
                         break;
+
+                    */
 
                     if(skipParenthesis!=0) {
                         if (list.get(i-1).lexeme.equals("equals")) {
@@ -749,6 +769,7 @@ public class PythonConverter {
 
                     statementArr[0] = "String Identifier";
                     arrInitAndDeclaration[0] = "String Identifier";
+                    arrAtStaticMethod[1] = list.get(i).lexeme;
 
                     break;
 
@@ -965,6 +986,7 @@ public class PythonConverter {
 
                     statementArr[0] = "T_INT";
                     arrInitAndDeclaration[0] = "T_INT";
+                    arrAtStaticMethod[1] = "T_INT";
 
                     break;
 
@@ -977,6 +999,8 @@ public class PythonConverter {
                     }
 
                     statementArr[0] = "T_DOUBLE";
+                    arrAtStaticMethod[1] = "T_DOUBLE";
+
                     break;
 
                 case "T_FLOAT":
@@ -1175,10 +1199,10 @@ public class PythonConverter {
 
                         }
 
-                        //initializes a  default double type variable to 0.0
+                        //initializes a  default double type variable to 0
                         if(list.get(i-1).token.equals("T_DOUBLE") && list.get(i+1).token.equals("T_SEMICOLON") ) {
 
-                            pythonStr += " = 0.0";
+                            pythonStr += " = 0";
 
                         }
 
@@ -1193,6 +1217,13 @@ public class PythonConverter {
                         if(list.get(i-1).token.equals("STRING_IDENTIFIER") && list.get(i+1).token.equals("T_SEMICOLON") ) {
 
                             pythonStr += "= None" ;
+
+                        }
+
+                        //initializes a  default boolean type variable to False
+                        if(list.get(i-1).token.equals("T_BOOL") && list.get(i+1).token.equals("T_SEMICOLON") ) {
+
+                            pythonStr += "= False" ;
 
                         }
 
@@ -1671,8 +1702,11 @@ public class PythonConverter {
                         if(list.get(x).token.equals("VAR_IDENTIFIER"))
                             variableIdentifier = list.get(x).lexeme;
 
-                        if(list.get(x).token.equals("relational operator"))
+                        if(list.get(x).token.equals("relational operator") && !list.get(x+1).token.equals("T_ASSIGN"))
                             conditionalValue = list.get(x+1).lexeme;
+
+                        if(list.get(x).token.equals("relational operator") && list.get(x+1).token.equals("T_ASSIGN"))
+                            conditionalValue = list.get(x+2).lexeme;
 
                         list.get(x).token = "T_SKIP";
                     }
@@ -1722,6 +1756,15 @@ public class PythonConverter {
                 
                 case "T_RETURN":
                 	pythonStr += list.get(i).lexeme + " ";
+                    break;
+
+                case "T_BREAK":
+                    pythonStr += list.get(i).lexeme;
+                    break;
+
+                case "T_BOOL":
+
+                    arrAtStaticMethod[1] = list.get(i).lexeme;
                     break;
 
             }

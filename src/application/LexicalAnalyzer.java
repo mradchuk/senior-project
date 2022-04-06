@@ -72,7 +72,7 @@ public class LexicalAnalyzer {
 
         keyWord.put("ABSTRACT", "keyword");
         keyWord.put("BOOLEAN", "T_BOOL");
-        keyWord.put("BREAK", "keyword");
+        keyWord.put("BREAK", "T_BREAK");
         keyWord.put("BYTE", "T_BYTE");
         keyWord.put("CASE", "keyword");
         keyWord.put("CATCH", "keyword");

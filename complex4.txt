@@ -31,7 +31,9 @@ class Complex4 {
 
         double sum = 0.00;
 
-        for(int i = 0; i < scores.length; i++) {
+        int scoresLength = scores.length;
+
+        for(int i = 0; i < scoresLength; i++) {
             sum += scores[i];
         }
 
@@ -69,7 +71,9 @@ class Complex4 {
 
         result += getFirstName() + "\t" + getLastName();
 
-        for(int i = 0; i < scores.length; i++) {
+        int scoresLength = scores.length;
+
+        for(int i = 0; i < scoresLength; i++) {
             result += "\t\t" + String.valueOf(scores[i]);
         }
 
@@ -94,7 +98,9 @@ class Complex4 {
         System.out.println("Name\t\t\tTest1 \t\tTest2 \t\tTest3 \t\tTest4 \t\tTest5\t\tAverage\t\tGrade");
         System.out.println("_____________________________________________________________________________________________");
 
-        for(int i = 0; i < obj.length; i++) {
+        int objectLength = obj.length;
+
+        for(int i = 0; i < objectLength; i++) {
             System.out.print(obj[i].strOutput());
             System.out.println();
             result += obj[i].findAverage();
