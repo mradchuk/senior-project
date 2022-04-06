@@ -687,7 +687,15 @@ public class LexicalAnalyzer {
                         arrayOfTokens.add(new TokenData("VAR_IDENTIFIER", prevToken));
                         System.out.println("VAR_IDENTIFIER - " + prevToken);
                         prevToken = "";
-                    }
+                    } else if(prevToken.equals("in")) {
+                        arrayOfTokens.add(new TokenData("in", prevToken));
+                        System.out.println("in" + " - " + prevToken);
+                        prevToken = "";
+                    } else if(prevToken.equals("nextInt")) {
+                        arrayOfTokens.add(new TokenData("Integer Input", prevToken));
+                        System.out.println("Integer Input" + " - " + prevToken);
+                        prevToken = "";
+                    } 
 
                     //Check for math keywords after the . seperator
                     else if(prevToken.equals("abs")) {

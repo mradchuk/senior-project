@@ -229,7 +229,7 @@ public class PythonConverter {
         statementArr[0] = "";
 
         for(int i = 0; i < list.size(); i++) {
-
+            
             switch(list.get(i).token) {
 
                 case "T_PUBLIC":
@@ -906,6 +906,11 @@ public class PythonConverter {
 
                     break;
 
+                case "in":
+                    break;
+                case "Integer Input":
+                    pythonStr += "input";
+                    break;
                 case "string literal":
 
                     //String temp = list.get(i).lexeme;
