@@ -282,8 +282,8 @@ public class PythonConverter {
                     /* Here we deal with static methods or methods with no return type */
                     if(arrAtStaticMethod[0].equals("static") && arrAtStaticMethod[1].equals("void") && arrAtStaticMethod[2].equals("METHOD_NAME")) {
 
-                        //pythonStr += "@staticmethod\n";
-                    	pythonStr += "\n";
+                        pythonStr += "@staticmethod\n";
+                    	//pythonStr += "\n";
                     	
                         // the following method should be on the same indentation level as @staticmethod
                         for(int counting = 0; counting < count; counting++) {
