@@ -229,7 +229,7 @@ public class PythonConverter {
         statementArr[0] = "";
 
         for(int i = 0; i < list.size(); i++) {
-            
+
             switch(list.get(i).token) {
 
                 case "T_PUBLIC":
@@ -263,9 +263,9 @@ public class PythonConverter {
                             arrayAllocateMemory[3] = list.get(i).token;
                             break;
 
-                        //Ex: Complex4 - class_name[] var
+                            //Ex: Complex4 - class_name[] var
                         } else if(list.get(i+1).lexeme.equals("[") && list.get(i+2).lexeme.equals("]")
-                                    && list.get(i+3).token.equals("VAR_IDENTIFIER")) {
+                                && list.get(i+3).token.equals("VAR_IDENTIFIER")) {
                             break;
                         } else {
                             pythonStr += list.get(i).lexeme;
@@ -283,8 +283,8 @@ public class PythonConverter {
                     if(arrAtStaticMethod[0].equals("static") && arrAtStaticMethod[1].equals("void") && arrAtStaticMethod[2].equals("METHOD_NAME")) {
 
                         pythonStr += "@staticmethod\n";
-                    	//pythonStr += "\n";
-                    	
+                        //pythonStr += "\n";
+
                         // the following method should be on the same indentation level as @staticmethod
                         for(int counting = 0; counting < count; counting++) {
                             pythonStr += "\t";
@@ -346,9 +346,9 @@ public class PythonConverter {
                      */
 
                     /* How we deal with different Java method types and determine if the are being defined or only accessed */
-                    if((list.get(i - 2).lexeme.equals("static") 
-                    		|| list.get(i - 2).lexeme.equals("public")) 
-                    		|| list.get(i - 2).lexeme.equals("private")){
+                    if((list.get(i - 2).lexeme.equals("static")
+                            || list.get(i - 2).lexeme.equals("public"))
+                            || list.get(i - 2).lexeme.equals("private")){
                         pythonStr += "def " + list.get(i).lexeme;
                     }
                     else if(insideMainMethod && !classHasClassConstructor) {
@@ -365,13 +365,13 @@ public class PythonConverter {
                     }
 
                      */
-                    else if(!(list.get(i - 1).lexeme.equals("static") 
-                    		&& !list.get(i - 1).lexeme.equals("public")) 
-                    		&& !list.get(i - 2).lexeme.equals("private")
+                    else if(!(list.get(i - 1).lexeme.equals("static")
+                            && !list.get(i - 1).lexeme.equals("public"))
+                            && !list.get(i - 2).lexeme.equals("private")
                             && !classHasClassConstructor){
                         pythonStr += getClassName + "." + list.get(i).lexeme;
                     }
-                    
+
                     else {
                         pythonStr += list.get(i).lexeme;
                     }
@@ -391,7 +391,7 @@ public class PythonConverter {
 
                     // Ex: Complex2 - int[] var_identifier = {1, 2, 3};
                     if((arrInitAndDeclaration[0] == "T_INT" || arrInitAndDeclaration[0] == "String Identifier") && arrInitAndDeclaration[1] == "T_LBRACKET"
-                        && arrInitAndDeclaration[2] == "T_RBRACKET" && arrInitAndDeclaration[3] == "VAR_IDENTIFIER" && arrInitAndDeclaration[4] == "T_ASSIGN"
+                            && arrInitAndDeclaration[2] == "T_RBRACKET" && arrInitAndDeclaration[3] == "VAR_IDENTIFIER" && arrInitAndDeclaration[4] == "T_ASSIGN"
                             && ((list.get(i+1).token == "NUMBER" && list.get(i+2).token == "T_COMMA") || list.get(i+1).token == "T_RBRACE")) {
 
                         isArrayStatement = true;
@@ -864,7 +864,7 @@ public class PythonConverter {
 
                     //Ex: Complex4 - obj[i].strOutput(), obj[i].findAverage()
                     if(list.get(i-4).token.equals("VAR_IDENTIFIER") && list.get(i-3).lexeme.equals("[") && list.get(i-2).token.equals("VAR_IDENTIFIER")
-                        && list.get(i-1).lexeme.equals("]") && list.get(i+1).token.equals("METHOD_NAME")) {
+                            && list.get(i-1).lexeme.equals("]") && list.get(i+1).token.equals("METHOD_NAME")) {
 
                         pythonStr += list.get(i).lexeme;
 
@@ -1107,7 +1107,7 @@ public class PythonConverter {
                         pythonStr += list.get(i).lexeme + ")";
                         break;
 
-                    // 'print(', not 'int(' integer casting
+                        // 'print(', not 'int(' integer casting
                     } else if( (lastFourChars.equals("int(") && lastSixChars.equals("print(")) || strCastFormat.equals("String.format") ) { //prevents the 'print(..))' bug
 
                         // length of the variable inside of print statement
@@ -1120,7 +1120,7 @@ public class PythonConverter {
 
                         break;
 
-                    // 'int(' integer casting, not 'print('
+                        // 'int(' integer casting, not 'print('
                     } else if(lastFourChars.equals("int(") && !lastSixChars.equals("print(")) {
                         statementArr[1] = "VAR_IDENTIFIER";
                         pythonStr += list.get(i).lexeme + ")";
@@ -1156,7 +1156,7 @@ public class PythonConverter {
                         // variable on the L.H.S. of the assignment statement when we assign it to the parameter variable
                         // of the constructor on the R.H.S.
                         if(insideClassConstructor && list.get(i+1).lexeme.equals("[") && list.get(i+3).lexeme.equals("]")
-                            && list.get(i+4).lexeme.equals("=")) {
+                                && list.get(i+4).lexeme.equals("=")) {
 
                             pythonStr += "self.";
 
@@ -1276,7 +1276,7 @@ public class PythonConverter {
 
                         break;
 
-                    // '+=', '-=', '*=', or '/='
+                        // '+=', '-=', '*=', or '/='
                     } else if(isArithmeticOperator(list.get(i-1).lexeme)) {
 
                         pythonStr += list.get(i).lexeme + " ";
@@ -1329,20 +1329,20 @@ public class PythonConverter {
 
                     // (array or object) [ number ] =
                     if(list.get(i - 2).token.equals("VAR_IDENTIFIER") && list.get(i - 1).lexeme.equals("[")
-                        && list.get(i + 1).lexeme.equals("]") && list.get(i + 2).token.equals("T_ASSIGN")) {
+                            && list.get(i + 1).lexeme.equals("]") && list.get(i + 2).token.equals("T_ASSIGN")) {
 
-                            pythonStr += "[";
+                        pythonStr += "[";
 
-                            String num = list.get(i).lexeme;
+                        String num = list.get(i).lexeme;
 
-                            num = num.substring(0, num.length() -1);
-                            num = num.substring(0, num.length() -1);
+                        num = num.substring(0, num.length() -1);
+                        num = num.substring(0, num.length() -1);
 
-                            pythonStr += num;
+                        pythonStr += num;
 
-                            pythonStr += "]";
+                        pythonStr += "]";
 
-                            break;
+                        break;
                     }
 
                     /*
@@ -1399,7 +1399,7 @@ public class PythonConverter {
 
                         }
 
-                    // Check number with long specifier
+                        // Check number with long specifier
                     } else if(statementArr[0] == "T_LONG" && statementArr[1] == "VAR_IDENTIFIER"
                             && statementArr[2] == "T_ASSIGN" && list.get(i+1).lexeme.equals("L")) {
 
@@ -1511,28 +1511,28 @@ public class PythonConverter {
                         pythonStr += list.get(i).lexeme.substring(1);
                         break;
 
-                    // var_identifier - - ;
+                        // var_identifier - - ;
                     } else if(list.get(i).lexeme.equals("-") && list.get(i+1).lexeme.equals("-") && list.get(i+2).token.equals("T_SEMICOLON")) {
                         handleUnaryOperator(list, "--", i);
                         pythonStr += list.get(i).lexeme.substring(1);
                         break;
 
-                    // Have not found the proper way to use handleUnaryOperator() for pre-increments and pre-decrements due to how the unary
-                    // functions alter the original list of TokenData. This implementation should work for now.
+                        // Have not found the proper way to use handleUnaryOperator() for pre-increments and pre-decrements due to how the unary
+                        // functions alter the original list of TokenData. This implementation should work for now.
 
-                    // + + var_identifier ;
+                        // + + var_identifier ;
                     } else if(list.get(i).lexeme.equals("+") && list.get(i+1).lexeme.equals("+") && list.get(i+2).token.equals("VAR_IDENTIFIER")) {
                         pythonStr += list.get(i+2).lexeme + "+=1";
                         list.remove(i+2);
                         break;
 
-                    // - - var_identifier ;
+                        // - - var_identifier ;
                     } else if(list.get(i).lexeme.equals("-") && list.get(i+1).lexeme.equals("-") && list.get(i+2).token.equals("VAR_IDENTIFIER")) {
                         pythonStr += list.get(i+2).lexeme + "-=1";
                         list.remove(i+2);
                         break;
 
-                    //if there are no other arithmetic operators on either side of the current ar. operator, then it is a single ar. op.
+                        //if there are no other arithmetic operators on either side of the current ar. operator, then it is a single ar. op.
                     } else if(!list.get(i-1).lexeme.equals(list.get(i).lexeme) && !list.get(i+1).lexeme.equals(list.get(i).lexeme)) {
                         pythonStr += list.get(i).lexeme;
                         break;
@@ -1744,7 +1744,7 @@ public class PythonConverter {
                     // if var = new (any data type or class name)[], it is an array declaration and memory allocation statement
                     if(arrayAllocateMemory[0] == "VAR_IDENTIFIER" && arrayAllocateMemory[1] == "T_ASSIGN" && arrayAllocateMemory[2] == "T_NEW"
                             && (isDatatype(list.get(i+1).lexeme) || list.get(i+1).token.equals("CLASS_NAME")) && list.get(i+2).lexeme.equals("[")
-                                && list.get(i+4).lexeme.equals("]")) {
+                            && list.get(i+4).lexeme.equals("]")) {
 
                         isArrDecMemAllocStatement = true;
 
@@ -1758,9 +1758,9 @@ public class PythonConverter {
                     }
 
                     break;
-                
+
                 case "T_RETURN":
-                	pythonStr += list.get(i).lexeme + " ";
+                    pythonStr += list.get(i).lexeme + " ";
                     break;
 
                 case "T_BREAK":
@@ -2063,4 +2063,3 @@ public class PythonConverter {
     }
 
 }
-
