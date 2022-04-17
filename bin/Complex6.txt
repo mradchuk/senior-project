@@ -63,12 +63,12 @@ public class Complex6 {
 
    }
 
-   public double withdraw(double wthdrw) {
+   public double withdraw(double with) {
 
-      wthdrw = balance - wthdrw;
-      this.balance = wthdrw;
+      with = balance - with;
+      this.balance = with;
 
-      return wthdrw;
+      return with;
 
    }
  

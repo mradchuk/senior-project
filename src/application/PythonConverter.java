@@ -636,7 +636,8 @@ public class PythonConverter {
                     }
 
                     // String var = Integer.toString, or String var = String.valueOf
-                    if(statementArr[0] == "String Identifier" && statementArr[1] == "VAR_IDENTIFIER" && statementArr[2] == "T_ASSIGN"
+                    // var = Integer.toString, or var = String.valueOf
+                    if((statementArr[0] == "String Identifier" || statementArr[0] == "") && statementArr[1] == "VAR_IDENTIFIER" && statementArr[2] == "T_ASSIGN"
                             && (intCastStr.equals("Integer.toString") || strCastStr.equals("String.valueOf"))) {
 
                         pythonStr += "str(";
