@@ -16,28 +16,28 @@ public class Complex6 {
    }
 
    public int getId() {
-   return id;
- }
+      return id;
+   }
 
    public void setId(int setid) {
-   this.id = setid;
- }
+      this.id = setid;
+   }
 
    public double getBalance() {
-   return balance;
- }
+      return balance;
+   }
 
    public void setBalance(double bal) {
-   this.balance = bal;
- }
+      this.balance = bal;
+   }
 
    public double getAnnualInterestRate() {
-   return annualInterestRate;
- }
+      return annualInterestRate;
+   }
 
    public void setAnnualInterestRate(double annIntRate) {
-   this.annualInterestRate = annIntRate;
- }
+      this.annualInterestRate = annIntRate;
+   }
 
    public double getMonthlyInterestRate() {
 
@@ -63,12 +63,12 @@ public class Complex6 {
 
    }
 
-   public double withdraw(double with) {
+   public double withdraw(double wthdrw) {
 
-      with = balance - with;
-      this.balance = with;
+      wthdrw = balance - wthdrw;
+      this.balance = wthdrw;
 
-      return with;
+      return wthdrw;
 
    }
  
@@ -103,5 +103,6 @@ public class Complex6 {
       System.out.print(account[firstIndexPostion].outputStr());
 
    }
+
 }
   
