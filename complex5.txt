@@ -16,7 +16,7 @@ public class Complex5 {
 		System.out.println("Enter the invested amount: ");
 		double amount = 20000.46;
 		
-      	            System.out.println("Enter the annual interest rate: ");
+      	        System.out.println("Enter the annual interest rate: ");
 		double yearlyInterestRate = 4.34;
 
 		double monthlyInterestRate = yearlyInterestRate / 1200;
@@ -33,16 +33,14 @@ public class Complex5 {
 
 		do {
 
-			yearStr = Integer.toString(years);
-			futureInvValStr = futureInvestmentValue(amount, monthlyInterestRate, years);
-			System.out.println(yearStr + "\t\t" + futureInvValStr);
+		   yearStr = Integer.toString(years);
+		   futureInvValStr = futureInvestmentValue(amount, monthlyInterestRate, years);
+		   System.out.println(yearStr + "\t\t" + futureInvValStr);
 
-			years++;
+		   years++;
 
 		} while(years <= lengthOfYears);
 
 	}
-
-
 
 }
