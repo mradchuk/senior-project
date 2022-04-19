@@ -16,28 +16,28 @@ public class Complex6 {
    }
 
    public int getId() {
-   return id;
- }
+      return id;
+   }
 
    public void setId(int setid) {
-   this.id = setid;
- }
+      this.id = setid;
+   }
 
    public double getBalance() {
-   return balance;
- }
+      return balance;
+   }
 
    public void setBalance(double bal) {
-   this.balance = bal;
- }
+      this.balance = bal;
+   }
 
    public double getAnnualInterestRate() {
-   return annualInterestRate;
- }
+      return annualInterestRate;
+   }
 
    public void setAnnualInterestRate(double annIntRate) {
-   this.annualInterestRate = annIntRate;
- }
+      this.annualInterestRate = annIntRate;
+   }
 
    public double getMonthlyInterestRate() {
 
@@ -91,31 +91,18 @@ public class Complex6 {
 
    public static void main(String[] args) {
 
-      Complex6 account1 = new Complex6(1121, 20000.00, 0.045);
+      Complex6[] account = new Complex6[1];
 
-      account1.deposit(3000);
-      account1.withdraw(10250);
+      int firstIndexPostion = 0;
 
-      System.out.print(account1.outputStr());
-      System.out.println();
+      account[firstIndexPostion] = new Complex6(1122, 20000.00, 0.045);
 
+      account[firstIndexPostion].deposit(3000);
+      account[firstIndexPostion].withdraw(2500);
 
-      Complex6 account2 = new Complex6(1122, 30540.00, 0.053);
-
-      account2.deposit(10295.36);
-      account2.withdraw(5049.93);
-
-      System.out.print(account2.outputStr());
-      System.out.println();
-
-
-      Complex6 account3 = new Complex6(1123, 10248.58, 0.029);
-
-      account3.deposit(2095.36);
-      account3.withdraw(7049.93);
-
-      System.out.print(account3.outputStr());
+      System.out.print(account[firstIndexPostion].outputStr());
 
    }
+
 }
   

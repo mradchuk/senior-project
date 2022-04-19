@@ -26,8 +26,8 @@ public class Complex5 {
 		System.out.println("----------------------------");
 		int lengthOfYears = 30;
 
-		String yearStr;
-		String futureInvValStr;
+		String yearStr = "";
+		String futureInvValStr = "";
 
 		int years = 1;
 
@@ -42,7 +42,5 @@ public class Complex5 {
 		} while(years <= lengthOfYears);
 
 	}
-
-
 
 }
