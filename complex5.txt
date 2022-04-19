@@ -3,7 +3,7 @@ public class Complex5 {
 
 	public static String futureInvestmentValue(double investmentAmount, double monthlyInterestRate, int years) {
 
-		double exponentCalculation = Math.pow(monthlyInterestRate + 1, years * 12);
+                double exponentCalculation = Math.pow(monthlyInterestRate + 1, years * 12);
 		double result = investmentAmount * exponentCalculation * 100.0 / 100.0;
 		String decimalFormatResult = String.format("%.2f", result);
 
@@ -33,11 +33,11 @@ public class Complex5 {
 
 		do {
 
-		   yearStr = Integer.toString(years);
-		   futureInvValStr = futureInvestmentValue(amount, monthlyInterestRate, years);
-		   System.out.println(yearStr + "\t\t" + futureInvValStr);
+		        yearStr = Integer.toString(years);
+		        futureInvValStr = futureInvestmentValue(amount, monthlyInterestRate, years);
+		        System.out.println(yearStr + "\t\t" + futureInvValStr);
 
-		   years++;
+		        years++;
 
 		} while(years <= lengthOfYears);
 
