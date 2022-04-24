@@ -1672,7 +1672,13 @@ public class PythonConverter {
                         list.get(x).token = "T_SKIP";
                     }
 
-                    pythonStr += "for " + variableIdentifier + " in range(" + conditionalValue + ")";
+                    try {
+                        double cV = Double.parseDouble(conditionalValue);
+                        if (cV % 1 == 0)
+                            conditionalValue = String.valueOf((int) cV);
+                    } catch (NumberFormatException ex){}
+
+                    pythonStr += "for " + variableIdentifier + " in " + conditionalValue;
                     break;
 
                 case "T_WHILE":
@@ -1727,6 +1733,8 @@ public class PythonConverter {
 
                     arrAtStaticMethod[1] = list.get(i).lexeme;
                     break;
+
+                case "T_ArrayList":
 
             }
 
