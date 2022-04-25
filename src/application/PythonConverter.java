@@ -1734,8 +1734,6 @@ public class PythonConverter {
                     arrAtStaticMethod[1] = list.get(i).lexeme;
                     break;
 
-                case "T_ArrayList":
-
             }
 
         }
