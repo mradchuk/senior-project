@@ -1678,7 +1678,7 @@ public class PythonConverter {
                             conditionalValue = String.valueOf((int) cV);
                     } catch (NumberFormatException ex){}
 
-                    pythonStr += "for " + variableIdentifier + " in " + conditionalValue;
+                    pythonStr += "for " + variableIdentifier + " in range(" + conditionalValue + ")";
                     break;
 
                 case "T_WHILE":
