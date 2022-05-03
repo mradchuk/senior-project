@@ -870,10 +870,21 @@ public class PythonConverter {
                     checkPrintStatement = "";
 
                     break;
-
+                case "Scanner class":
+                    break;
                 case "in":
                     break;
                 case "Integer Input":
+
+
+                    if(list.get(i-2).token.equals("VAR_IDENTIFIER")) {
+                        int prevVarSize = list.get(i-2).lexeme.length();
+                        int pythonStrCurrentSize = pythonStr.length();
+
+                        pythonStr = pythonStr.substring(pythonStrCurrentSize - prevVarSize);
+
+                    }
+
                     pythonStr += "input";
                     break;
                 case "string literal":

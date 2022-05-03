@@ -622,7 +622,12 @@ public class LexicalAnalyzer {
                             prevToken = "";
                         }
 
-                    } else if(prevToken.equals("in")) {
+                    } else if(prevToken.equals("Scanner")) {
+                        arrayOfTokens.add(new TokenData("Scanner class", prevToken));
+                        System.out.println("Scanner class" + " - " + prevToken);
+                        prevToken = "";
+                    }
+                    else if(prevToken.equals("in")) {
                         arrayOfTokens.add(new TokenData("in", prevToken));
                         System.out.println("in" + " - " + prevToken);
                         prevToken = "";
