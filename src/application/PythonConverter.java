@@ -1067,6 +1067,11 @@ public class PythonConverter {
                         'print(..))' instead of the correct 'print(..) output.
                     */
 
+                    if(list.get(i).lexeme.toLowerCase().equals("scanner")) {
+                        pythonStr += "";
+                        break;
+                    }
+
                     String lastSixChars = "";
                     String lastFourChars = "";
                     String lastFiveChars = "";
