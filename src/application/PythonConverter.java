@@ -883,34 +883,34 @@ public class PythonConverter {
                     pythonStr += "";
                     break;
                 case "Integer Input":
-                    
-                    System.out.println("Token in List 2 spots back: " + list.get(i-2).token);
-                    System.out.println("Lexeme in List 2 spots back: " + list.get(i-2).lexeme);
-                    System.out.println("Token in List 1 spot back: " + list.get(i-1).token);
-                    System.out.println("Lexeme in List 1 spot back: " + list.get(i-1).lexeme);
 
-                    if(list.get(i-1).token.equals("VAR_IDENTIFIER")) {
-                        int prevVarSize = list.get(i-1).lexeme.length();
+                    if(list.get(i-2).token.equals("VAR_IDENTIFIER")) {
+                        System.out.println("Entering IF statement");
+
+                        int prevVarSize = list.get(i-2).lexeme.length();
                         int pythonStrCurrentSize = pythonStr.length();
+
+                        System.out.println("What should be SC's length: " + prevVarSize);
+                        System.out.println("What should be pythonStr's length: " + pythonStrCurrentSize);
 
                         pythonStr = pythonStr.substring(pythonStrCurrentSize - prevVarSize);
 
                     }
 
-                    pythonStr += "(int)input";
+                    pythonStr += "int(input";
                     break;
                 case "Double Input":
 
 
                     if(list.get(i-1).token.equals("VAR_IDENTIFIER")) {
-                        int prevVarSize = list.get(i-1).lexeme.length();
+                        int prevVarSize = list.get(i-2).lexeme.length();
                         int pythonStrCurrentSize = pythonStr.length();
 
                         pythonStr = pythonStr.substring(pythonStrCurrentSize - prevVarSize);
 
                     }
 
-                    pythonStr += "(float)input";
+                    pythonStr += "float(input";
                     break;
                 case "string literal":
 
