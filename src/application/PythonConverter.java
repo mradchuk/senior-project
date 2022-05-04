@@ -904,8 +904,7 @@ public class PythonConverter {
                     break;
                 case "Double Input":
 
-
-                    if(list.get(i-1).token.equals("VAR_IDENTIFIER")) {
+                    if(list.get(i-2).token.equals("VAR_IDENTIFIER")) {
                         int prevVarSize = list.get(i-2).lexeme.length();
                         int pythonStrCurrentSize = pythonStr.length();
 
