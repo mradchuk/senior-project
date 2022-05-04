@@ -871,12 +871,16 @@ public class PythonConverter {
 
                     break;
                 case "java class import":
+                    pythonStr += "";
                     break;
                 case "java util class import":
+                    pythonStr += "";
                     break;
                 case "Scanner class":
+                    pythonStr += "";
                     break;
                 case "in":
+                    pythonStr += "";
                     break;
                 case "Integer Input":
                 case "Double Input":
