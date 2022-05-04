@@ -884,8 +884,13 @@ public class PythonConverter {
                     break;
                 case "Integer Input":
                     
+                    System.out.println("Token in List 2 spots back: " + list.get(i-2).token);
+                    System.out.println("Lexeme in List 2 spots back: " + list.get(i-2).lexeme);
+                    System.out.println("Token in List 1 spot back: " + list.get(i-1).token);
+                    System.out.println("Lexeme in List 1 spot back: " + list.get(i-1).lexeme);
+
                     if(list.get(i-1).token.equals("VAR_IDENTIFIER")) {
-                        int prevVarSize = list.get(i-2).lexeme.length();
+                        int prevVarSize = list.get(i-1).lexeme.length();
                         int pythonStrCurrentSize = pythonStr.length();
 
                         pythonStr = pythonStr.substring(pythonStrCurrentSize - prevVarSize);
@@ -898,7 +903,7 @@ public class PythonConverter {
 
 
                     if(list.get(i-1).token.equals("VAR_IDENTIFIER")) {
-                        int prevVarSize = list.get(i-2).lexeme.length();
+                        int prevVarSize = list.get(i-1).lexeme.length();
                         int pythonStrCurrentSize = pythonStr.length();
 
                         pythonStr = pythonStr.substring(pythonStrCurrentSize - prevVarSize);
