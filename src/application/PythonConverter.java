@@ -885,15 +885,11 @@ public class PythonConverter {
                 case "Integer Input":
 
                     if(list.get(i-2).token.equals("VAR_IDENTIFIER")) {
-                        System.out.println("Entering IF statement");
 
                         int prevVarSize = list.get(i-2).lexeme.length();
                         int pythonStrCurrentSize = pythonStr.length();
 
-                        System.out.println("What should be SC's length: " + prevVarSize);
-                        System.out.println("What should be pythonStr's length: " + pythonStrCurrentSize);
-
-                        pythonStr = pythonStr.substring(pythonStrCurrentSize - prevVarSize);
+                        pythonStr = pythonStr.substring(0, pythonStrCurrentSize - prevVarSize);
 
                     }
 
@@ -906,7 +902,7 @@ public class PythonConverter {
                         int prevVarSize = list.get(i-2).lexeme.length();
                         int pythonStrCurrentSize = pythonStr.length();
 
-                        pythonStr = pythonStr.substring(pythonStrCurrentSize - prevVarSize);
+                        pythonStr = pythonStr.substring(0, pythonStrCurrentSize - prevVarSize);
 
                     }
 
