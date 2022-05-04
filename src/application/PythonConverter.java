@@ -883,6 +883,17 @@ public class PythonConverter {
                     pythonStr += "";
                     break;
                 case "Integer Input":
+                    
+                    if(list.get(i-1).token.equals("VAR_IDENTIFIER")) {
+                        int prevVarSize = list.get(i-2).lexeme.length();
+                        int pythonStrCurrentSize = pythonStr.length();
+
+                        pythonStr = pythonStr.substring(pythonStrCurrentSize - prevVarSize);
+
+                    }
+
+                    pythonStr += "(int)input";
+                    break;
                 case "Double Input":
 
 
@@ -894,7 +905,7 @@ public class PythonConverter {
 
                     }
 
-                    pythonStr += "input";
+                    pythonStr += "(float)input";
                     break;
                 case "string literal":
 
