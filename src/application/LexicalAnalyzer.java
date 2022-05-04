@@ -446,15 +446,17 @@ public class LexicalAnalyzer {
                                 System.out.println("CLASS_NAME" + " - " + strObject);
 
                             } else {
+                                if(!(strObject.toLowerCase().equals("scanner"))) {
+                                    // variable inside of method identified
+                                    arrayOfTokens.add(new TokenData("VAR_IDENTIFIER", strObject));
+                                    System.out.println("VAR_IDENTIFIER" + " - " + strObject);
 
-                                // variable inside of method identified
-                                arrayOfTokens.add(new TokenData("VAR_IDENTIFIER", strObject));
-                                System.out.println("VAR_IDENTIFIER" + " - " + strObject);
+                                    checkLongSpecificationStatement[1] = "VAR_IDENTIFIER";
 
-                                checkLongSpecificationStatement[1] = "VAR_IDENTIFIER";
-
-                                if (!listOfVariables.contains(strObject))
-                                    listOfVariables.add(strObject);
+                                    if (!listOfVariables.contains(strObject))
+                                        listOfVariables.add(strObject);
+                                }
+                                
 
                             }
 
