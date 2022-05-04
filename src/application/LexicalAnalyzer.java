@@ -547,6 +547,10 @@ public class LexicalAnalyzer {
                         arrayOfTokens.add(new TokenData("Integer Cast", prevToken));
                         System.out.println("Integer Cast" + " - " + prevToken);
                         prevToken = "";
+                    } else if(prevToken.toLowerCase().equals("scanner")) {
+                        arrayOfTokens.add(new TokenData("Scanner class", prevToken));
+                        System.out.println("Scanner class" + " - " + prevToken);
+                        prevToken = "";
                     } else if(listOfVariables.contains(prevToken) && lexemeIsBeforeDot(strObject, prevToken)){
                         arrayOfTokens.add(new TokenData("VAR_IDENTIFIER", prevToken));
                         System.out.println("VAR_IDENTIFIER - " + prevToken);
