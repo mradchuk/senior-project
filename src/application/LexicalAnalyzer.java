@@ -622,7 +622,18 @@ public class LexicalAnalyzer {
                             prevToken = "";
                         }
 
-                    } else if(prevToken.equals("Scanner")) {
+                    } else if(prevToken.toLowerCase().equals("java")) {
+                        arrayOfTokens.add(new TokenData("Java class import", prevToken));
+                        System.out.println("Java class import" + " - " + prevToken);
+                        prevToken = "";
+                    }
+                    else if(prevToken.toLowerCase().equals("util")) {
+                        arrayOfTokens.add(new TokenData("java util class import", prevToken));
+                        System.out.println("java util class import" + " - " + prevToken);
+                        prevToken = "";
+                    }
+                    
+                     else if(prevToken.toLowerCase().equals("scanner")) {
                         arrayOfTokens.add(new TokenData("Scanner class", prevToken));
                         System.out.println("Scanner class" + " - " + prevToken);
                         prevToken = "";
@@ -634,6 +645,10 @@ public class LexicalAnalyzer {
                     } else if(prevToken.equals("nextInt")) {
                         arrayOfTokens.add(new TokenData("Integer Input", prevToken));
                         System.out.println("Integer Input" + " - " + prevToken);
+                        prevToken = "";
+                    } else if(prevToken.equals("nextDouble")) {
+                        arrayOfTokens.add(new TokenData("Double Input", prevToken));
+                        System.out.println("Double Input" + " - " + prevToken);
                         prevToken = "";
                     } 
 

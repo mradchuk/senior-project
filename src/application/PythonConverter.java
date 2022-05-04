@@ -870,14 +870,19 @@ public class PythonConverter {
                     checkPrintStatement = "";
 
                     break;
+                case "java class import":
+                    break;
+                case "java util class import":
+                    break;
                 case "Scanner class":
                     break;
                 case "in":
                     break;
                 case "Integer Input":
+                case "Double Input":
 
 
-                    if(list.get(i-2).token.equals("VAR_IDENTIFIER")) {
+                    if(list.get(i-1).token.equals("VAR_IDENTIFIER")) {
                         int prevVarSize = list.get(i-2).lexeme.length();
                         int pythonStrCurrentSize = pythonStr.length();
 
