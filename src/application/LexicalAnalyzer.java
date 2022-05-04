@@ -610,7 +610,12 @@ public class LexicalAnalyzer {
                         arrayOfTokens.add(new TokenData("length", prevToken));
                         System.out.println("length - " + prevToken);
                         prevToken = "";
-                    }else if(listOfVariables.contains(prevToken) && lexemeIsAfterDot(strObject, prevToken)){
+                    } else if(prevToken.toLowerCase().equals("scanner")) {
+                        arrayOfTokens.add(new TokenData("Scanner class", prevToken));
+                        System.out.println("Scanner class" + " - " + prevToken);
+                        prevToken = "";
+                    }
+                    else if(listOfVariables.contains(prevToken) && lexemeIsAfterDot(strObject, prevToken)){
 
                         if(listOfMethods.contains(prevToken)) {
                             arrayOfTokens.add(new TokenData("METHOD_NAME", prevToken));
@@ -633,11 +638,7 @@ public class LexicalAnalyzer {
                         prevToken = "";
                     }
                     
-                     else if(prevToken.toLowerCase().equals("scanner")) {
-                        arrayOfTokens.add(new TokenData("Scanner class", prevToken));
-                        System.out.println("Scanner class" + " - " + prevToken);
-                        prevToken = "";
-                    }
+                     
                     else if(prevToken.equals("in")) {
                         arrayOfTokens.add(new TokenData("in", prevToken));
                         System.out.println("in" + " - " + prevToken);

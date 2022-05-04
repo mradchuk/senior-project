@@ -50,6 +50,7 @@ public class PythonConverter {
     static boolean insideMainMethod = false;
     static boolean isFloatingPointFormatSpecifier = false;
     static boolean isFixedPointDecimalNumber = false;
+    static boolean inputNumberSection = false;
 
     //If file needs to import python math module
     static boolean needsMathImport = false;
@@ -763,6 +764,11 @@ public class PythonConverter {
 
                     }
 
+                    if(inputNumberSection) {
+                        pythonStr += ")";
+                        inputNumberSection = false;
+                    }
+
                     if(casting && castingArrayElement && !isFloatingPointFormatSpecifier && !isFixedPointDecimalNumber) {
 
                         pythonStr += ")";
@@ -894,6 +900,7 @@ public class PythonConverter {
                     }
 
                     pythonStr += "int(input";
+                    inputNumberSection = true;
                     break;
                 case "Double Input":
 
@@ -907,6 +914,7 @@ public class PythonConverter {
                     }
 
                     pythonStr += "float(input";
+                    inputNumberSection = true;
                     break;
                 case "string literal":
 
