@@ -1,3 +1,5 @@
+import java.util.Scanner;
+
 class Complex4 {
 
     private String firstName;
@@ -29,7 +31,7 @@ class Complex4 {
 
     public double findAverage() {
 
-        double sum = 0.00;
+        double sum = 0;
 
         int scoresLength = scores.length;
 
@@ -61,8 +63,9 @@ class Complex4 {
 
     }
 
-    public void changeScore(int index, double newScore) {
+    public String changeScore(int index, double newScore) {
         scores[index] = newScore;
+        return "";
     }
 
     public String strOutput() {
@@ -110,6 +113,40 @@ class Complex4 {
 
         System.out.println();
         System.out.println("Class average is " + decimalFormatClassAverage);
+
+        Scanner sc = new Scanner(System.in);
+
+        System.out.println();
+        System.out.print("Enter 1 to change score for student 1, 2 for student 2, or 3 for student 3:");
+        int student = sc.nextInt();
+
+        System.out.println();
+        System.out.print("Enter any test score 1-5 to change for the selected student:");
+        int test = sc.nextInt();
+
+        System.out.println();
+        System.out.print("Enter the new score for the selected test (as a decimal number):");
+        double newScore = sc.nextDouble();
+
+        System.out.println();
+        System.out.println(obj[student-1].changeScore(test-1, newScore));
+
+
+        result = 0.00;
+
+        System.out.println("Name\t\t\tTest1 \t\tTest2 \t\tTest3 \t\tTest4 \t\tTest5\t\tAverage\t\tGrade");
+        System.out.println("_____________________________________________________________________________________________");
+
+        for(int j = 0; j < objectLength; j++) {
+            System.out.print(obj[j].strOutput());
+            System.out.println();
+            result += obj[j].findAverage();
+        }
+
+        String decimalFormatClassAverage2 = String.format("%.2f", result / obj.length);
+
+        System.out.println();
+        System.out.println("Class average is " + decimalFormatClassAverage2);
 
     }
 

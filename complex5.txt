@@ -1,9 +1,10 @@
+import java.util.Scanner;
 
 public class Complex5 {
 
 	public static String futureInvestmentValue(double investmentAmount, double monthlyInterestRate, int years) {
 
-                double exponentCalculation = Math.pow(monthlyInterestRate + 1, years * 12);
+		double exponentCalculation = Math.pow(monthlyInterestRate + 1, years * 12);
 		double result = investmentAmount * exponentCalculation * 100.0 / 100.0;
 		String decimalFormatResult = String.format("%.2f", result);
 
@@ -13,18 +14,25 @@ public class Complex5 {
 
 	public static void main(String[] args) {
 
-		System.out.println("Enter the invested amount: ");
-		double amount = 20000.46;
-		
-      	        System.out.println("Enter the annual interest rate: ");
-		double yearlyInterestRate = 4.34;
+		Scanner sc = new Scanner(System.in);
+
+		System.out.println();
+		System.out.print("Enter a starting investment amount (as a decimal number): ");
+		double amount = sc.nextDouble();
+
+		System.out.println();
+      	System.out.print("Enter the annual interest rate (as a decimal number). For example, '5.00' for 5.00%: ");
+		double yearlyInterestRate = sc.nextDouble();
 
 		double monthlyInterestRate = yearlyInterestRate / 1200;
 
 		System.out.println();
+		System.out.print("Enter the length of years (number of periods) as an integer value: ");
+		int lengthOfYears = sc.nextInt();
+
+		System.out.println();
 		System.out.println("Years\t\tFuture Value");
 		System.out.println("----------------------------");
-		int lengthOfYears = 30;
 
 		String yearStr;
 		String futureInvValStr;
@@ -33,14 +41,16 @@ public class Complex5 {
 
 		do {
 
-		        yearStr = Integer.toString(years);
-		        futureInvValStr = futureInvestmentValue(amount, monthlyInterestRate, years);
-		        System.out.println(yearStr + "\t\t" + futureInvValStr);
+			yearStr = Integer.toString(years);
+			futureInvValStr = futureInvestmentValue(amount, monthlyInterestRate, years);
+			System.out.println(yearStr + "\t\t" + futureInvValStr);
 
-		        years++;
+			years++;
 
 		} while(years <= lengthOfYears);
 
 	}
+
+
 
 }

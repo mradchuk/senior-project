@@ -1,3 +1,5 @@
+import java.util.Scanner;
+
 class Complex3
 {
 
@@ -13,10 +15,10 @@ class Complex3
 
     static String printPrimes (int n)
     {
-        int curPrime;
-        int numPrimes;
-        boolean isPrime;
-        int [] primes = new int [100];
+        int curPrime;           
+        int numPrimes;        
+        boolean isPrime;        
+        int [] primes = new int [100]; 
         String resultStr = "";
 
         primes [0] = 2;
@@ -24,25 +26,25 @@ class Complex3
         curPrime  = 2;
         while(numPrimes < n)
         {
-            curPrime++;
+            curPrime++; 
             isPrime = true;
 
             int numPrimesLength = numPrimes - 1;
 
             for (int i = 0; i <= numPrimesLength; i++)
-            {
+            {  
                 if (isDivisible(primes[i], curPrime))
-                {
+                {  
                     isPrime = false;
-                    break;
+                    break; 
                 }
             }
             if (isPrime)
-            {
+            {   
                 primes[numPrimes] = curPrime;
                 numPrimes++;
             }
-        }
+        }  
 
         int i = 0;
 
@@ -55,10 +57,17 @@ class Complex3
 
         System.out.println(resultStr);
         return resultStr;
-    }
+    } 
 
     public static void main (String[] args)
     {
-        printPrimes(10);
+        Scanner sc = new Scanner(System.in);
+
+        System.out.println();
+        System.out.print("Enter the number of primes numbers to be output: ");
+        int num = sc.nextInt();
+
+        System.out.println();
+        printPrimes(num);
     }
 }

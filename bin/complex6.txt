@@ -1,4 +1,5 @@
-import java.util.Scanner;
+
+
 
 public class Complex6 {
 
@@ -15,28 +16,28 @@ public class Complex6 {
    }
 
    public int getId() {
-   return id;
- }
+      return id;
+   }
 
    public void setId(int setid) {
-   this.id = setid;
- }
+      this.id = setid;
+   }
 
    public double getBalance() {
-   return balance;
- }
+      return balance;
+   }
 
    public void setBalance(double bal) {
-   this.balance = bal;
- }
+      this.balance = bal;
+   }
 
    public double getAnnualInterestRate() {
-   return annualInterestRate;
- }
+      return annualInterestRate;
+   }
 
    public void setAnnualInterestRate(double annIntRate) {
-   this.annualInterestRate = annIntRate;
- }
+      this.annualInterestRate = annIntRate;
+   }
 
    public double getMonthlyInterestRate() {
 
@@ -90,64 +91,30 @@ public class Complex6 {
 
    public static void main(String[] args) {
 
-      Scanner sc = new Scanner(System.in);
-
-
       Complex6 account1 = new Complex6(1121, 20000.00, 0.045);
 
-      System.out.println();
-      System.out.println("Your first account information:");
-      System.out.println(account1.outputStr());
+      account1.deposit(3000);
+      account1.withdraw(10250);
 
-      System.out.print("Enter an amount to deposit into your first account: ");
-      double depositAcc1 = sc.nextDouble();
-      account1.deposit(depositAcc1);
-
+      System.out.print(account1.outputStr());
       System.out.println();
-      System.out.print("Enter an amount to withdraw from your first account: ");
-      double withdrawAcc1 = sc.nextDouble();
-      account1.withdraw(withdrawAcc1);
-
-      System.out.println();
-      System.out.println(account1.outputStr());
 
 
       Complex6 account2 = new Complex6(1122, 30540.00, 0.053);
 
-      System.out.println();
-      System.out.println("Your second account information:");
-      System.out.println(account2.outputStr());
+      account2.deposit(10295.36);
+      account2.withdraw(5049.93);
 
-      System.out.print("Enter an amount to deposit into your second account: ");
-      double depositAcc2 = sc.nextDouble();
-      account2.deposit(depositAcc2);
-
+      System.out.print(account2.outputStr());
       System.out.println();
-      System.out.print("Enter an amount to withdraw from your second account: ");
-      double withdrawAcc2 = sc.nextDouble();
-      account2.withdraw(withdrawAcc2);
-
-      System.out.println();
-      System.out.println(account2.outputStr());
 
 
       Complex6 account3 = new Complex6(1123, 10248.58, 0.029);
 
-      System.out.println();
-      System.out.println("Your third account information:");
-      System.out.println(account3.outputStr());
+      account3.deposit(2095.36);
+      account3.withdraw(7049.93);
 
-      System.out.print("Enter an amount to deposit into your third account: ");
-      double depositAcc3 = sc.nextDouble();
-      account3.deposit(depositAcc3);
-
-      System.out.println();
-      System.out.print("Enter an amount to withdraw from your third account: ");
-      double withdrawAcc3 = sc.nextDouble();
-      account3.withdraw(withdrawAcc3);
-
-      System.out.println();
-      System.out.println(account3.outputStr());
+      System.out.print(account3.outputStr());
 
    }
 }

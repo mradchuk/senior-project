@@ -570,6 +570,18 @@ public class LexicalAnalyzer {
                         prevToken = "";
                     }
 
+                    else if(prevToken.equals("java")) {
+                        arrayOfTokens.add(new TokenData("java", prevToken));
+                        System.out.println("java " + "-" + prevToken);
+                        prevToken = "";
+                    }
+
+                    else if(prevToken.equals("util")) {
+                        arrayOfTokens.add(new TokenData("util", prevToken));
+                        System.out.println("util " + "-" + prevToken);
+                        prevToken = "";
+                    }
+
                     arrayOfTokens.add(new TokenData(separator.get(String.valueOf(c)), String.valueOf(c)));
                     System.out.println(separator.get(String.valueOf(c)) + " - " + c);
 

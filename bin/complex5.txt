@@ -1,0 +1,46 @@
+
+public class Complex5 {
+
+	public static String futureInvestmentValue(double investmentAmount, double monthlyInterestRate, int years) {
+
+                double exponentCalculation = Math.pow(monthlyInterestRate + 1, years * 12);
+		double result = investmentAmount * exponentCalculation * 100.0 / 100.0;
+		String decimalFormatResult = String.format("%.2f", result);
+
+		return decimalFormatResult;
+
+	}
+
+	public static void main(String[] args) {
+
+		System.out.println("Enter the invested amount: ");
+		double amount = 20000.46;
+		
+      	        System.out.println("Enter the annual interest rate: ");
+		double yearlyInterestRate = 4.34;
+
+		double monthlyInterestRate = yearlyInterestRate / 1200;
+
+		System.out.println();
+		System.out.println("Years\t\tFuture Value");
+		System.out.println("----------------------------");
+		int lengthOfYears = 30;
+
+		String yearStr;
+		String futureInvValStr;
+
+		int years = 1;
+
+		do {
+
+		        yearStr = Integer.toString(years);
+		        futureInvValStr = futureInvestmentValue(amount, monthlyInterestRate, years);
+		        System.out.println(yearStr + "\t\t" + futureInvValStr);
+
+		        years++;
+
+		} while(years <= lengthOfYears);
+
+	}
+
+}

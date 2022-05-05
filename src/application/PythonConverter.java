@@ -827,11 +827,13 @@ public class PythonConverter {
                     }
 
                     // 'object_name[var_identifier].method_name()' or 'object_name[number].method_name()'
-                    if(list.get(i-4).token.equals("VAR_IDENTIFIER") && list.get(i-3).lexeme.equals("[") && (list.get(i-2).token.equals("VAR_IDENTIFIER")
-                            || list.get(i-2).token.equals("NUMBER")) && list.get(i-1).lexeme.equals("]") && list.get(i+1).token.equals("METHOD_NAME")) {
+                    if(!(list.get(i-1).lexeme.equals("java") && list.get(i-2).lexeme.equals("import"))) { // prevent index out of bounds error when analyzing scanner import statement
+                        if (list.get(i - 4).token.equals("VAR_IDENTIFIER") && list.get(i - 3).lexeme.equals("[") && (list.get(i - 2).token.equals("VAR_IDENTIFIER")
+                                || list.get(i - 2).token.equals("NUMBER")) && list.get(i - 1).lexeme.equals("]") && list.get(i + 1).token.equals("METHOD_NAME")) {
 
-                        pythonStr += list.get(i).lexeme;
+                            pythonStr += list.get(i).lexeme;
 
+                        }
                     }
 
                     // 'object_name.method_name'
